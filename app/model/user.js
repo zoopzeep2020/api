@@ -5,13 +5,16 @@ let mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 const crypto = require('crypto');
 let UserSchema = new Schema({
-    firstName: String,
-    lastName: String,
+    name: String,
+    phone:Number,
+    deviceToken:String,
+    latLong:String,
+    isUser:{type: Boolean, default: false},
+    isStore:{type: Boolean, default: false},
     salt: {
         type: String,
         required: true
     },
-    isActive: {type: Boolean, default: true},
     dateCreated: {type: Date, default: Date.now},
     email: String,
     hashedPassword: {
@@ -21,6 +24,7 @@ let UserSchema = new Schema({
 });
 UserSchema.methods.toJSON = function () {
     let obj = this.toObject();
+    console.log(obj);
     delete obj.hashedPassword;
     delete obj.__v;
     delete obj.salt;

@@ -22,13 +22,14 @@ const validationManager = new ValidationManager();
 mongoose.Promise = global.Promise;
 mongoose.connect(config.db.MONGO_CONNECT_URL);
 // Use json formatter middleware
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(authManager.providePassport().initialize());
 // Set Up validation middleware
 app.use(validationManager.provideDefaultValidator());
 // Setup routes
 app.use('/', routes);
 
-app.listen(global.config.server.PORT, function () {
+app.listen(global.config.server.PORT, function() {
     console.log('App is running on ' + global.config.server.PORT);
 });

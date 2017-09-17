@@ -1,7 +1,7 @@
 const HttpStatus = require('http-status-codes');
 const BasicResponse = {
     "success": false,
-    "message": "",
+    "message": {},
     "data": {}
 };
 
@@ -14,45 +14,45 @@ class ResponseManager {
         return HttpStatus;
     }
 
-    static  getDefaultResponseHandler(res) {
+    static getDefaultResponseHandler(res) {
         return {
-            onSuccess: function (data, message, code) {
+            onSuccess: function(data, message, code) {
                 ResponseManager.respondWithSuccess(res, code || ResponseManager.HTTP_STATUS.OK, data, message);
             },
-            onError: function (error) {
+            onError: function(error) {
                 ResponseManager.respondWithError(res, error.status || 500, error.message || 'Unknown error');
             }
         };
     }
 
-    static  getDefaultResponseHandlerData(res) {
+    static getDefaultResponseHandlerData(res) {
         return {
-            onSuccess: function (data, message, code) {
+            onSuccess: function(data, message, code) {
                 ResponseManager.respondWithSuccess(res, code || ResponseManager.HTTP_STATUS.OK, data, message);
             },
-            onError: function (error) {
+            onError: function(error) {
                 ResponseManager.respondWithErrorData(res, error.status, error.message, error.data);
             }
         };
     }
 
-    static  getDefaultResponseHandlerError(res, successCallback) {
+    static getDefaultResponseHandlerError(res, successCallback) {
         return {
-            onSuccess: function (data, message, code) {
+            onSuccess: function(data, message, code) {
                 successCallback(data, message, code);
             },
-            onError: function (error) {
+            onError: function(error) {
                 ResponseManager.respondWithError(res, error.status || 500, error.message || 'Unknown error');
             }
         };
     }
 
-    static  getDefaultResponseHandlerSuccess(res, errorCallback) {
+    static getDefaultResponseHandlerSuccess(res, errorCallback) {
         return {
-            onSuccess: function (data, message, code) {
+            onSuccess: function(data, message, code) {
                 ResponseManager.respondWithSuccess(res, code || ResponseManager.HTTP_STATUS.OK, data, message);
             },
-            onError: function (error) {
+            onError: function(error) {
                 errorCallback(error);
             }
         };

@@ -6,6 +6,8 @@ const express = require('express'),
 const ROUTE_V1_PATH = APP_ROUTE_PATH + "v1/";
 router.use('/auth', require(ROUTE_V1_PATH + 'auth'));
 router.use('/users', require(ROUTE_V1_PATH + 'user'));
-router.use('/posts', require(ROUTE_V1_PATH + 'post'));
+router.use('/categories', require(ROUTE_V1_PATH + 'category'));
+router.use('/stores', require(ROUTE_V1_PATH + 'store'));
+router.use('/keywords', require(ROUTE_V1_PATH + 'keyword'));
 
 module.exports = router;

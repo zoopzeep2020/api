@@ -1,11 +1,14 @@
 {
-  "name": "blog-api",
+  "name": "ZeepZoop",
   "version": "1.0.0",
-  "description": "An example of Blog API using NodeJS, Mongoose, Express and JWT",
+  "description": "ZeepZoop api development",
   "main": "index.js",
+  "scripts":{
+      "start":"nodemon index.js"
+  },
   "repository": {
     "type": "git",
-    "url": "git@bitbucket.org/CROSP/blog-api-nodejs.git"
+    "url": "https://makasana@bitbucket.org/ZeepzoopDevelopers/zeepzoop-api.git"
   },
   "keywords": [
     "Blog",
@@ -14,7 +17,7 @@
     "Example",
     "Mongoose"
   ],
-  "author": "Alexander CROSP Molochko",
+  "author": "Webrex Studio",
   "license": "MIT",
   "dependencies": {
     "auto-bind": "^1.1.0",

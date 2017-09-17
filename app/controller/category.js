@@ -2,24 +2,24 @@
  * Created by crosp on 5/9/17.
  */
 const BaseController = require(APP_CONTROLLER_PATH + 'base');
-const PostHandler = require(APP_HANDLER_PATH + 'post');
-class PostController extends BaseController {
+const CategoryHandler = require(APP_HANDLER_PATH + 'category');
+class CategoryController extends BaseController {
     constructor() {
         super();
-        this._postHandler = new PostHandler();
+        this._categoryHandler = new CategoryHandler();
         this._passport = require('passport');
     }
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._postHandler.getAllPosts(req, this._responseManager.getDefaultResponseHandler(res));
+            this._categoryHandler.getAllCategories(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
-            this._postHandler.getSinglePost(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+            this._categoryHandler.getSingleCategory(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
@@ -28,19 +28,19 @@ class PostController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._postHandler.createNewPost(req, this._responseManager.getDefaultResponseHandler(res));
+            this._categoryHandler.createNewCategory(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._postHandler.updatePost(req, this._responseManager.getDefaultResponseHandler(res));
+            this._categoryHandler.updateCategory(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._postHandler.deletePost(req, this._responseManager.getDefaultResponseHandler(res));
+            this._categoryHandler.deleteCategory(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
@@ -55,4 +55,4 @@ class PostController extends BaseController {
     }
 }
 
-module.exports = PostController;
+module.exports = CategoryController;
