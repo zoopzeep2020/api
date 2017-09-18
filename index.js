@@ -47,5 +47,6 @@ app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
 
 app.listen(global.config.server.PORT, function() {
+    console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);
 });
