@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "start": "SET PORT=3000 && SET NODE_ENV=dev && nodemon index.js ",
-        "server": "SET PORT=3001 && SET NODE_ENV=server && node index.js"
+        "server": "PORT=3001 && NODE_ENV=server && node index.js"
     },
     "repository": {
         "type": "git",
