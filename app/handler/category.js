@@ -11,6 +11,7 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+const path = require('path');
 
 class CategoryHandler extends BaseAutoBindedClass {
     constructor() {
@@ -84,6 +85,17 @@ class CategoryHandler extends BaseAutoBindedClass {
                             })
                             .then((saved) => {
                                 callback.onSuccess(saved);
+                                const directory = './uploads';
+                                fs.readdir(directory, (err, files) => {
+                                    if (err) throw error;
+
+                                    for (const file of files) {
+                                        console.log(file);
+                                        fs.unlink(path.join(directory, file), err => {
+                                            if (err) throw error;
+                                        });
+                                    }
+                                });
                             })
                             .catch((error) => {
                                 callback.onError(error);
@@ -189,6 +201,17 @@ class CategoryHandler extends BaseAutoBindedClass {
                                 return category;
                             })
                             .then((saved) => {
+                                const directory = './uploads';
+                                fs.readdir(directory, (err, files) => {
+                                    if (err) throw error;
+
+                                    for (const file of files) {
+                                        console.log(file);
+                                        fs.unlink(path.join(directory, file), err => {
+                                            if (err) throw error;
+                                        });
+                                    }
+                                });
                                 callback.onSuccess(saved);
                             })
                             .catch((error) => {
