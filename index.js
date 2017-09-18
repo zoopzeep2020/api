@@ -18,16 +18,32 @@ const routes = require(APP_ROUTE_PATH);
 const ValidationManager = require(APP_MANAGER_PATH + 'validation');
 const authManager = require(APP_MANAGER_PATH + 'auth');
 const validationManager = new ValidationManager();
+const path = require('path');
+
 // Connect to DB
 mongoose.Promise = global.Promise;
 mongoose.connect(config.db.MONGO_CONNECT_URL);
-// Use json formatter middleware
+//se json formatter middleware
 app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 1000000 }));
 app.use(authManager.providePassport().initialize());
 // Set Up validation middleware
 app.use(validationManager.provideDefaultValidator());
+
+
+// app.use(function(req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept-Language, Authorization");
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+//     res.setHeader('Content-Type', 'application/json');
+//     if ('OPTIONS' === req.method) {
+//         res.sendStatus(200);
+//     } else
+//         next();
+// });
+
 // Setup routes
+app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
 
 app.listen(global.config.server.PORT, function() {

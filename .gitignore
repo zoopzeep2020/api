@@ -59,6 +59,9 @@ typings/
 # dotenv environment variables file
 .env
 
-.vscode/
-node_modules/*
+.vscode/*
 
+node_modules/
+
+public/*
+uploads/*

@@ -23,7 +23,8 @@ let StoreSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Keyword'
     }],
-    storeImages: [{
+    otherKeyword: [],
+    storeCatalogs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Catalog'
     }],

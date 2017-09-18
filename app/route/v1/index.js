@@ -9,5 +9,6 @@ router.use('/users', require(ROUTE_V1_PATH + 'user'));
 router.use('/categories', require(ROUTE_V1_PATH + 'category'));
 router.use('/stores', require(ROUTE_V1_PATH + 'store'));
 router.use('/keywords', require(ROUTE_V1_PATH + 'keyword'));
+router.use('/catalogs', require(ROUTE_V1_PATH + 'catalog'));
 
 module.exports = router;

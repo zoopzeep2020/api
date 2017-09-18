@@ -5,9 +5,12 @@ const router = require('express').Router();
 const StoreController = require(APP_CONTROLLER_PATH + 'store');
 let storeController = new StoreController();
 
+var multer = require('multer');
+var upload = multer({ dest: 'uploads/' });
+
 router.get('/', storeController.getAll);
 router.get('/:id', storeController.get);
 router.delete('/:id', storeController.remove);
-router.put('/:id', storeController.update);
+router.put('/:id', upload.any(), storeController.update);
 
 module.exports = router;

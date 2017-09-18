@@ -4,42 +4,37 @@
 /**
  * Created by crosp on 5/9/17.
  */
-const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
+const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
-const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 
-class CategoryHandler extends BaseAutoBindedClass {
+class CatalogHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
 
-    static get CATEGORY_VALIDATION_SCHEME() {
+    static get CATALOG_VALIDATION_SCHEME() {
         return {
-            'category': {
+            'catalogUrl': {
                 notEmpty: true,
                 isLength: {
                     options: [{ min: 2, max: 150 }],
-                    errorMessage: 'Category title must be between 2 and 150 chars long'
+                    errorMessage: 'Catalog title must be between 2 and 150 chars long'
                 },
-                errorMessage: 'Category is required'
+                errorMessage: 'Catalog is required'
             },
-            'categoryImage': {
+            'catalogDescription': {
                 notEmpty: true,
-                errorMessage: 'Category image is required'
-            },
-            'categoryActiveImage': {
-                notEmpty: true,
-                errorMessage: 'Category active image is required'
+                errorMessage: 'Catalog image is required'
             }
         };
     }
 
-    createNewCategory(req, callback) {
+    createNewCatalog(req, callback) {
         let validator = this._validator;
         console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
@@ -48,22 +43,15 @@ class CategoryHandler extends BaseAutoBindedClass {
             if (err) {
                 callback.onError(err)
             }
+
             if (req.files) {
-                async.each(req.files, function(file, callback) {
+                req.files.forEach(function(file) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
-                        if (err) throw callback.onError(err);
-                        req.body[file.fieldname] = targetDir + fileName;
-                        console.log(req.body);
-                        callback(err);
-                    });
-                }, function(err) {
-                    if (err) {
-                        callback.onError(err);
-                    } else {
-                        req.body.storeId = req.params.id
+                        if (err) throw err;
+                        req.body.catalogUrl = targetDir + fileName;
                         let data = req.body;
-                        req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
+                        req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
@@ -72,15 +60,14 @@ class CategoryHandler extends BaseAutoBindedClass {
                                     });
                                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                                 }
-                                return new CategoryModel({
-                                    category: validator.trim(data.category),
-                                    categoryImage: validator.trim(data.categoryImage),
-                                    categoryActiveImage: validator.trim(data.categoryActiveImage),
+                                return new CatalogModel({
+                                    catalogUrl: validator.trim(data.catalogUrl),
+                                    catalogDescription: validator.trim(data.catalogDescription)
                                 });
                             })
-                            .then((category) => {
-                                category.save();
-                                return category;
+                            .then((catalog) => {
+                                catalog.save();
+                                return catalog;
                             })
                             .then((saved) => {
                                 callback.onSuccess(saved);
@@ -88,15 +75,15 @@ class CategoryHandler extends BaseAutoBindedClass {
                             .catch((error) => {
                                 callback.onError(error);
                             });
-                    }
+                    });
                 });
             }
         });
     }
 
-    deleteCategory(req, callback) {
+    deleteCatalog(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid category id provided').isMongoId();
+        req.checkParams('id', 'Invalid catalog id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -106,32 +93,32 @@ class CategoryHandler extends BaseAutoBindedClass {
                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                 }
                 return new Promise(function(resolve, reject) {
-                    CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
+                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
-                                reject(new NotFoundError("Category not found"));
+                            if (!catalog) {
+                                reject(new NotFoundError("Catalog not found"));
                             } else {
-                                resolve(category);
+                                resolve(catalog);
                             }
                         }
                     })
                 });
             })
-            .then((category) => {
-                category.remove();
-                return category;
+            .then((catalog) => {
+                catalog.remove();
+                return catalog;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Category id " + saved.id + " deleted successfully ");
+                callback.onSuccess({}, "Catalog id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    updateCategory(req, callback) {
+    updateCatalog(req, callback) {
         let validator = this._validator;
         console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
@@ -140,25 +127,15 @@ class CategoryHandler extends BaseAutoBindedClass {
             if (err) {
                 callback.onError(err)
             }
+
             if (req.files) {
-                async.each(req.files, function(file, callback) {
+                req.files.forEach(function(file) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
-                        console.log(err);
-                        if (err) {
-                            throw new ValidationError(err);
-                        }
-                        req.body[file.fieldname] = targetDir + fileName;
-                        console.log(req.body);
-                        callback(err);
-                    });
-                }, function(err) {
-                    if (err) {
-                        callback.onError(err);
-                    } else {
-                        req.body.storeId = req.params.id
+                        if (err) throw err;
+                        req.body.catalogUrl = targetDir + fileName;
                         let data = req.body;
-                        req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
+                        req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
@@ -168,25 +145,24 @@ class CategoryHandler extends BaseAutoBindedClass {
                                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                                 }
                                 return new Promise(function(resolve, reject) {
-                                    CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
+                                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
                                         if (err !== null) {
                                             reject(err);
                                         } else {
-                                            if (!category) {
-                                                reject(new NotFoundError("Category not found"));
+                                            if (!catalog) {
+                                                reject(new NotFoundError("Catalog not found"));
                                             } else {
-                                                resolve(category);
+                                                resolve(catalog);
                                             }
                                         }
                                     })
                                 });
                             })
-                            .then((category) => {
-                                category.category = validator.trim(data.category);
-                                category.categoryImage = validator.trim(data.categoryImage);
-                                category.categoryActiveImage = validator.trim(data.categoryActiveImage);
-                                category.save();
-                                return category;
+                            .then((catalog) => {
+                                catalog.catalogUrl = validator.trim(data.catalogUrl);
+                                catalog.catalogDescription = validator.trim(data.catalogDescription);
+                                catalog.save();
+                                return catalog;
                             })
                             .then((saved) => {
                                 callback.onSuccess(saved);
@@ -194,15 +170,53 @@ class CategoryHandler extends BaseAutoBindedClass {
                             .catch((error) => {
                                 callback.onError(error);
                             });
-                    }
+                    });
                 });
             }
         });
+
+        // let data = req.body;
+        // let validator = this._validator;
+        // req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
+        // req.getValidationResult()
+        //     .then(function(result) {
+        //         if (!result.isEmpty()) {
+        //             let errorMessages = result.array().map(function(elem) {
+        //                 return elem.msg;
+        //             });
+        //             throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+        //         }
+        //         return new Promise(function(resolve, reject) {
+        //             CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+        //                 if (err !== null) {
+        //                     reject(err);
+        //                 } else {
+        //                     if (!catalog) {
+        //                         reject(new NotFoundError("Catalog not found"));
+        //                     } else {
+        //                         resolve(catalog);
+        //                     }
+        //                 }
+        //             })
+        //         });
+        //     })
+        //     .then((catalog) => {
+        //         catalog.catalogUrl = validator.trim(data.catalogUrl);
+        //         catalog.catalogDescription = validator.trim(data.catalogDescription);
+        //         catalog.save();
+        //         return catalog;
+        //     })
+        //     .then((saved) => {
+        //         callback.onSuccess(saved);
+        //     })
+        //     .catch((error) => {
+        //         callback.onError(error);
+        //     });
     }
 
-    getSingleCategory(req, callback) {
+    getSingleCatalog(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid category id provided').isMongoId();
+        req.checkParams('id', 'Invalid catalog id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -212,31 +226,31 @@ class CategoryHandler extends BaseAutoBindedClass {
                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                 }
                 return new Promise(function(resolve, reject) {
-                    CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
+                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
-                                reject(new NotFoundError("Category not found"));
+                            if (!catalog) {
+                                reject(new NotFoundError("Catalog not found"));
                             } else {
-                                resolve(category);
+                                resolve(catalog);
                             }
                         }
                     })
                 });
             })
-            .then((category) => {
-                callback.onSuccess(category);
+            .then((catalog) => {
+                callback.onSuccess(catalog);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    getAllCategories(req, callback) {
+    getAllCatalogs(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                CategoryModel.find({}, function(err, posts) {
+                CatalogModel.find({}, function(err, posts) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -253,4 +267,4 @@ class CategoryHandler extends BaseAutoBindedClass {
     }
 }
 
-module.exports = CategoryHandler;
+module.exports = CatalogHandler;

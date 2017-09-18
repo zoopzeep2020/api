@@ -15,7 +15,7 @@ class KeywordHandler extends BaseAutoBindedClass {
         this._validator = require('validator');
     }
 
-    static get STORE_VALIDATION_SCHEME() {
+    static get KEYWORD_VALIDATION_SCHEME() {
         return {
             'title': {
                 notEmpty: false,
@@ -25,12 +25,24 @@ class KeywordHandler extends BaseAutoBindedClass {
     }
 
     createNewKeyword(req, callback) {
+
+        // if (req.files) {
+        //     req.files.forEach(function(file) {
+        //         console.log(file);
+        //         var fileName = (new Date).valueOf() + "-" + file.originalname;
+        //         fs.rename(file.path, 'public/images/' + fileName, function(err) {
+        //             if (err) throw err;
+        //             req.body.fileName = fileName;
+        //         })
+        //     });
+        // }
+
         let data = req.body;
+        console.log(data);
         let validator = this._validator;
-        req.checkBody(KeywordHandler.STORE_VALIDATION_SCHEME);
+        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
-                console.log(result);
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function(elem) {
                         return elem.msg;
@@ -93,7 +105,7 @@ class KeywordHandler extends BaseAutoBindedClass {
     updateKeyword(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        req.checkBody(KeywordHandler.STORE_VALIDATION_SCHEME);
+        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
