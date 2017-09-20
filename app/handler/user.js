@@ -56,13 +56,26 @@ class UserHandler {
                     throw new UnauthorizedError("Provided id doesn't match with  the requested user id")
                 } else {
                     return new Promise(function(resolve, reject) {
-                        UserModel.findById(userId, function(err, user) {
-                            if (user === null) {
-
+                        UserModel.findById(userId).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'] }).exec(function(err, user) {
+                            if (err !== null) {
+                                reject(err);
                             } else {
-                                resolve(user);
+                                if (user === null) {
+                                    
+                                } else {
+                                    resolve(user);
+                                }
                             }
-                        });
+                        })
+
+                        // StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] })
+                        // UserModel.findById(userId, function(err, user) {
+                        //     if (user === null) {
+
+                        //     } else {
+                        //         resolve(user);
+                        //     }
+                        // });
                     });
                 }
 
@@ -78,6 +91,8 @@ class UserHandler {
     createNewUser(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        let storeHandler = this._storeHandler;
+        let request = req;
         req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
@@ -92,7 +107,11 @@ class UserHandler {
             .then((user) => {
                 return new Promise(function(resolve, reject) {
                     UserModel.findOne({ email: user.email }, function(err, docs) {
+
+                        // for result found or not 
                         if (docs != null) {
+
+                            // check user already exists
                             if (user.isUser != undefined) {
                                 if (user.isUser) {
                                     if (docs.isUser) {
@@ -106,13 +125,22 @@ class UserHandler {
                                 }
                             }
 
+                            // check store already exists if not then create new store
                             if (user.isStore != undefined) {
                                 if (user.isStore) {
                                     if (docs.isStore) {
                                         reject(new AlreadyExistsError("Store already exists"));
                                     } else {
-                                        docs.isStore = true;
-                                        resolve(docs);
+                                        storeHandler.createNewStore(request, {
+                                            onSuccess: function(data) {
+                                                docs.isStore = true;
+                                                docs.storeId = data._id;
+                                                resolve(docs);
+                                            },
+                                            onError: function(data) {
+                                                reject(new AlreadyExistsError("Somthing happend wrong"));
+                                            },
+                                        });
                                     }
                                 } else {
                                     reject(new AlreadyExistsError("Store already exists"));
@@ -124,17 +152,40 @@ class UserHandler {
                             }
 
                         } else {
-                            let userModel = new UserModel({
-                                name: validator.trim(user.name),
-                                email: validator.trim(user.email),
-                                password: validator.trim(user.password),
-                                phone: user.phone,
-                                deviceToken: user.deviceToken,
-                                latLong: user.latLong,
-                                isUser: user.isUser,
-                                isStore: user.isStore,
-                            });
-                            resolve(userModel);
+                            if (user.isStore) {
+                                storeHandler.createNewStore(request, {
+                                    onSuccess: function(data) {
+                                        let userModel = new UserModel({
+                                            name: validator.trim(user.name),
+                                            email: validator.trim(user.email),
+                                            password: validator.trim(user.password),
+                                            phone: user.phone,
+                                            deviceToken: user.deviceToken,
+                                            latLong: user.latLong,
+                                            isUser: user.isUser,
+                                            isStore: user.isStore,
+                                            storeId: data._id
+                                        });
+                                        resolve(userModel);
+                                    },
+                                    onError: function(data) {
+                                        reject(new AlreadyExistsError("Somthing happend wrong"));
+                                    },
+                                });
+                            } else {
+                                let userModel = new UserModel({
+                                    name: validator.trim(user.name),
+                                    email: validator.trim(user.email),
+                                    password: validator.trim(user.password),
+                                    phone: user.phone,
+                                    deviceToken: user.deviceToken,
+                                    latLong: user.latLong,
+                                    isUser: user.isUser,
+                                    isStore: user.isStore,
+                                    storeId: user.storeId
+                                });
+                                resolve(userModel);
+                            }
                         }
                     });
                 });
@@ -144,12 +195,7 @@ class UserHandler {
                 return user;
             })
             .then((saved) => {
-                if (saved.isStore) {
-                    req.body.storeId = saved._id;
-                    this._storeHandler.createNewStore(req, callback);
-                } else {
-                    callback.onSuccess(saved);
-                }
+                callback.onSuccess(saved);
             })
             .catch((error) => {
                 callback.onError(error);

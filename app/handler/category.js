@@ -42,7 +42,6 @@ class CategoryHandler extends BaseAutoBindedClass {
 
     createNewCategory(req, callback) {
         let validator = this._validator;
-        console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
         mkdirp(targetDir, function(err) {
@@ -55,7 +54,6 @@ class CategoryHandler extends BaseAutoBindedClass {
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) throw callback.onError(err);
                         req.body[file.fieldname] = targetDir + fileName;
-                        console.log(req.body);
                         callback(err);
                     });
                 }, function(err) {
@@ -90,7 +88,6 @@ class CategoryHandler extends BaseAutoBindedClass {
                                     if (err) throw error;
 
                                     for (const file of files) {
-                                        console.log(file);
                                         fs.unlink(path.join(directory, file), err => {
                                             if (err) throw error;
                                         });
@@ -145,7 +142,6 @@ class CategoryHandler extends BaseAutoBindedClass {
 
     updateCategory(req, callback) {
         let validator = this._validator;
-        console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
         mkdirp(targetDir, function(err) {
@@ -156,12 +152,10 @@ class CategoryHandler extends BaseAutoBindedClass {
                 async.each(req.files, function(file, callback) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
-                        console.log(err);
                         if (err) {
                             throw new ValidationError(err);
                         }
                         req.body[file.fieldname] = targetDir + fileName;
-                        console.log(req.body);
                         callback(err);
                     });
                 }, function(err) {
@@ -206,7 +200,6 @@ class CategoryHandler extends BaseAutoBindedClass {
                                     if (err) throw error;
 
                                     for (const file of files) {
-                                        console.log(file);
                                         fs.unlink(path.join(directory, file), err => {
                                             if (err) throw error;
                                         });

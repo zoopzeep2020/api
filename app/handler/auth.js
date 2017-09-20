@@ -14,33 +14,22 @@ class AuthHandler extends BaseAutoBindedClass {
         this._jwtTokenHandler = require('jsonwebtoken');
         this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
-
-    extend(target) {
-        var sources = [].slice.call(arguments, 1);
-        sources.forEach(function(source) {
-            for (var prop in source) {
-                target[prop] = source[prop];
-            }
-        });
-        return target;
-    }
-
     issueNewToken(req, user, callback) {
         let that = this;
         if (user) {
-            console.log(user);
-            if (user.isStore) {
-                let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
-                let storeId = {
-                    "storeId": user._id
-                };
-                var object = this.extend({}, storeId, userToken);
-                callback.onSuccess(object);
-
-            } else {
-                let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
-                callback.onSuccess(userToken);
-            }
+            let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
+            let data = {
+                token:userToken.token,
+                name:user.name,
+                email:user.email,  
+                phone:user.phone,
+                deviceToken:user.deviceToken,
+                storeId:user.storeId,
+                isStore:user.isStore,
+                isUser:user.isUser,
+            };
+            console.log(data);
+            callback.onSuccess(data);
         } else {
             callback.onError(new NotFoundError("User not found"));
         }

@@ -37,6 +37,7 @@ let StoreSchema = new Schema({
     cod: Boolean,
     freeShiping: Boolean,
     returnandreplace: String,
+    isActive: { type: Boolean, default: false },
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
@@ -50,7 +51,6 @@ StoreSchema.pre('save', function(next, done) {
 });
 StoreSchema.methods.toJSON = function() {
     let obj = this.toObject();
-    console.log(obj);
     delete obj.__v;
     delete obj.dateModified;
     delete obj.dateCreated;

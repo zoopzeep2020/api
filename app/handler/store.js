@@ -20,37 +20,35 @@ class StoreHandler extends BaseAutoBindedClass {
 
     static get STORE_VALIDATION_SCHEME() {
         return {
-            'storeId': {
-                notEmpty: false,
-                errorMessage: 'Store Id required'
-            },
+            'email': {
+                isEmail: {
+                    errorMessage: 'Invalid Email'
+                },
+                errorMessage: "Invalid email provided"
+            }
         };
     }
 
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        console.log(data);
-        req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME);
+        //    req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
-                console.log(result);
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function(elem) {
                         return elem.msg;
                     });
                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                 }
-                return new StoreModel({
-                    storeId: data.storeId,
-                });
+                return new StoreModel({});
             })
             .then((store) => {
                 store.save();
                 return store;
             })
             .then((saved) => {
-                callback.onSuccess(data);
+                callback.onSuccess(saved);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -87,7 +85,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 return store;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Store id " + saved.id + " deleted successfully ");
+                callback.onSuccess(saved);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -96,7 +94,6 @@ class StoreHandler extends BaseAutoBindedClass {
 
     updateStore(req, callback) {
         let validator = this._validator;
-        console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
         mkdirp(targetDir, function(err) {
@@ -110,16 +107,14 @@ class StoreHandler extends BaseAutoBindedClass {
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) throw callback.onError(err);
                         req.body[file.fieldname] = targetDir + fileName;
-                        console.log(req.body);
                         callback(err);
                     });
                 }, function(err) {
                     if (err) {
                         callback.onError(err);
                     } else {
-                        req.body.storeId = req.params.id
                         let data = req.body;
-                        req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME);
+                     //   req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
@@ -129,7 +124,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                                 }
                                 return new Promise(function(resolve, reject) {
-                                    StoreModel.findOne({ storeId: req.params.id }, function(err, store) {
+                                    StoreModel.findOne({ _id: req.params.id }, function(err, store) {
                                         if (err !== null) {
                                             reject(err);
                                         } else {
@@ -165,6 +160,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 store.cod = data.cod;
                                 store.freeShiping = data.freeShiping;
                                 store.returnandreplace = validator.trim(data.returnandreplace);
+                                store.isActive = data.isActive;
                                 store.save();
                                 return store;
                             })
@@ -181,7 +177,6 @@ class StoreHandler extends BaseAutoBindedClass {
     }
 
     getSingleStore(req, callback) {
-        req.body.storeId = req.params.id;
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
@@ -193,7 +188,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
                 }
                 return new Promise(function(resolve, reject) {
-                    StoreModel.findOne({ storeId: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).exec(function(err, store) {
+                    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).exec(function(err, store) {
                         if (err !== null) {
                             reject(err);
                         } else {

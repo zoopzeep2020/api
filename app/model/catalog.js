@@ -20,7 +20,6 @@ CatalogSchema.pre('save', function(next, done) {
 });
 CatalogSchema.methods.toJSON = function() {
     let obj = this.toObject();
-    console.log(obj);
     delete obj.__v;
     delete obj.dateModified;
     delete obj.dateCreated;

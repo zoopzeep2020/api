@@ -17,7 +17,6 @@ KeywordSchema.pre('save', function(next, done) {
 });
 KeywordSchema.methods.toJSON = function() {
     let obj = this.toObject();
-    console.log(obj);
     delete obj.__v;
     delete obj.dateModified;
     delete obj.dateCreated;

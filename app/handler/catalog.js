@@ -36,7 +36,6 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     createNewCatalog(req, callback) {
         let validator = this._validator;
-        console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
         mkdirp(targetDir, function(err) {
@@ -120,7 +119,6 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     updateCatalog(req, callback) {
         let validator = this._validator;
-        console.log(new Date(), (new Date()).getMonth());
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
         mkdirp(targetDir, function(err) {

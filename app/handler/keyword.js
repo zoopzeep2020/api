@@ -28,7 +28,6 @@ class KeywordHandler extends BaseAutoBindedClass {
 
         // if (req.files) {
         //     req.files.forEach(function(file) {
-        //         console.log(file);
         //         var fileName = (new Date).valueOf() + "-" + file.originalname;
         //         fs.rename(file.path, 'public/images/' + fileName, function(err) {
         //             if (err) throw err;
@@ -38,7 +37,6 @@ class KeywordHandler extends BaseAutoBindedClass {
         // }
 
         let data = req.body;
-        console.log(data);
         let validator = this._validator;
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
