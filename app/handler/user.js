@@ -11,31 +11,43 @@ class UserHandler {
     constructor() {
         this._validator = require('validator');
         this._storeHandler = new StoreHandler();
+        this._jwtTokenHandler = require('jsonwebtoken');
+        this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
 
     static get USER_VALIDATION_SCHEME() {
         return {
             'name': {
-                notEmpty: true,
                 isLength: {
-                    options: [{ min: 2, max: 15 }],
-                    errorMessage: 'Name must be between 2 and 15 chars long'
+                    options: [{ min: 2}],
+                    errorMessage: 'Name must be 2 characters long'
                 },
-                errorMessage: 'Invalid First Name'
+                notEmpty: true,
+                errorMessage: 'Name is required'
             },
             'email': {
                 isEmail: {
-                    errorMessage: 'Invalid Email'
+                    errorMessage: 'Email is invalid'
                 },
-                errorMessage: "Invalid email provided"
+                notEmpty: true,
+                errorMessage: "Email is required"
+                
             },
             'password': {
-                notEmpty: true,
                 isLength: {
-                    options: [{ min: 6, max: 35 }],
-                    errorMessage: 'Password must be between 6 and 35 chars long'
+                    options: [{ min: 8}],
+                    errorMessage: 'Password must be 8 characters long'
                 },
-                errorMessage: 'Invalid Password Format'
+                notEmpty: true,
+                errorMessage: 'Password is required'
+            },
+            'phone': {
+                isLength: {
+                    options: [{ min: 10, max: 10 }],
+                    errorMessage: 'Phone is invalid'
+                },
+                notEmpty: true,
+                errorMessage: 'Phone is required'
             }
         };
     }
@@ -45,10 +57,11 @@ class UserHandler {
         req.getValidationResult()
             .then((result) => {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There have been validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
 
                 let userId = req.params.id;
@@ -67,15 +80,6 @@ class UserHandler {
                                 }
                             }
                         })
-
-                        // StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] })
-                        // UserModel.findById(userId, function(err, user) {
-                        //     if (user === null) {
-
-                        //     } else {
-                        //         resolve(user);
-                        //     }
-                        // });
                     });
                 }
 
@@ -97,20 +101,19 @@ class UserHandler {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return data;
             })
             .then((user) => {
                 return new Promise(function(resolve, reject) {
                     UserModel.findOne({ email: user.email }, function(err, docs) {
-
                         // for result found or not 
                         if (docs != null) {
-
                             // check user already exists
                             if (user.isUser != undefined) {
                                 if (user.isUser) {
@@ -122,7 +125,7 @@ class UserHandler {
                                     }
                                 } else {
                                     reject(new AlreadyExistsError("User already exists"));
-                                }
+                                }       
                             }
 
                             // check store already exists if not then create new store
@@ -192,7 +195,19 @@ class UserHandler {
             })
             .then((user) => {
                 user.save();
-                return user;
+                let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
+                let data = {
+                    token:userToken.token,
+                    name:user.name,
+                    email:user.email,  
+                    phone:user.phone,
+                    latLong:user.latLong,
+                    deviceToken:user.deviceToken,
+                    storeId:user.storeId,
+                    isStore:user.isStore,
+                    isUser:user.isUser,
+                };
+                return data;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -201,6 +216,24 @@ class UserHandler {
                 callback.onError(error);
             });
     }
+
+    _provideTokenPayload(user) {
+        return {
+            id: user.id,
+            scope: 'default'
+        };
+    }
+
+    _provideTokenOptions() {
+        let config = global.config;
+        return {
+            expiresIn: "10 days",
+            audience: config.jwtOptions.audience,
+            issuer: config.jwtOptions.issuer,
+            algorithm: config.jwtOptions.algorithm
+        };
+    }
+
 }
 
 module.exports = UserHandler;

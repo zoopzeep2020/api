@@ -11,4 +11,4 @@ class InvalidPayloadError extends BaseError {
     }
 }
 
-module.exports = InvalidPayloadError;
+module.exports = InvalidPayloadError;   

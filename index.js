@@ -10,6 +10,7 @@ global.config = require('./config');
 
 // Create an Express App
 const express = require('express');
+expressValidator = require('express-validator');
 const app = express();
 // Include dependencies
 const bodyParser = require('body-parser');
@@ -43,6 +44,16 @@ app.use(validationManager.provideDefaultValidator());
 // });
 
 // Setup routes
+
+// app.use(expressValidator({
+//     customValidators: {
+//         isPDF: function(value, filename) {
+//             var extension = (path.extname(filename)).toLowerCase();
+//             return extension == '.pdf';
+//         }
+//     }
+// }));
+
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
 

@@ -85,7 +85,7 @@ class ResponseManager {
     }
 
     static respondWithError(res, errorCode, message = "", links = []) {
-        let response = Object.assign({}, BasicResponse);
+        let response = Object.  assign({}, BasicResponse);
         response.success = false;
         response.message = message;
         response.links = links;

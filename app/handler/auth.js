@@ -14,6 +14,7 @@ class AuthHandler extends BaseAutoBindedClass {
         this._jwtTokenHandler = require('jsonwebtoken');
         this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
+    
     issueNewToken(req, user, callback) {
         let that = this;
         if (user) {
@@ -24,11 +25,11 @@ class AuthHandler extends BaseAutoBindedClass {
                 email:user.email,  
                 phone:user.phone,
                 deviceToken:user.deviceToken,
+                latLong:user.latLong,
                 storeId:user.storeId,
                 isStore:user.isStore,
                 isUser:user.isUser,
             };
-            console.log(data);
             callback.onSuccess(data);
         } else {
             callback.onError(new NotFoundError("User not found"));

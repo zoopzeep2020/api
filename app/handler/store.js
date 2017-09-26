@@ -4,10 +4,13 @@
 /**
  * Created by crosp on 5/9/17.
  */
+const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const mongoose = require('mongoose');
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+var reversePopulate = require('mongoose-reverse-populate');
 const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
@@ -20,19 +23,12 @@ class StoreHandler extends BaseAutoBindedClass {
 
     static get STORE_VALIDATION_SCHEME() {
         return {
-            'email': {
-                isEmail: {
-                    errorMessage: 'Invalid Email'
-                },
-                errorMessage: "Invalid email provided"
-            }
         };
     }
 
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        //    req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -61,10 +57,11 @@ class StoreHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
                     StoreModel.findOne({ storeId: req.params.id }, function(err, store) {
@@ -100,8 +97,7 @@ class StoreHandler extends BaseAutoBindedClass {
             if (err) {
                 callback.onError(err)
             }
-
-            if (req.files) {
+            if (req.files.length > 0) {
                 async.each(req.files, function(file, callback) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
@@ -114,7 +110,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         callback.onError(err);
                     } else {
                         let data = req.body;
-                     //   req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME);
+                        req.checkParams('id', 'Invalid id provided').isMongoId();
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
@@ -135,7 +131,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                             }
                                         }
                                     })
-                                });
+                                });         
                             })
                             .then((store) => {
                                 store.storeName = validator.trim(data.storeName);
@@ -148,9 +144,8 @@ class StoreHandler extends BaseAutoBindedClass {
                                 store.address = validator.trim(data.address);
                                 store.storePhone = data.storePhone;
                                 store.storeDiscription = validator.trim(data.storeDiscription);
-                                store.keyword = data.keyword;
+                                store.keyword = data.keyword;       
                                 store.otherKeyword = data.otherKeyword;
-                                store.storeCatalogs = data.storeCatalogs;
                                 store.webAddress = validator.trim(data.webAddress);
                                 store.countries = data.countries;
                                 store.dispatchDayMin = data.dispatchDayMin;
@@ -160,7 +155,6 @@ class StoreHandler extends BaseAutoBindedClass {
                                 store.cod = data.cod;
                                 store.freeShiping = data.freeShiping;
                                 store.returnandreplace = validator.trim(data.returnandreplace);
-                                store.isActive = data.isActive;
                                 store.save();
                                 return store;
                             })
@@ -172,6 +166,12 @@ class StoreHandler extends BaseAutoBindedClass {
                             });
                     }
                 });
+            }else{          
+                let err = {
+                    status: 400,
+                    message:"Images not found"
+                }
+                return callback.onError(err);
             }
         });
     }
@@ -182,27 +182,82 @@ class StoreHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).exec(function(err, store) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!store) {
-                                reject(new NotFoundError("Store not found"));
-                            } else {
-                                resolve(store);
-                            }
+                    StoreModel.aggregate([
+                        
+                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                        {
+                            "$lookup": 
+                                {
+                                    "from": 'catalogs',
+                                    "localField": "_id",
+                                    "foreignField": "storeId",
+                                    "as": "storeCatalogs"
+                                }
+                        },
+                        {
+                            "$lookup": {
+                                    "from": 'categories',
+                                    "localField": "categoriesIds",
+                                    "foreignField": "_id",
+                                    "as": "categoriesIds"
+                                }
+                        },
+                        {
+                            "$lookup": {
+                                    "from": 'keywords',
+                                    "localField": "keyword",
+                                    "foreignField": "_id",
+                                    "as": "keyword"
+                                }
+                        },
+                        { 
+                            $project : { 
+                                dateModified: 0,
+                                dateCreated:0,
+                                __v:0,
+                                categoriesIds:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                },
+                                keyword:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                },
+                                storeCatalogs:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                }
+                            } 
                         }
-                    })
+                    ]).exec(function(err, results){
+                        resolve(results[0]);
+                     })
+
+                    //    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).populate('Catalog').exec(function(err, store) {
+                    //     if (err !== null) {
+                    //         reject(err);
+                    //     } else {
+                    //         if (!store) {           
+                    //             reject(new NotFoundError("Store not found"));
+                    //         } else {
+                    //             resolve(store);
+                    //         }
+                    //     }
+                    // })
                 });
             })
-            .then((store) => {
-                callback.onSuccess(store);
+            .then((result) => {
+                callback.onSuccess(result);
             })
             .catch((error) => {
                 callback.onError(error);

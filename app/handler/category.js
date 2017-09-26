@@ -6,6 +6,7 @@
  */
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
+const InvalidPayloadError = require(APP_ERROR_PATH + 'invalid-payload');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const async = require('async');
@@ -24,8 +25,8 @@ class CategoryHandler extends BaseAutoBindedClass {
             'category': {
                 notEmpty: true,
                 isLength: {
-                    options: [{ min: 2, max: 150 }],
-                    errorMessage: 'Category title must be between 2 and 150 chars long'
+                    options: [{ min: 2  }],
+                    errorMessage: 'Category title must be 2 characters long'
                 },
                 errorMessage: 'Category is required'
             },
@@ -40,15 +41,57 @@ class CategoryHandler extends BaseAutoBindedClass {
         };
     }
 
-    createNewCategory(req, callback) {
+
+    saveData(req, callback){
         let validator = this._validator;
+        let data = req.body;
+        req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new CategoryModel({
+                    category: validator.trim(data.category),
+                    categoryImage: validator.trim(data.categoryImage),
+                    categoryActiveImage: validator.trim(data.categoryActiveImage),
+                });
+            })
+            .then((category) => {
+                category.save();
+                return category;
+            })
+            .then((saved) => {
+                callback.onSuccess(saved);
+                const directory = './uploads';
+                fs.readdir(directory, (err, files) => {
+                    if (err) throw error;
+
+                    for (const file of files) {
+                        fs.unlink(path.join(directory, file), err => {
+                            if (err) throw error;
+                        });
+                    }
+                });
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    createNewCategory(req, callback) {
+        let saveData = this.saveData;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
         mkdirp(targetDir, function(err) {
             if (err) {
                 callback.onError(err)
             }
-            if (req.files) {
+            if (req.files.length > 0) {
                 async.each(req.files, function(file, callback) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
@@ -60,59 +103,30 @@ class CategoryHandler extends BaseAutoBindedClass {
                     if (err) {
                         callback.onError(err);
                     } else {
-                        req.body.storeId = req.params.id
-                        let data = req.body;
-                        req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
-                        req.getValidationResult()
-                            .then(function(result) {
-                                if (!result.isEmpty()) {
-                                    let errorMessages = result.array().map(function(elem) {
-                                        return elem.msg;
-                                    });
-                                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
-                                }
-                                return new CategoryModel({
-                                    category: validator.trim(data.category),
-                                    categoryImage: validator.trim(data.categoryImage),
-                                    categoryActiveImage: validator.trim(data.categoryActiveImage),
-                                });
-                            })
-                            .then((category) => {
-                                category.save();
-                                return category;
-                            })
-                            .then((saved) => {
-                                callback.onSuccess(saved);
-                                const directory = './uploads';
-                                fs.readdir(directory, (err, files) => {
-                                    if (err) throw error;
-
-                                    for (const file of files) {
-                                        fs.unlink(path.join(directory, file), err => {
-                                            if (err) throw error;
-                                        });
-                                    }
-                                });
-                            })
-                            .catch((error) => {
-                                callback.onError(error);
-                            });
+                        saveData(req,callback);
                     }
                 });
+            }else{
+                let err = {
+                    status: 400,
+                    message:"Images not found"
+                }
+                return callback.onError(err);
             }
         });
     }
 
     deleteCategory(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid category id provided').isMongoId();
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
                     CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
@@ -148,13 +162,13 @@ class CategoryHandler extends BaseAutoBindedClass {
             if (err) {
                 callback.onError(err)
             }
-            if (req.files) {
+            if (req.files.length > 0) {
                 async.each(req.files, function(file, callback) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) {
                             throw new ValidationError(err);
-                        }
+                        }                   
                         req.body[file.fieldname] = targetDir + fileName;
                         callback(err);
                     });
@@ -164,14 +178,16 @@ class CategoryHandler extends BaseAutoBindedClass {
                     } else {
                         req.body.storeId = req.params.id
                         let data = req.body;
+                        req.checkParams('id', 'Invalid id provided').isMongoId();
                         req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
-                                    let errorMessages = result.array().map(function(elem) {
-                                        return elem.msg;
+                                    var errorMessages = {};
+                                    result.array().map(function(elem) {
+                                        return errorMessages[elem.param] = elem.msg;
                                     });
-                                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                                    throw new ValidationError(errorMessages);
                                 }
                                 return new Promise(function(resolve, reject) {
                                     CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
@@ -218,7 +234,7 @@ class CategoryHandler extends BaseAutoBindedClass {
 
     getSingleCategory(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid category id provided').isMongoId();
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {

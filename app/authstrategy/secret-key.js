@@ -18,7 +18,7 @@ class SecretKeyAuthStrategy extends BaseAuthStrategy {
     }
 
     _initStrategy() {
-
+        
     }
 
     get name() {

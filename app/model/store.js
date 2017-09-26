@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 let StoreSchema = new Schema({
-    storeId: Schema.Types.ObjectId,
     storeName: String,
     storeLogo: String,
     storeBanner: String,
@@ -24,10 +23,6 @@ let StoreSchema = new Schema({
         ref: 'Keyword'
     }],
     otherKeyword: [],
-    storeCatalogs: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Catalog'
-    }],
     webAddress: String,
     countries: [],
     dispatchDayMin: Number,

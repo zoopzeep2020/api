@@ -18,6 +18,10 @@ class KeywordHandler extends BaseAutoBindedClass {
     static get KEYWORD_VALIDATION_SCHEME() {
         return {
             'title': {
+                isLength: {
+                    options: [{ min: 2  }],
+                    errorMessage: 'Keyword title must be 2 characters long'
+                },
                 notEmpty: false,
                 errorMessage: 'Keyword title required'
             },
@@ -25,27 +29,17 @@ class KeywordHandler extends BaseAutoBindedClass {
     }
 
     createNewKeyword(req, callback) {
-
-        // if (req.files) {
-        //     req.files.forEach(function(file) {
-        //         var fileName = (new Date).valueOf() + "-" + file.originalname;
-        //         fs.rename(file.path, 'public/images/' + fileName, function(err) {
-        //             if (err) throw err;
-        //             req.body.fileName = fileName;
-        //         })
-        //     });
-        // }
-
         let data = req.body;
         let validator = this._validator;
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new KeywordModel({
                     title: validator.trim(data.title)
@@ -65,14 +59,15 @@ class KeywordHandler extends BaseAutoBindedClass {
 
     deleteKeyword(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid keyword id provided').isMongoId();
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
                     KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
@@ -103,15 +98,18 @@ class KeywordHandler extends BaseAutoBindedClass {
     updateKeyword(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
+
                 return new Promise(function(resolve, reject) {
                     KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
                         if (err !== null) {
@@ -142,14 +140,15 @@ class KeywordHandler extends BaseAutoBindedClass {
 
     getSingleKeyword(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid keyword id provided').isMongoId();
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
                     KeywordModel.findOne({ _id: req.params.id }, function(err, category) {

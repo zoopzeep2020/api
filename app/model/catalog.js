@@ -5,6 +5,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 let CatalogSchema = new Schema({
+    storeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Store'
+    },
     catalogUrl: String,
     catalogDescription: String,
     dateCreated: { type: Date, default: Date.now },

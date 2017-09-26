@@ -21,15 +21,15 @@ class CatalogHandler extends BaseAutoBindedClass {
         return {
             'catalogUrl': {
                 notEmpty: true,
-                isLength: {
-                    options: [{ min: 2, max: 150 }],
-                    errorMessage: 'Catalog title must be between 2 and 150 chars long'
-                },
                 errorMessage: 'Catalog is required'
             },
             'catalogDescription': {
+                isLength: {
+                    options: [{ min: 2}],
+                    errorMessage: 'Catalog description must be 2 characters long'
+                },
                 notEmpty: true,
-                errorMessage: 'Catalog image is required'
+                errorMessage: 'Catalog description is required'
             }
         };
     }
@@ -42,8 +42,7 @@ class CatalogHandler extends BaseAutoBindedClass {
             if (err) {
                 callback.onError(err)
             }
-
-            if (req.files) {
+            if (req.files.length > 0) {
                 req.files.forEach(function(file) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
@@ -54,15 +53,19 @@ class CatalogHandler extends BaseAutoBindedClass {
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
-                                    let errorMessages = result.array().map(function(elem) {
-                                        return elem.msg;
+                                    var errorMessages = {};
+                                    result.array().map(function(elem) {
+                                        return errorMessages[elem.param] = elem.msg;
                                     });
-                                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                                    throw new ValidationError(errorMessages);
                                 }
+
                                 return new CatalogModel({
+                                    storeId: data.storeId,
                                     catalogUrl: validator.trim(data.catalogUrl),
-                                    catalogDescription: validator.trim(data.catalogDescription)
+                                    catalogDescription: validator.trim(data.catalogDescription),
                                 });
+
                             })
                             .then((catalog) => {
                                 catalog.save();
@@ -76,20 +79,27 @@ class CatalogHandler extends BaseAutoBindedClass {
                             });
                     });
                 });
+            }else{
+                let err = {
+                    status: 400,
+                    message:"Images not found"
+                }
+                return callback.onError(err);
             }
         });
     }
 
     deleteCatalog(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid catalog id provided').isMongoId();
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
                     CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
@@ -126,21 +136,23 @@ class CatalogHandler extends BaseAutoBindedClass {
                 callback.onError(err)
             }
 
-            if (req.files) {
+            if (req.files.length > 0) {
                 req.files.forEach(function(file) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) throw err;
                         req.body.catalogUrl = targetDir + fileName;
                         let data = req.body;
+                        req.checkParams('id', 'Invalid id provided').isMongoId();
                         req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
-                                    let errorMessages = result.array().map(function(elem) {
-                                        return elem.msg;
+                                    var errorMessages = {};
+                                    result.array().map(function(elem) {
+                                        return errorMessages[elem.param] = elem.msg;
                                     });
-                                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                                    throw new ValidationError(errorMessages);
                                 }
                                 return new Promise(function(resolve, reject) {
                                     CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
@@ -170,58 +182,28 @@ class CatalogHandler extends BaseAutoBindedClass {
                             });
                     });
                 });
+            }else{
+                let err = {
+                    status: 400,
+                    message:"Images not found"
+                }
+                return callback.onError(err);
             }
-        });
 
-        // let data = req.body;
-        // let validator = this._validator;
-        // req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-        // req.getValidationResult()
-        //     .then(function(result) {
-        //         if (!result.isEmpty()) {
-        //             let errorMessages = result.array().map(function(elem) {
-        //                 return elem.msg;
-        //             });
-        //             throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
-        //         }
-        //         return new Promise(function(resolve, reject) {
-        //             CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
-        //                 if (err !== null) {
-        //                     reject(err);
-        //                 } else {
-        //                     if (!catalog) {
-        //                         reject(new NotFoundError("Catalog not found"));
-        //                     } else {
-        //                         resolve(catalog);
-        //                     }
-        //                 }
-        //             })
-        //         });
-        //     })
-        //     .then((catalog) => {
-        //         catalog.catalogUrl = validator.trim(data.catalogUrl);
-        //         catalog.catalogDescription = validator.trim(data.catalogDescription);
-        //         catalog.save();
-        //         return catalog;
-        //     })
-        //     .then((saved) => {
-        //         callback.onSuccess(saved);
-        //     })
-        //     .catch((error) => {
-        //         callback.onError(error);
-        //     });
+        });
     }
 
     getSingleCatalog(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid catalog id provided').isMongoId();
+        req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
                     });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                    throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
                     CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
