@@ -10,7 +10,6 @@ const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
-var reversePopulate = require('mongoose-reverse-populate');
 const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
