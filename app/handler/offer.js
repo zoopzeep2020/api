@@ -4,37 +4,20 @@
 /**
  * Created by crosp on 5/9/17.
  */
-const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 
-class CatalogHandler extends BaseAutoBindedClass {
+class OfferHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
 
-    static get CATALOG_VALIDATION_SCHEME() {
-        return {
-            'catalogUrl': {
-                notEmpty: true,
-                errorMessage: 'Catalog is required'
-            },
-            'catalogDescription': {
-                isLength: {
-                    options: [{ min: 2}],
-                    errorMessage: 'Catalog description must be 2 characters long'
-                },
-                notEmpty: true,
-                errorMessage: 'Catalog description is required'
-            }
-        };
-    }
-
-    createNewCatalog(req, callback) {
+    createNewOffer(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
@@ -47,9 +30,8 @@ class CatalogHandler extends BaseAutoBindedClass {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) throw err;
-                        req.body.catalogUrl = targetDir + fileName;
+                        req.body.offerPicture = targetDir + fileName;
                         let data = req.body;
-                        req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
@@ -60,16 +42,24 @@ class CatalogHandler extends BaseAutoBindedClass {
                                     throw new ValidationError(errorMessages);
                                 }
 
-                                return new CatalogModel({
+                                return new OfferModel({
                                     storeId: data.storeId,
-                                    catalogUrl: validator.trim(data.catalogUrl),
-                                    catalogDescription: validator.trim(data.catalogDescription),
+                                    offerName: validator.trim(data.offerName),
+                                    offerDescription: validator.trim(data.offerDescription),
+                                    aplicableForAll: data.aplicableForAll,
+                                    orderAbovePrice: data.orderAbovePrice,
+                                    discountTypePercentage: data.discountTypePercentage,
+                                    discountTypeFlat: data.discountTypeFlat,
+                                    percentageDiscount: data.percentageDiscount,
+                                    flatDiscount: data.flatDiscount,
+                                    startDate: data.startDate,
+                                    endDate: data.endDate,
+                                    offerPicture: validator.trim(data.offerPicture)
                                 });
-
                             })
-                            .then((catalog) => {
-                                catalog.save();
-                                return catalog;
+                            .then((offer) => {
+                                offer.save();
+                                return offer;
                             })
                             .then((saved) => {
                                 callback.onSuccess(saved);
@@ -89,7 +79,7 @@ class CatalogHandler extends BaseAutoBindedClass {
         });
     }
 
-    deleteCatalog(req, callback) {
+    deleteOffer(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -102,32 +92,32 @@ class CatalogHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                    OfferModel.findOne({ _id: req.params.id }, function(err, offer) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
+                            if (!offer) {
+                                reject(new NotFoundError("Offer not found"));
                             } else {
-                                resolve(catalog);
+                                resolve(offer);
                             }
                         }
                     })
                 });
             })
-            .then((catalog) => {
-                catalog.remove();
-                return catalog;
+            .then((offer) => {
+                offer.remove();
+                return offer;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Catalog id " + saved.id + " deleted successfully ");
+                callback.onSuccess({}, "Offer id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    updateCatalog(req, callback) {
+    updateOffer(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
 
@@ -141,10 +131,9 @@ class CatalogHandler extends BaseAutoBindedClass {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) throw err;
-                        req.body.catalogUrl = targetDir + fileName;
+                        req.body.offerPicture = targetDir + fileName;
                         let data = req.body;
                         req.checkParams('id', 'Invalid id provided').isMongoId();
-                        req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                         req.getValidationResult()
                             .then(function(result) {
                                 if (!result.isEmpty()) {
@@ -155,27 +144,27 @@ class CatalogHandler extends BaseAutoBindedClass {
                                     throw new ValidationError(errorMessages);
                                 }
                                 return new Promise(function(resolve, reject) {
-                                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                                    OfferModel.findOne({ _id: req.params.id }, function(err, offer) {
                                         if (err !== null) {
                                             reject(err);
                                         } else {
-                                            if (!catalog) {
-                                                reject(new NotFoundError("Catalog not found"));
+                                            if (!offer) {
+                                                reject(new NotFoundError("Offer not found"));
                                             } else {
-                                                resolve(catalog);
+                                                resolve(offer);
                                             }
                                         }
                                     })
                                 });
                             })
-                            .then((catalog) => {
+                            .then((offer) => {
                                 for (var key in data) {
                                     if (data.hasOwnProperty(key)) {
-                                        catalog[key] = data[key];
+                                        offer[key] = data[key];
                                     }
-                                }     
-                                catalog.save();
-                                return catalog;
+                                }  
+                                offer.save();
+                                return offer;
                             })
                             .then((saved) => {
                                 callback.onSuccess(saved);
@@ -196,7 +185,7 @@ class CatalogHandler extends BaseAutoBindedClass {
         });
     }
 
-    getSingleCatalog(req, callback) {
+    getSingleOffer(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -209,31 +198,31 @@ class CatalogHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                    OfferModel.findOne({ _id: req.params.id }, function(err, offer) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
+                            if (!offer) {
+                                reject(new NotFoundError("Offer not found"));
                             } else {
-                                resolve(catalog);
+                                resolve(offer);
                             }
                         }
                     })
                 });
             })
-            .then((catalog) => {
-                callback.onSuccess(catalog);
+            .then((offer) => {
+                callback.onSuccess(offer);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    getAllCatalogs(req, callback) {
+    getAllOffers(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                CatalogModel.find({}, function(err, posts) {
+                OfferModel.find({}, function(err, posts) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -250,4 +239,4 @@ class CatalogHandler extends BaseAutoBindedClass {
     }
 }
 
-module.exports = CatalogHandler;
+module.exports = OfferHandler;

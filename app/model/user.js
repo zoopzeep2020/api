@@ -21,10 +21,13 @@ let UserSchema = new Schema({
     },
     dateCreated: { type: Date, default: Date.now },
     email: String,
+    resetPasswordToken: String,
+    resetPasswordExpires : { type: Date },
     hashedPassword: {
         type: String,
         required: true,
     },
+    isAdmin:{ type: Boolean }
 });
 UserSchema.methods.toJSON = function() {
     let obj = this.toObject();

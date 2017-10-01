@@ -52,45 +52,10 @@ class UserHandler {
         };
     }
 
-    getUserInfo(req, userToken, callback) {
-        req.checkParams('id', 'Invalid user id provided').isMongoId();
-        req.getValidationResult()
-            .then((result) => {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
 
-                let userId = req.params.id;
-                if (userToken.id !== req.params.id) {
-                    throw new UnauthorizedError("Provided id doesn't match with  the requested user id")
-                } else {
-                    return new Promise(function(resolve, reject) {
-                        UserModel.findById(userId).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'] }).exec(function(err, user) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (user === null) {
-                                    
-                                } else {
-                                    resolve(user);
-                                }
-                            }
-                        })
-                    });
-                }
+    
 
-            })
-            .then((user) => {
-                callback.onSuccess(user);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
+    
 
     createNewUser(req, callback) {
         let data = req.body;
@@ -217,9 +182,96 @@ class UserHandler {
             });
     }
 
+    updateUser(req, callback) {
+        let data = req.body;
+        let validator = this._validator;
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+       // req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+
+                return new Promise(function(resolve, reject) {
+                    UserModel.findOne({ _id: req.params.id }, function(err, user) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!user) {
+                                reject(new NotFoundError("User not found"));
+                            } else {
+                                resolve(user);
+                            }
+                        }
+                    })
+                });
+            })
+            .then((user) => {
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        user[key] = data[key];
+                    }
+                }  
+                user.save();
+                return user;
+            })
+            .then((saved) => {
+                callback.onSuccess(saved);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    getUserInfo(req, userToken, callback) {
+        req.checkParams('id', 'Invalid user id provided').isMongoId();
+        req.getValidationResult()
+            .then((result) => {
+                if (!result.isEmpty()) {
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+
+                let userId = req.params.id;
+                if (userToken.id !== req.params.id) {
+                    throw new UnauthorizedError("Provided id doesn't match with  the requested user id")
+                } else {
+                    return new Promise(function(resolve, reject) {
+                        UserModel.findById(userId).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'] }).exec(function(err, user) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (user === null) {
+                                    
+                                } else {
+                                    resolve(user);
+                                }
+                            }
+                        })
+                    });
+                }
+
+            })
+            .then((user) => {
+                callback.onSuccess(user);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
     _provideTokenPayload(user) {
         return {
             id: user.id,
+            isAdmin:user.isAdmin,
             scope: 'default'
         };
     }

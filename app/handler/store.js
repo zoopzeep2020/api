@@ -133,27 +133,33 @@ class StoreHandler extends BaseAutoBindedClass {
                                 });         
                             })
                             .then((store) => {
-                                store.storeName = validator.trim(data.storeName);
-                                store.storeLogo = validator.trim(data.storeLogo);
-                                store.storeBanner = validator.trim(data.storeBanner);
-                                store.categoriesIds = data.categoriesIds;
-                                store.buisnessOnline = data.buisnessOnline;
-                                store.buisnessOffline = data.buisnessOffline;
-                                store.buisnessBoth = data.buisnessBoth;
-                                store.address = validator.trim(data.address);
-                                store.storePhone = data.storePhone;
-                                store.storeDiscription = validator.trim(data.storeDiscription);
-                                store.keyword = data.keyword;       
-                                store.otherKeyword = data.otherKeyword;
-                                store.webAddress = validator.trim(data.webAddress);
-                                store.countries = data.countries;
-                                store.dispatchDayMin = data.dispatchDayMin;
-                                store.dispatchDayMax = data.dispatchDayMax;
-                                store.customization = data.customization;
-                                store.giftWrap = data.giftWrap;
-                                store.cod = data.cod;
-                                store.freeShiping = data.freeShiping;
-                                store.returnandreplace = validator.trim(data.returnandreplace);
+                                for (var key in data) {
+                                    if (data.hasOwnProperty(key)) {
+                                        store[key] = data[key];
+                                    }
+                                } 
+
+                                // store.storeName = validator.trim(data.storeName);
+                                // store.storeLogo = validator.trim(data.storeLogo);
+                                // store.storeBanner = validator.trim(data.storeBanner);
+                                // store.categoriesIds = data.categoriesIds;
+                                // store.buisnessOnline = data.buisnessOnline;
+                                // store.buisnessOffline = data.buisnessOffline;
+                                // store.buisnessBoth = data.buisnessBoth;
+                                // store.address = validator.trim(data.address);
+                                // store.storePhone = data.storePhone;
+                                // store.storeDiscription = validator.trim(data.storeDiscription);
+                                // store.keyword = data.keyword;       
+                                // store.otherKeyword = data.otherKeyword;
+                                // store.webAddress = validator.trim(data.webAddress);
+                                // store.countries = data.countries;
+                                // store.dispatchDayMin = data.dispatchDayMin;
+                                // store.dispatchDayMax = data.dispatchDayMax;
+                                // store.customization = data.customization;
+                                // store.giftWrap = data.giftWrap;
+                                // store.cod = data.cod;
+                                // store.freeShiping = data.freeShiping;
+                                // store.returnandreplace = validator.trim(data.returnandreplace);
                                 store.save();
                                 return store;
                             })

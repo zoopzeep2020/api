@@ -19,11 +19,16 @@ class CatalogController extends BaseController {
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
-            this._catalogHandler.getSingleCatalog(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-            })));
-        });
+            if(user.isAdmin){
+                this._catalogHandler.getSingleCatalog(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                })));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }   
+            console.log(user.isAdmin);
+        });     
     }
 
     create(req, res, next) {

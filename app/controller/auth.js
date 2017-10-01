@@ -20,6 +20,20 @@ class AuthController extends BaseController {
         });
     }
 
+    // forget password 
+    forgot(req, res, next) {
+        let responseManager = this._responseManager;
+        let that = this;
+        that._authHandler.forgotRequest(req, responseManager.getDefaultResponseHandler(res));
+    }
+
+    // reset password 
+    reset(req, res, next) {
+        let responseManager = this._responseManager;
+        let that = this;
+        that._authHandler.resetRequest(req, responseManager.getDefaultResponseHandler(res));
+    }
+
     // Revoke Token
     remove(req, res, next) {
         let responseManager = this._responseManager;

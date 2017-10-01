@@ -33,6 +33,23 @@ class UserController extends BaseController {
         });
     }
 
+    update(req, res, next) {
+        this.userAuthenticate(req, res, next, (token, user) => {
+            this._authHandler.updateUser(req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+        
+   
+    userAuthenticate(req, res, next, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('jwt-rs-auth', {
+            onVerified: callback,
+            onFailure: function(error) {
+                responseManager.respondWithError(res, error.status || 401, error.message);
+            }
+        })(req, res, next);
+    }
+
     authenticate(req, res, callback) {
         let responseManager = this._responseManager;
         this._passport.authenticate('secret-key-auth', {

@@ -204,9 +204,11 @@ class CategoryHandler extends BaseAutoBindedClass {
                                 });
                             })
                             .then((category) => {
-                                category.category = validator.trim(data.category);
-                                category.categoryImage = validator.trim(data.categoryImage);
-                                category.categoryActiveImage = validator.trim(data.categoryActiveImage);
+                                for (var key in data) {
+                                    if (data.hasOwnProperty(key)) {
+                                        category[key] = data[key];
+                                    }
+                                }  
                                 category.save();
                                 return category;
                             })
