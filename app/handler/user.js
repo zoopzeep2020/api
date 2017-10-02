@@ -349,7 +349,6 @@ class UserHandler {
     _provideTokenPayload(user) {
         return {
             id: user.id,
-            storeId:user.storeId._id,
             isAdmin:user.isAdmin,
             isUser:user.isUser,
             isStore:user.isStore,   
