@@ -19,6 +19,7 @@ class CatalogController extends BaseController {
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
+            console.log(user);
             if(user.isAdmin){
                 this._catalogHandler.getSingleCatalog(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
@@ -31,9 +32,24 @@ class CatalogController extends BaseController {
         });     
     }
 
+    getStoreCatalog(req, res, next) {
+        let responseManager = this._responseManager;
+        this.authenticate(req, res, next, (token, user) => {
+            this._catalogHandler.getCatalogByStoreId(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });
+    }
+
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._catalogHandler.createNewCatalog(req, this._responseManager.getDefaultResponseHandler(res));
+            console.log(user);
+            if((user.isStore || user.isAdmin) && user.storeId === req.body.storeId){
+                this._catalogHandler.createNewCatalog(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }  
         });
     }
 

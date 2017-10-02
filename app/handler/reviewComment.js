@@ -55,7 +55,7 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                     if (data.hasOwnProperty(key)) {
                         ModelData[key] = data[key];
                     }
-                } 
+                }
 
                 return new ReviewCommentModel(ModelData);
             })

@@ -42,7 +42,8 @@ class CatalogHandler extends BaseAutoBindedClass {
             if (err) {
                 callback.onError(err)
             }
-            if (req.files.length > 0) {
+            console.log(req.files ? req.files.length : 'req.files is null or undefined');
+            if (req.files != undefined && req.files.length > 0 ) {
                 req.files.forEach(function(file) {
                     var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
                     fs.rename(file.path, targetDir + fileName, function(err) {
@@ -142,7 +143,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                     fs.rename(file.path, targetDir + fileName, function(err) {
                         if (err) throw err;
                         req.body.catalogUrl = targetDir + fileName;
-                        let data = req.body;
+                        var data = req.body;
                         req.checkParams('id', 'Invalid id provided').isMongoId();
                         req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                         req.getValidationResult()
@@ -169,10 +170,13 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 });
                             })
                             .then((catalog) => {
+                                console.log(data);
                                 for (var key in data) {
-                                    if (data.hasOwnProperty(key)) {
-                                        catalog[key] = data[key];
-                                    }
+                                    console.log(key,data[key]);
+                                    catalog[key] = data[key];
+                                    // if (data.hasOwnProperty(key)) {
+                                       
+                                    // }
                                 }     
                                 catalog.save();
                                 return catalog;
@@ -248,6 +252,41 @@ class CatalogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
+    getCatalogByStoreId(req, callback) {
+        let data = req.body;
+        req.checkParams('storeId', 'Invalid storeId provided').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    var errorMessages = {};
+                    result.array().map(function(elem) {
+                        return errorMessages[elem.param] = elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    CatalogModel.find({ storeId: req.params.storeId }, function(err, catalog) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!catalog) {
+                                reject(new NotFoundError("Catalog not found"));
+                            } else {
+                                resolve(catalog);
+                            }
+                        }
+                    })
+                });
+            })
+            .then((catalog) => {
+                callback.onSuccess(catalog);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
 }
 
 module.exports = CatalogHandler;

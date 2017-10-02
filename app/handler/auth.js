@@ -21,15 +21,23 @@ class AuthHandler extends BaseAutoBindedClass {
     
     issueNewToken(req, user, callback) {
         let that = this;
-        if (user) {
+        if (user) {                         
+            for (var key in req.body) {
+                if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong')) {
+                    user[key] = req.body[key];
+                }
+            } 
+            user.save();
             let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
             let data = {
+                _id:user._id,
                 token:userToken.token,
                 name:user.name,
                 email:user.email,  
                 phone:user.phone,
                 deviceToken:user.deviceToken,
-                latLong:user.latLong,
+                userLat:user.userLat,
+                userLong:user.userLong,
                 storeId:user.storeId,
                 isStore:user.isStore,
                 isUser:user.isUser,
@@ -228,7 +236,11 @@ class AuthHandler extends BaseAutoBindedClass {
     _provideTokenPayload(user) {
         return {
             id: user.id,
+            storeId:user.storeId._id,
             isAdmin:user.isAdmin,
+            isUser:user.isUser,
+            isStore:user.isStore,   
+            email:user.email,
             scope: 'default'
         };
     }

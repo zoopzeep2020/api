@@ -6,6 +6,8 @@ const StoreHandler = require(APP_HANDLER_PATH + 'store');
 const AlreadyExistsError = require(APP_ERROR_PATH + 'already-exists');
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const UnauthorizedError = require(APP_ERROR_PATH + 'unauthorized');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
 
 class UserHandler {
     constructor() {
@@ -50,12 +52,7 @@ class UserHandler {
                 errorMessage: 'Phone is required'
             }
         };
-    }
-
-
-    
-
-    
+    }    
 
     createNewUser(req, callback) {
         let data = req.body;
@@ -65,13 +62,19 @@ class UserHandler {
         req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
-                if (!result.isEmpty()) {
+                if(req.body.isStore != true && req.body.isUser != true){
                     var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
+                    errorMessages['userTypeError'] = "Either isStore or isUser is required as a true";
+                    if (!result.isEmpty() || (req.body.isStore != true && req.body.isUser != true)) {
+                        console.log(result.array())
+                        result.array().map(function(elem) {
+                            console.log(elem);
+                            return errorMessages[elem.param] = elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
+                    }
                 }
+                
                 return data;
             })
             .then((user) => {
@@ -129,7 +132,8 @@ class UserHandler {
                                             password: validator.trim(user.password),
                                             phone: user.phone,
                                             deviceToken: user.deviceToken,
-                                            latLong: user.latLong,
+                                            userLat: user.userLat,
+                                            userLong: user.userLong,
                                             isUser: user.isUser,
                                             isStore: user.isStore,
                                             storeId: data._id
@@ -147,7 +151,8 @@ class UserHandler {
                                     password: validator.trim(user.password),
                                     phone: user.phone,
                                     deviceToken: user.deviceToken,
-                                    latLong: user.latLong,
+                                    userLat: user.userLat,
+                                    userLong: user.userLong,
                                     isUser: user.isUser,
                                     isStore: user.isStore,
                                     storeId: user.storeId
@@ -182,51 +187,124 @@ class UserHandler {
             });
     }
 
-    updateUser(req, callback) {
-        let data = req.body;
-        let validator = this._validator;
-        req.checkParams('id', 'Invalid id provided').isMongoId();
-       // req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
-        req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
+    // updateUser(req, callback) {
+    //     let data = req.body;
+    //     let validator = this._validator;
+    //     req.checkParams('id', 'Invalid id provided').isMongoId();
+    //    // req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
+    //     req.getValidationResult()
+    //         .then(function(result) {
+    //             if (!result.isEmpty()) {
+    //                 var errorMessages = {};
+    //                 result.array().map(function(elem) {
+    //                     return errorMessages[elem.param] = elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
 
-                return new Promise(function(resolve, reject) {
-                    UserModel.findOne({ _id: req.params.id }, function(err, user) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!user) {
-                                reject(new NotFoundError("User not found"));
-                            } else {
-                                resolve(user);
+    //             return new Promise(function(resolve, reject) {
+    //                 UserModel.findOne({ _id: req.params.id }, function(err, user) {
+    //                     if (err !== null) {
+    //                         reject(err);
+    //                     } else {
+    //                         if (!user) {
+    //                             reject(new NotFoundError("User not found"));
+    //                         } else {
+    //                             resolve(user);
+    //                         }
+    //                     }
+    //                 })
+    //             });
+    //         })
+    //         .then((user) => {
+    //             for (var key in data) {
+    //                 if (data.hasOwnProperty(key)) {
+    //                     user[key] = data[key];
+    //                 }
+    //             }  
+    //             user.save();
+    //             return user;
+    //         })
+    //         .then((saved) => {
+    //             callback.onSuccess(saved);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
+
+    updateUser(req, callback) {
+        let validator = this._validator;
+        const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
+
+        mkdirp(targetDir, function(err) {
+            if (err) {
+                callback.onError(err)
+            }
+
+            if (req.files != undefined && req.files.length > 0 ) {
+                req.files.forEach(function(file) {
+                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
+                    fs.rename(file.path, targetDir + fileName, function(err) {
+                        if (err) throw err;
+                        req.body.userImage = targetDir + fileName;
+                        let data = req.body;            
+                        req.checkParams('id', 'Invalid id provided').isMongoId();
+                        req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
+                        req.getValidationResult()
+                        .then(function(result) {
+                            if (!result.isEmpty()) {
+                                var errorMessages = {};
+                                result.array().map(function(elem) {
+                                    return errorMessages[elem.param] = elem.msg;
+                                });
+                                throw new ValidationError(errorMessages);
                             }
-                        }
-                    })
+            
+                            return new Promise(function(resolve, reject) {
+                                UserModel.findOne({ _id: req.params.id }, function(err, user) {
+                                    if (err !== null) {
+                                        reject(err);
+                                    } else {
+                                        if (!user) {
+                                            reject(new NotFoundError("User not found"));
+                                        } else {
+                                            resolve(user);
+                                        }
+                                    }
+                                })
+                            });
+                        })
+                        .then((user) => {
+                            console.log(data)
+                            for (var key in data) {
+                                user[key] = data[key];
+                                // if (data.hasOwnProperty(key)) {
+                                //     user[key] = data[key];
+                                // }
+                            }  
+                            user.save();
+                            return user;
+                        })
+                        .then((saved) => {
+                            callback.onSuccess(saved);
+                        })
+                        .catch((error) => {
+                            callback.onError(error);
+                        });
+                    });
                 });
-            })
-            .then((user) => {
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        user[key] = data[key];
-                    }
-                }  
-                user.save();
-                return user;
-            })
-            .then((saved) => {
-                callback.onSuccess(saved);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+            }else{
+                let err = {
+                    status: 400,
+                    message:"Images not found"
+                }
+                return callback.onError(err);
+            }
+
+        });
     }
+
 
     getUserInfo(req, userToken, callback) {
         req.checkParams('id', 'Invalid user id provided').isMongoId();
@@ -271,7 +349,11 @@ class UserHandler {
     _provideTokenPayload(user) {
         return {
             id: user.id,
+            storeId:user.storeId._id,
             isAdmin:user.isAdmin,
+            isUser:user.isUser,
+            isStore:user.isStore,   
+            email:user.email,
             scope: 'default'
         };
     }

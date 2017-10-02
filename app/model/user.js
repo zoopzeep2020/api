@@ -8,7 +8,9 @@ let UserSchema = new Schema({
     name: String,
     phone: Number,
     deviceToken: String,
-    latLong: String,
+    userImage: String,
+    userLat: Number,
+    userLong: Number,
     isUser: { type: Boolean, default: false },
     isStore: { type: Boolean, default: false },
     storeId: {
