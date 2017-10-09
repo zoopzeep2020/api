@@ -14,14 +14,6 @@ let CatalogSchema = new Schema({
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-CatalogSchema.pre('update', function(next, done) {
-    this.dateModified = Date.now();
-    next();
-});
-CatalogSchema.pre('save', function(next, done) {
-    this.dateModified = Date.now();
-    next();
-});
 CatalogSchema.methods.toJSON = function() {
     let obj = this.toObject();
     delete obj.__v;

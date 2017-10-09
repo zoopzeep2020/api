@@ -21,6 +21,8 @@ class AuthHandler extends BaseAutoBindedClass {
     
     issueNewToken(req, user, callback) {
         let that = this;
+        console.log(req.body)
+        console.log(user)
         if (user) {                         
             for (var key in req.body) {
                 if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong')) {
@@ -41,6 +43,7 @@ class AuthHandler extends BaseAutoBindedClass {
                 storeId:user.storeId,
                 isStore:user.isStore,
                 isUser:user.isUser,
+                isAdmin:user.isAdmin
             };
             callback.onSuccess(data);
         } else {
@@ -87,9 +90,6 @@ class AuthHandler extends BaseAutoBindedClass {
         // .catch((error) => {
         //     callback.onError(error);
         // });
-
-
-
 
         async.waterfall([
             function(done) {
@@ -234,15 +234,26 @@ class AuthHandler extends BaseAutoBindedClass {
 
 
     _provideTokenPayload(user) {
-        return {
-            id: user.id,
-            storeId:user.storeId._id,
-            isAdmin:user.isAdmin,
-            isUser:user.isUser,
-            isStore:user.isStore,   
-            email:user.email,
-            scope: 'default'
-        };
+        if(user.storeId){
+            return {
+                id: user.id,
+                storeId:user.storeId._id,
+                isAdmin:user.isAdmin,
+                isUser:user.isUser,
+                isStore:user.isStore,   
+                email:user.email,
+                scope: 'default'
+            };
+        }else{
+            return {
+                id: user.id,
+                isAdmin:user.isAdmin,
+                isUser:user.isUser,
+                isStore:user.isStore,   
+                email:user.email,
+                scope: 'default'
+            };
+        }
     }
 
     _provideTokenOptions() {

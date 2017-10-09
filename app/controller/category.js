@@ -28,19 +28,31 @@ class CategoryController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._categoryHandler.createNewCategory(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._categoryHandler.createNewCategory(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }   
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._categoryHandler.updateCategory(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._categoryHandler.updateCategory(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._categoryHandler.deleteCategory(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._categoryHandler.deleteCategory(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 

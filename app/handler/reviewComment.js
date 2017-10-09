@@ -1,9 +1,6 @@
 /**
  * Created by crosp on 5/13/17.
  */
-/**
- * Created by crosp on 5/9/17.
- */
 const ReviewCommentModel = require(APP_MODEL_PATH + 'reviewComment').ReviewCommentModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -39,74 +36,79 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                     req.checkBody(key, 'Invalid '+ key +' provided').isMongoId();
                 }
             }
-        } 
-        req.checkBody(ReviewCommentHandler.REVIEWCOMMENT_VALIDATION_SCHEME);
+        }         
+        req.checkBody(ReviewCommentHandler.REVIEWCOMMENT_VALIDATION_SCHEME);        
+        req.checkBody('reviewId', 'only one is allowed either reviewId or storeId').isOneTrue(req.body.userId == undefined,req.body.storeId  == undefined);
         req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                var errorMessages = {};
+                result.array().map(function(elem) {
+                    return errorMessages[elem.param] = elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
 
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        ModelData[key] = data[key];
-                    }
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    ModelData[key] = data[key];
                 }
-
-                return new ReviewCommentModel(ModelData);
-            })
-            .then((reviewComment) => {      
-                reviewComment.save();
-                return reviewComment;
-            })
-            .then((saved) => {
-                callback.onSuccess(saved);      
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+            }
+            return new ReviewCommentModel(ModelData);
+        })
+        .then((reviewComment) => {      
+            reviewComment.save();
+            return reviewComment;
+        })
+        .then((saved) => {
+            callback.onSuccess(saved);      
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     deleteReviewComment(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) {
-                    ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!reviewComment) {
-                                reject(new NotFoundError("Comment not found"));
-                            } else {
-                                resolve(reviewComment);
-                            }
-                        }
-                    })
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                var errorMessages = {};
+                result.array().map(function(elem) {
+                    return errorMessages[elem.param] = elem.msg;
                 });
-            })
-            .then((reviewComment) => {
-                reviewComment.remove();
-                return reviewComment;
-            })
-            .then((saved) => {
-                callback.onSuccess({}, "Comment id " + saved.id + " deleted successfully ");
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!reviewComment) {
+                            reject(new NotFoundError("Comment not found"));
+                        } else {
+                            if(user.isAdmin || (review.userId === user.userId) || (review.storeId === user.storeId)){
+                                resolve(reviewComment);
+                            }else{
+                                reject(new NotFoundError("you are not allow to remove this comment"));
+                            }
+                            resolve(reviewComment);
+                        }
+                    }
+                })
             });
+        })
+        .then((reviewComment) => {
+            reviewComment.remove();
+            return reviewComment;
+        })
+        .then((saved) => {
+            callback.onSuccess({}, "Comment id " + saved.id + " deleted successfully ");
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     updateReviewComment(req, callback) {
@@ -115,84 +117,60 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
         req.checkBody(ReviewCommentHandler.REVIEWCOMMENT_VALIDATION_SCHEME);
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-
-                return new Promise(function(resolve, reject) {
-                    ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!reviewComment) {
-                                reject(new NotFoundError("Comment not found"));
-                            } else {
-                                resolve(reviewComment);
-                            }
-                        }
-                    })
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                var errorMessages = {};
+                result.array().map(function(elem) {
+                    return errorMessages[elem.param] = elem.msg;
                 });
-            })
-            .then((reviewComment) => {
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        reviewComment[key] = data[key];
+                throw new ValidationError(errorMessages);
+            }
+
+            return new Promise(function(resolve, reject) {
+                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!reviewComment) {
+                            reject(new NotFoundError("Comment not found"));
+                        } else {
+                            resolve(reviewComment);
+                        }
                     }
-                }       
-                reviewComment.save();
-                return reviewComment;
-            })
-            .then((saved) => {
-                callback.onSuccess(saved);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                })
             });
+        })
+        .then((reviewComment) => {
+            for (var key in data) {
+                if (data.hasOwnProperty(key)) {
+                    reviewComment[key] = data[key];
+                }
+            }       
+            reviewComment.save();
+            return reviewComment;
+        })
+        .then((saved) => {
+            callback.onSuccess(saved);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getSingleReviewComment(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) {
-                    ReviewCommentModel.findOne({ _id: req.params.id }, function(err, category) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!category) {
-                                reject(new NotFoundError("Comment not found"));
-                            } else {
-                                resolve(category);
-                            }
-                        }
-                    })
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                var errorMessages = {};
+                result.array().map(function(elem) {
+                    return errorMessages[elem.param] = elem.msg;
                 });
-            })
-            .then((reviewComment) => {
-                callback.onSuccess(reviewComment);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
-
-    getAllReviewComments(req, callback) {
-        let data = req.body;
-        new Promise(function(resolve, reject) {
-                ReviewCommentModel.find({}, function(err, category) {
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, category) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -203,14 +181,38 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                         }
                     }
                 })
-
-            })
-            .then((reviewComment) => {
-                callback.onSuccess(reviewComment);
-            })
-            .catch((error) => {
-                callback.onError(error);
             });
+        })
+        .then((reviewComment) => {
+            callback.onSuccess(reviewComment);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
+    getAllReviewComments(req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+            ReviewCommentModel.find({}, function(err, category) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!category) {
+                        reject(new NotFoundError("Comment not found"));
+                    } else {
+                        resolve(category);
+                    }
+                }
+            })
+
+        })
+        .then((reviewComment) => {
+            callback.onSuccess(reviewComment);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 }
 

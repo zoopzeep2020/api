@@ -11,7 +11,7 @@ var upload = multer({ dest: 'uploads/' });
 router.get('/:id', userController.get);
 router.post('/', userController.create);
 router.put('/:id', upload.any(), userController.update);
-
-
+router.post('/admin', userController.createAdmin);
+router.get('/admin/adminkey', userController.getAdminKey);
 
 module.exports = router;

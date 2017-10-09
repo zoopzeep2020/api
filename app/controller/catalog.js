@@ -2,6 +2,7 @@
  * Created by crosp on 5/9/17.
  */
 const BaseController = require(APP_CONTROLLER_PATH + 'base');
+
 const CatalogHandler = require(APP_HANDLER_PATH + 'catalog');
 class CatalogController extends BaseController {
     constructor() {
@@ -12,23 +13,21 @@ class CatalogController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._catalogHandler.getAllCatalogs(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._catalogHandler.getAllCatalogs(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }  
         });
     }
 
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
-            console.log(user);
-            if(user.isAdmin){
-                this._catalogHandler.getSingleCatalog(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-                })));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            }   
-            console.log(user.isAdmin);
+            this._catalogHandler.getSingleCatalog(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
         });     
     }
 
@@ -44,8 +43,7 @@ class CatalogController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            console.log(user);
-            if((user.isStore || user.isAdmin) && user.storeId === req.body.storeId){
+            if(user.isAdmin || (user.isStore && user.storeId === req.body.storeId)){
                 this._catalogHandler.createNewCatalog(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        
@@ -55,13 +53,21 @@ class CatalogController extends BaseController {
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._catalogHandler.updateCatalog(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || (user.isStore && user.storeId === req.body.storeId)){
+                this._catalogHandler.updateCatalog(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._catalogHandler.deleteCatalog(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || user.isStore){
+                this._catalogHandler.deleteCatalog(user, req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 

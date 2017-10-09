@@ -12,7 +12,11 @@ class StoreController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._storeHandler.getAllStores(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){  
+                this._storeHandler.getAllStores(req, this._responseManager.getDefaultResponseHandler(res));            
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not allow")                        
+            } 
         });
     }
 
@@ -26,21 +30,24 @@ class StoreController extends BaseController {
         });
     }
 
-    create(req, res, next) {
-        this.authenticate(req, res, next, (token, user) => {
-            this._storeHandler.createNewStore(req, this._responseManager.getDefaultResponseHandler(res));
-        });
-    }
-
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));
+            console.log(user);
+            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId && user.storeId == req.params.id)){  
+                this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not allow")                        
+            } 
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._storeHandler.deleteStore(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || (user.isStore && user.storeId == req.params.id)){  
+                this._storeHandler.deleteStore(req, this._responseManager.getDefaultResponseHandler(res));            
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not allow")                        
+            } 
         });
     }
 

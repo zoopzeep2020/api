@@ -12,7 +12,11 @@ class OfferController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getAllOffers(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._offerHandler.getAllOffers(req, this._responseManager.getDefaultResponseHandler(res));            
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 
@@ -28,19 +32,32 @@ class OfferController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.createNewOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            console.log(user);
+            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+                this._offerHandler.createNewOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.updateOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+                this._offerHandler.updateOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.deleteOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || user.isStore){
+                this._offerHandler.deleteOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 

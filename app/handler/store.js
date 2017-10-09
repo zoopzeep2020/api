@@ -1,9 +1,6 @@
 /**
  * Created by crosp on 5/13/17.
  */
-/**
- * Created by crosp on 5/9/17.
- */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const mongoose = require('mongoose');
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
@@ -13,6 +10,7 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+var db = require('mongodb').Db;
 
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
@@ -22,32 +20,41 @@ class StoreHandler extends BaseAutoBindedClass {
 
     static get STORE_VALIDATION_SCHEME() {
         return {
-        };
+            'storeName': {
+                isLength: {
+                    options: [{ min: 2}],
+                    errorMessage: 'storeName must be 2 characters long'
+                },
+                notEmpty: true,
+                errorMessage: 'storeName is required'
+            },
+        }
     }
-
+    
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        req.checkBody(StoreHandler.Store_VALIDATION_SCHEME); 
         req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
-                }
-                return new StoreModel({});
-            })
-            .then((store) => {
-                store.save();
-                return store;
-            })
-            .then((saved) => {
-                callback.onSuccess(saved);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function(elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+            }
+            return new StoreModel({});
+        })
+        .then((store) => {
+            store.save();
+            return store;
+        })
+        .then((saved) => {
+            callback.onSuccess(saved);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     deleteStore(req, callback) {
@@ -87,100 +94,158 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
+    
     updateStore(req, callback) {
-        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-
-        mkdirp(targetDir, function(err) {
-            if (err) {
-                callback.onError(err)
-            }
-            if (req.files.length > 0) {
-                async.each(req.files, function(file, callback) {
-                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(file.path, targetDir + fileName, function(err) {
-                        if (err) throw callback.onError(err);
-                        req.body[file.fieldname] = targetDir + fileName;
-                        callback(err);
+        let files = this.objectify(req.files);        
+        async.waterfall([
+            function(done, err) {
+                if(typeof files['storeLogo'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['storeLogo'].path, targetDir + fileName, function(err) {
+                            req.body.storeLogo = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
                     });
-                }, function(err) {
-                    if (err) {
-                        callback.onError(err);
-                    } else {
-                        let data = req.body;
-                        req.checkParams('id', 'Invalid id provided').isMongoId();
-                        req.getValidationResult()
-                            .then(function(result) {
-                                if (!result.isEmpty()) {
-                                    let errorMessages = result.array().map(function(elem) {
-                                        return elem.msg;
-                                    });
-                                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
-                                }
-                                return new Promise(function(resolve, reject) {
-                                    StoreModel.findOne({ _id: req.params.id }, function(err, store) {
-                                        if (err !== null) {
-                                            reject(err);
-                                        } else {
-                                            if (!store) {
-                                                reject(new NotFoundError("Store not found"));
-                                            } else {
-                                                resolve(store);
-                                            }
-                                        }
-                                    })
-                                });         
-                            })
-                            .then((store) => {
-                                for (var key in data) {
-                                    if (data.hasOwnProperty(key)) {
-                                        store[key] = data[key];
-                                    }
-                                } 
-
-                                // store.storeName = validator.trim(data.storeName);
-                                // store.storeLogo = validator.trim(data.storeLogo);
-                                // store.storeBanner = validator.trim(data.storeBanner);
-                                // store.categoriesIds = data.categoriesIds;
-                                // store.buisnessOnline = data.buisnessOnline;
-                                // store.buisnessOffline = data.buisnessOffline;
-                                // store.buisnessBoth = data.buisnessBoth;
-                                // store.address = validator.trim(data.address);
-                                // store.storePhone = data.storePhone;
-                                // store.storeDiscription = validator.trim(data.storeDiscription);
-                                // store.keyword = data.keyword;       
-                                // store.otherKeyword = data.otherKeyword;
-                                // store.webAddress = validator.trim(data.webAddress);
-                                // store.countries = data.countries;
-                                // store.dispatchDayMin = data.dispatchDayMin;
-                                // store.dispatchDayMax = data.dispatchDayMax;
-                                // store.customization = data.customization;
-                                // store.giftWrap = data.giftWrap;
-                                // store.cod = data.cod;
-                                // store.freeShiping = data.freeShiping;
-                                // store.returnandreplace = validator.trim(data.returnandreplace);
-                                store.save();
-                                return store;
-                            })
-                            .then((saved) => {
-                                callback.onSuccess(saved);
-                            })
-                            .catch((error) => {
-                                callback.onError(error);
-                            });
-                    }
-                });
-            }else{          
-                let err = {
-                    status: 400,
-                    message:"Images not found"
+                }else{
+                    let data = req.body;        
+                    done(err, data);
                 }
-                return callback.onError(err);
+            },
+            function(data, done, err) {
+                if(typeof files['storeBanner'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['storeBanner'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['storeBanner'].path, targetDir + fileName, function(err) {
+                            req.body.storeBanner = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
+                    });
+                }else{
+                    let data = req.body;        
+                   done(err, data);
+                }
+            },
+            function(data, done){
+                if(req.body.storeName != undefined){
+                    req.checkBody('storeName', 'category is required').notEmpty();
+                }
+                if(req.body.storeLogo != undefined){
+                    req.checkBody('storeLogo', 'storeLogo is required').isImage(req.body.storeLogo);
+                }
+                if(req.body.categoriesIds != undefined){
+                    req.checkBody('categoriesIds', 'minimum one categoriesIds is required').notEmpty();
+                }
+                if(req.body.keyword != undefined){
+                    req.checkBody('keyword', 'minimum one keyword is required').notEmpty();
+                }
+                console.log("categoriesIds", req.body.categoriesIds)
+                if(req.body.storeBanner != undefined){
+                    req.checkBody('storeBanner', 'storeBanner is required').isImage(req.body.storeBanner);
+                }
+                if(req.body.buisnessBoth && req.body.buisnessOnline && req.body.buisnessOffline){
+                    req.checkBody('buisnessBoth', 'only one of buisnessBoth, buisnessOnline and buisnessOffline should be true').isBoolean();
+                }
+                if(req.body.address != undefined){
+                    req.checkBody('address', 'address must not be empty').notEmpty();
+                }
+                if(req.body.storePhone != undefined){
+                    req.checkBody('storePhone', 'storePhone must not be empty').notEmpty();
+                }
+                if(req.body.storeDiscription != undefined){
+                    req.checkBody('storeDiscription', 'storeDiscription must not be empty').notEmpty();
+                }
+                if(req.body.keyword != undefined){
+                    req.checkBody('keyword', 'keyword must not be empty').notEmpty();
+                }
+                if(req.body.otherKeyword != undefined){
+                    req.checkBody('otherKeyword', 'otherKeyword must not be empty').notEmpty();
+                }
+                if(req.body.webAddress != undefined){
+                    req.checkBody('webAddress', 'webAddress must not be empty').notEmpty();
+                }
+                if(req.body.countries != undefined){
+                    req.checkBody('countries', 'countries must not be empty').notEmpty();
+                }
+                if(req.body.dispatchDayMin != undefined){
+                    req.checkBody('dispatchDayMin', 'dispatchDayMin must not be empty').notEmpty();
+                }
+                if(req.body.dispatchDayMax != undefined){
+                    req.checkBody('dispatchDayMax', 'dispatchDayMax must not be empty').notEmpty();
+                }
+                if(req.body.customization != undefined){
+                    req.checkBody('customization', 'customization must be true or false').isBoolean();
+                }
+                if(req.body.giftWrap != undefined){
+                    req.checkBody('giftWrap', 'giftWrap must be true or false').isBoolean();
+                }
+                if(req.body.cod != undefined){
+                    req.checkBody('cod', 'cod must be true or false').isBoolean();
+                }
+                if(req.body.freeShiping != undefined){
+                    req.checkBody('freeShiping', 'freeShiping must be true or false').isBoolean();
+                }
+                if(req.body.returnandreplace != undefined){
+                    req.checkBody('returnandreplace', 'returnandreplace must not be empty').notEmpty();
+                }
+                if(req.body.isActive != undefined){
+                    req.checkBody('isActive', 'isActive must be true or false').isBoolean();
+                }
+                req.getValidationResult()
+                .then(function(result) {
+                console.log("result", result)
+                    if (!result.isEmpty()) {
+                        var errorMessages = {};
+                        result.array().map(function(elem) {
+                            return errorMessages[elem.param] = elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
+                    }  
+                    return new Promise(function(resolve, reject) {
+                        StoreModel.findOne({ _id: req.params.id }, function(err, store) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!store) {
+                                    reject(new NotFoundError("store not found"));
+                                } else {
+                                    resolve(store);
+                                }
+                            }
+                        })
+                    });
+                })
+                .then((store) => {
+                    for (var key in data) {
+                        store[key] = data[key];
+                    }   
+                    store.save();
+                    return store;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);      
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });             
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
-        });
+          ], function(err, data) {
+                if (err) return callback.onError(err);
+                else return data;
+        });        
     }
-
     getSingleStore(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
@@ -195,59 +260,151 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) {
                     StoreModel.aggregate([
-                        
                         { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
                         {
-                            "$lookup": 
-                                {
-                                    "from": 'catalogs',
-                                    "localField": "_id",
-                                    "foreignField": "storeId",
-                                    "as": "storeCatalogs"
-                                }
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "_id",
+                                "foreignField": "storeId",
+                                "as": "storeCatalogs"
+                            }
                         },
                         {
                             "$lookup": {
-                                    "from": 'categories',
-                                    "localField": "categoriesIds",
-                                    "foreignField": "_id",
-                                    "as": "categoriesIds"
-                                }
+                                "from": 'keywords',
+                                "localField": "keyword",
+                                "foreignField": "_id",
+                                "as": "keywords"
+                            }
                         },
                         {
                             "$lookup": {
-                                    "from": 'keywords',
-                                    "localField": "keyword",
-                                    "foreignField": "_id",
-                                    "as": "keyword"
-                                }
+                                "from": 'categories',
+                                "localField": "categoriesIds",
+                                "foreignField": "_id",
+                                "as": "categoriesIds"
+                            }
                         },
-                        { 
-                            $project : { 
-                                dateModified: 0,
-                                dateCreated:0,
-                                __v:0,
-                                categoriesIds:{
-                                    dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                        {
+                            "$lookup": {
+                                "from": 'offers',
+                                "localField": "_id",
+                                "foreignField": "storeId",
+                                "as": "storeOffers"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'reviews',
+                                "localField": "_id",
+                                "foreignField": "storeId",
+                                "as": "reviews",
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: "$reviews",
+                                preserveNullAndEmptyArrays: false
+                              }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "reviews.userId",
+                                foreignField: "_id",
+                                as: "reviews.users"
+                            }
+                        },
+                        {
+                            $group: {
+                                _id : "$_id",
+                                storeName :  {$first:"$storeName"}, 
+                                isActive: {$first:"$isActive"}, 
+                                address: {$max: '$address'}, 
+                                description: {
+                                    $max: '$description'
+                                }, 
+                                reviews: { $addToSet: '$reviews' },
+                                keywords: { $addToSet: '$keywords' },
+                                categoriesIds: { $addToSet: '$categoriesIds' },
+                                storeOffers: { $addToSet: '$storeOffers' },
+                                storeCatalogs: { $addToSet: '$storeCatalogs' }
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                storeName: 1,
+                                isActive: 1,
+                                address: 1,
+                                description:1,
+                                //description: { $ifNull: [ 1, null ] },
+                                // description: {
+                                //      $ne:null 
+                                // },
+                                // description: {
+                                //     $filter: { input: "$description", as: "a", cond: { $ifNull: ["$$a._id", false] } },
+                                // },
+                                reviews: {
+                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", true] } },   
+                                                              
                                 },
-                                keyword:{
-                                    dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                reviews:{userId:1, storeId:1},
+                                
+                                keywords: {
+                                    $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
                                 },
-                                storeCatalogs:{
-                                    dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                categoriesIds: {
+                                    $filter: { input: "$categoriesIds", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                                storeOffers: {
+                                    $filter: { input: "$storeOffers", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                                storeCatalogs: {
+                                    $filter: { input: "$storeCatalogs", as: "c", cond: { $ifNull: ["$$c._id", false] } },
                                 }
-                            } 
+                            }
                         }
+                        // {
+                        //     $lookup: {
+                        //       from: "users",
+                        //       localField: "storeReview.userId",
+                        //       foreignField: "_id",
+                        //       as: "storeReviewUser"
+                        //     },
+                        // },
+                        // { 
+                        //     $project : { 
+                        //     categoriesIds:{
+                        //         dateModified: 0,
+                        //         dateCreated:0,
+                        //         __v:0,
+                        //     },
+                        //     keyword:{
+                        //         dateModified: 0,
+                        //         dateCreated:0,
+                        //         __v:0,
+                        //     },
+                        //     storeCatalogs:{
+                        //         dateModified: 0,
+                        //         dateCreated:0,
+                        //         __v:0,
+                        //     },
+                        //     storeOffers:{
+                        //         dateModified: 0,
+                        //         dateCreated:0,
+                        //         __v:0,
+                        //     },
+                        //     storeReview:{
+                        //         dateModified: 0,
+                        //         dateCreated:0,
+                        //         __v:0,
+                        //     },                                
+                        // } 
+                    // }
                     ]).exec(function(err, results){
-                        resolve(results[0]);
-                     })
-
+                        resolve(results);
+                    })
                     //    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).populate('Catalog').exec(function(err, store) {
                     //     if (err !== null) {
                     //         reject(err);
@@ -261,7 +418,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     // })
                 });
             })
-            .then((result) => {
+            .then((result) => {         
                 callback.onSuccess(result);
             })
             .catch((error) => {
@@ -286,6 +443,12 @@ class StoreHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
+    }
+    objectify(array) {
+        return array.reduce(function(p, c) {
+             p[c['fieldname']] = c;
+             return p;
+        }, {});
     }
 }
 

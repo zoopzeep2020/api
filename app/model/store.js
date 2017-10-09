@@ -16,7 +16,7 @@ let StoreSchema = new Schema({
     buisnessOffline: Boolean,
     buisnessBoth: Boolean,
     address: String,
-    storePhone: Number,
+    storePhone:Number,
     storeDiscription: String,
     keyword: [{
         type: mongoose.Schema.Types.ObjectId,

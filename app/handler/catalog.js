@@ -9,7 +9,9 @@ const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const fs = require('fs');
+var async = require('async');
 const mkdirp = require('mkdirp');
+const path = require('path');
 
 class CatalogHandler extends BaseAutoBindedClass {
     constructor() {
@@ -19,10 +21,6 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     static get CATALOG_VALIDATION_SCHEME() {
         return {
-            'catalogUrl': {
-                notEmpty: true,
-                errorMessage: 'Catalog is required'
-            },
             'catalogDescription': {
                 isLength: {
                     options: [{ min: 2}],
@@ -32,65 +30,72 @@ class CatalogHandler extends BaseAutoBindedClass {
                 errorMessage: 'Catalog description is required'
             }
         };
-    }
+    }    
 
     createNewCatalog(req, callback) {
-        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-
-        mkdirp(targetDir, function(err) {
-            if (err) {
-                callback.onError(err)
-            }
-            console.log(req.files ? req.files.length : 'req.files is null or undefined');
-            if (req.files != undefined && req.files.length > 0 ) {
-                req.files.forEach(function(file) {
-                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(file.path, targetDir + fileName, function(err) {
-                        if (err) throw err;
-                        req.body.catalogUrl = targetDir + fileName;
-                        let data = req.body;
-                        req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-                        req.getValidationResult()
-                            .then(function(result) {
-                                if (!result.isEmpty()) {
-                                    var errorMessages = {};
-                                    result.array().map(function(elem) {
-                                        return errorMessages[elem.param] = elem.msg;
-                                    });
-                                    throw new ValidationError(errorMessages);
-                                }
-
-                                return new CatalogModel({
-                                    storeId: data.storeId,
-                                    catalogUrl: validator.trim(data.catalogUrl),
-                                    catalogDescription: validator.trim(data.catalogDescription),
-                                });
-
-                            })
-                            .then((catalog) => {
-                                catalog.save();
-                                return catalog;
-                            })
-                            .then((saved) => {
-                                callback.onSuccess(saved);
-                            })
-                            .catch((error) => {
-                                callback.onError(error);
-                            });
+        let files = this.objectify(req.files);
+        async.waterfall([
+            function(done, err) {
+                if(typeof files['catalogUrl'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function(err) {
+                            req.body.catalogUrl = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
                     });
-                });
-            }else{
-                let err = {
-                    status: 400,
-                    message:"Images not found"
+                }else{
+                    let data = req.body;        
+                    done(err, data);
                 }
-                return callback.onError(err);
+            },
+            function(data, done){
+                req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
+                if(req.body.catalogUrl != undefined){
+                    req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
+                }else{
+                    req.checkBody('catalogUrl', 'Catalog image is required').notEmpty();
+                }
+                req.getValidationResult()
+                .then(function(result) {
+                    if (!result.isEmpty()) {
+                        var errorMessages = {};
+                        result.array().map(function(elem) {
+                            return errorMessages[elem.param] = elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
+                    }  
+                    return new CatalogModel(data);
+                })
+                .then((catalog) => {
+                    catalog.save();
+                    return catalog;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);      
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });             
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
+          ], function(err, data) {
+                if (err) return callback.onError(err);
+                else return data;
         });
     }
-
-    deleteCatalog(req, callback) {
+   
+    deleteCatalog(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -110,7 +115,11 @@ class CatalogHandler extends BaseAutoBindedClass {
                             if (!catalog) {
                                 reject(new NotFoundError("Catalog not found"));
                             } else {
-                                resolve(catalog);
+                                if(user.isAdmin || (catalog.storeId === user.storeId)){
+                                    resolve(catalog);
+                                }else{
+                                    reject(new NotFoundError("you are not allow to remove this catalog"));
+                                }
                             }
                         }
                     })
@@ -129,75 +138,82 @@ class CatalogHandler extends BaseAutoBindedClass {
     }
 
     updateCatalog(req, callback) {
-        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-
-        mkdirp(targetDir, function(err) {
-            if (err) {
-                callback.onError(err)
-            }
-
-            if (req.files.length > 0) {
-                req.files.forEach(function(file) {
-                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(file.path, targetDir + fileName, function(err) {
-                        if (err) throw err;
-                        req.body.catalogUrl = targetDir + fileName;
-                        var data = req.body;
-                        req.checkParams('id', 'Invalid id provided').isMongoId();
-                        req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-                        req.getValidationResult()
-                            .then(function(result) {
-                                if (!result.isEmpty()) {
-                                    var errorMessages = {};
-                                    result.array().map(function(elem) {
-                                        return errorMessages[elem.param] = elem.msg;
-                                    });
-                                    throw new ValidationError(errorMessages);
-                                }
-                                return new Promise(function(resolve, reject) {
-                                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
-                                        if (err !== null) {
-                                            reject(err);
-                                        } else {
-                                            if (!catalog) {
-                                                reject(new NotFoundError("Catalog not found"));
-                                            } else {
-                                                resolve(catalog);
-                                            }
-                                        }
-                                    })
-                                });
-                            })
-                            .then((catalog) => {
-                                console.log(data);
-                                for (var key in data) {
-                                    console.log(key,data[key]);
-                                    catalog[key] = data[key];
-                                    // if (data.hasOwnProperty(key)) {
-                                       
-                                    // }
-                                }     
-                                catalog.save();
-                                return catalog;
-                            })
-                            .then((saved) => {
-                                callback.onSuccess(saved);
-                            })
-                            .catch((error) => {
-                                callback.onError(error);
-                            });
+        let files = this.objectify(req.files);
+        async.waterfall([
+            function(done, err) {
+                if(typeof files['catalogUrl'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function(err) {
+                            req.body.catalogUrl = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
                     });
-                });
-            }else{
-                let err = {
-                    status: 400,
-                    message:"Images not found"
+                }else{
+                    let data = req.body;        
+                    done(err, data);
                 }
-                return callback.onError(err);
-            }
+            },
+            function(data, done){
+                if(req.body.catalogDescription != undefined){
+                    req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
+                }
+                if(req.body.catalogUrl != undefined){
+                    req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
+                }
+                req.getValidationResult()
+                .then(function(result) {
+                    if (!result.isEmpty()) {
+                        var errorMessages = {};
+                        result.array().map(function(elem) {
+                            return errorMessages[elem.param] = elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
+                    }      
 
-        });
+                    return new Promise(function(resolve, reject) {
+                        CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!catalog) {
+                                    reject(new NotFoundError("Catalog not found"));
+                                } else {
+                                    resolve(catalog);
+                                }
+                            }
+                        })
+                    });
+                })
+                .then((catalog) => {
+                    for (var key in data) {
+                        catalog[key] = data[key];
+                    }     
+                    catalog.save();
+                    return catalog;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);      
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
+            }
+          ], function(err, data) {
+                if (err) return callback.onError(err);
+                else return data;
+          });
     }
 
     getSingleCatalog(req, callback) {
@@ -286,7 +302,12 @@ class CatalogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
+    
+    objectify(array) {
+        return array.reduce(function(p, c) {
+             p[c['fieldname']] = c;
+             return p;
+        }, {});
+    }
 }
-
 module.exports = CatalogHandler;

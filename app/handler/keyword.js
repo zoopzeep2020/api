@@ -1,9 +1,6 @@
 /**
  * Created by crosp on 5/13/17.
  */
-/**
- * Created by crosp on 5/9/17.
- */
 const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -31,6 +28,7 @@ class KeywordHandler extends BaseAutoBindedClass {
     createNewKeyword(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        console.log(req.body)
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {

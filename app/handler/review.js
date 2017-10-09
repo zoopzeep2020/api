@@ -1,9 +1,6 @@
 /**
  * Created by crosp on 5/13/17.
  */
-/**
- * Created by crosp on 5/9/17.
- */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -26,6 +23,7 @@ class ReviewHandler extends BaseAutoBindedClass {
 
     createNewReview(req, callback) {
         let data = req.body;
+        console.log(req.body)
         let validator = this._validator;
         let ModelData = {};
         req.checkBody(ReviewHandler.REVIEW_VALIDATION_SCHEME);
@@ -78,7 +76,11 @@ class ReviewHandler extends BaseAutoBindedClass {
                             if (!review) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                resolve(review);
+                                if(user.isAdmin || (review.userId === user.userId)){
+                                    resolve(review);
+                                }else{
+                                    reject(new NotFoundError("you are not allow to remove this review"));
+                                }
                             }
                         }
                     })
@@ -119,7 +121,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                             if (!review) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-
                                 resolve(review);
                             }
                         }

@@ -12,7 +12,11 @@ class ReviewController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._reviewHandler.getAllReviews(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){         
+                this._reviewHandler.getAllReviews(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }
         });
     }
 
@@ -24,7 +28,7 @@ class ReviewController extends BaseController {
 
     getUserReviews(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._reviewHandler.getAllUserReviews(req, this._responseManager.getDefaultResponseHandler(res));
+            this._reviewHandler.getAllUserReviews(req, this._responseManager.getDefaultResponseHandler(res));   
         });
     }
 
@@ -41,19 +45,31 @@ class ReviewController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._reviewHandler.createNewReview(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+                this._reviewHandler.createNewReview(req, this._responseManager.getDefaultResponseHandler(res));            
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._reviewHandler.updateReview(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+                this._reviewHandler.updateReview(req, this._responseManager.getDefaultResponseHandler(res));            
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._reviewHandler.deleteReview(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin || user.isUser){
+                this._reviewHandler.deleteReview(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            }
         });
     }
 

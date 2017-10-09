@@ -28,19 +28,32 @@ class KeywordController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._keywordHandler.createNewKeyword(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._keywordHandler.createNewKeyword(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
+            
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._keywordHandler.updateKeyword(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._keywordHandler.updateKeyword(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._keywordHandler.deleteKeyword(req, this._responseManager.getDefaultResponseHandler(res));
+            if(user.isAdmin){
+                this._keywordHandler.deleteKeyword(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
         });
     }
 

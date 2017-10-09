@@ -30,91 +30,96 @@ class CategoryHandler extends BaseAutoBindedClass {
                 },
                 errorMessage: 'Category is required'
             },
-            'categoryImage': {
-                notEmpty: true,
-                errorMessage: 'Category image is required'
-            },
-            'categoryActiveImage': {
-                notEmpty: true,
-                errorMessage: 'Category active image is required'
-            }
         };
     }
 
 
-    saveData(req, callback){
-        let validator = this._validator;
-        let data = req.body;
-        req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
-        req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new CategoryModel({
-                    category: validator.trim(data.category),
-                    categoryImage: validator.trim(data.categoryImage),
-                    categoryActiveImage: validator.trim(data.categoryActiveImage),
-                });
-            })
-            .then((category) => {
-                category.save();
-                return category;
-            })
-            .then((saved) => {
-                callback.onSuccess(saved);
-                const directory = './uploads';
-                fs.readdir(directory, (err, files) => {
-                    if (err) throw error;
-
-                    for (const file of files) {
-                        fs.unlink(path.join(directory, file), err => {
-                            if (err) throw error;
-                        });
-                    }
-                });
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
-
+   
     createNewCategory(req, callback) {
-        let saveData = this.saveData;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-
-        mkdirp(targetDir, function(err) {
-            if (err) {
-                callback.onError(err)
-            }
-            if (req.files.length > 0) {
-                async.each(req.files, function(file, callback) {
-                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(file.path, targetDir + fileName, function(err) {
-                        if (err) throw callback.onError(err);
-                        req.body[file.fieldname] = targetDir + fileName;
-                        callback(err);
+        let files = this.objectify(req.files);
+        async.waterfall([
+            function(done, err) {
+                if(typeof files['categoryImage'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['categoryImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['categoryImage'].path, targetDir + fileName, function(err) {
+                            req.body.categoryImage = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
                     });
-                }, function(err) {
-                    if (err) {
-                        callback.onError(err);
-                    } else {
-                        saveData(req,callback);
-                    }
-                });
-            }else{
-                let err = {
-                    status: 400,
-                    message:"Images not found"
+                }else{
+                    let data = req.body;        
+                    done(err, data);
                 }
-                return callback.onError(err);
+            },
+            function(data, done, err) {
+                if(typeof files['categoryActiveImage'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['categoryActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['categoryActiveImage'].path, targetDir + fileName, function(err) {
+                            req.body.categoryActiveImage = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
+                    });
+                }else{
+                    let data = req.body;        
+                    done(err, data);
+                }
+            },
+            function(data, done){
+                req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
+                if(req.body.categoryImage != undefined){
+                    req.checkBody('categoryImage', 'categoryImage is required').isImage(req.body.categoryImage);
+                }else{
+                    req.checkBody('categoryImage', 'categoryImage is required').notEmpty();
+                }
+
+                if(req.body.categoryActiveImage != undefined){
+                    req.checkBody('categoryActiveImage', 'categoryActiveImage is required').isImage(req.body.categoryActiveImage);
+                }else{
+                    req.checkBody('categoryActiveImage', 'categoryActiveImage  is required').notEmpty();
+                }
+                req.getValidationResult()
+                .then(function(result) {
+                    if (!result.isEmpty()) {
+                        var errorMessages = {};
+                        result.array().map(function(elem) {
+                            return errorMessages[elem.param] = elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
+                    }  
+                    return new CategoryModel(data);
+                })
+                .then((category) => {
+                    category.save();
+                    return category;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);      
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });             
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
+          ], function(err, data) {
+                if (err) return callback.onError(err);
+                else return data;
         });
     }
+
+    
 
     deleteCategory(req, callback) {
         let data = req.body;
@@ -153,87 +158,105 @@ class CategoryHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
     updateCategory(req, callback) {
-        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-
-        mkdirp(targetDir, function(err) {
-            if (err) {
-                callback.onError(err)
-            }
-            if (req.files.length > 0) {
-                async.each(req.files, function(file, callback) {
-                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(file.path, targetDir + fileName, function(err) {
-                        if (err) {
-                            throw new ValidationError(err);
-                        }                   
-                        req.body[file.fieldname] = targetDir + fileName;
-                        callback(err);
+        let files = this.objectify(req.files);        
+        async.waterfall([
+            function(done, err) {
+                if(typeof files['categoryImage'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['categoryImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['categoryImage'].path, targetDir + fileName, function(err) {
+                            req.body.categoryImage = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
                     });
-                }, function(err) {
-                    if (err) {
-                        callback.onError(err);
-                    } else {
-                        req.body.storeId = req.params.id
-                        let data = req.body;
-                        req.checkParams('id', 'Invalid id provided').isMongoId();
-                        req.checkBody(CategoryHandler.CATEGORY_VALIDATION_SCHEME);
-                        req.getValidationResult()
-                            .then(function(result) {
-                                if (!result.isEmpty()) {
-                                    var errorMessages = {};
-                                    result.array().map(function(elem) {
-                                        return errorMessages[elem.param] = elem.msg;
-                                    });
-                                    throw new ValidationError(errorMessages);
-                                }
-                                return new Promise(function(resolve, reject) {
-                                    CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
-                                        if (err !== null) {
-                                            reject(err);
-                                        } else {
-                                            if (!category) {
-                                                reject(new NotFoundError("Category not found"));
-                                            } else {
-                                                resolve(category);
-                                            }
-                                        }
-                                    })
-                                });
-                            })
-                            .then((category) => {
-                                for (var key in data) {
-                                    if (data.hasOwnProperty(key)) {
-                                        category[key] = data[key];
-                                    }
-                                }  
-                                category.save();
-                                return category;
-                            })
-                            .then((saved) => {
-                                const directory = './uploads';
-                                fs.readdir(directory, (err, files) => {
-                                    if (err) throw error;
+                }else{
+                    let data = req.body;        
+                    done(err, data);
+                }
+            },
+            function(data, done, err) {
+                if(typeof files['categoryActiveImage'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['categoryActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['categoryActiveImage'].path, targetDir + fileName, function(err) {
+                            req.body.categoryActiveImage = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
+                    });
+                }else{
+                    let data = req.body;        
+                    done(err, data);
+                }
+            },
+            function(data, done){
+                if(req.body.category != undefined){
+                    req.checkBody('category', 'category is required').notEmpty();
+                }
+                console.log(req.body.categoryImage)
+                if(req.body.categoryImage != undefined){
+                    req.checkBody('categoryImage', 'categoryImage is required').isImage(req.body.categoryImage);
+                }
 
-                                    for (const file of files) {
-                                        fs.unlink(path.join(directory, file), err => {
-                                            if (err) throw error;
-                                        });
-                                    }
-                                });
-                                callback.onSuccess(saved);
-                            })
-                            .catch((error) => {
-                                callback.onError(error);
+                if(req.body.categoryActiveImage != undefined){
+                    req.checkBody('categoryActiveImage', 'categoryActiveImage is required').isImage(req.body.categoryActiveImage);
+                }
+                req.getValidationResult()
+                .then(function(result) {
+                console.log("result", result)
+                    if (!result.isEmpty()) {
+                        var errorMessages = {};
+                        result.array().map(function(elem) {
+                            return errorMessages[elem.param] = elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
+                    }  
+                    return new Promise(function(resolve, reject) {
+                        CategoryModel.findOne({ _id: req.params.id }, function(err, category) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!category) {
+                                    reject(new NotFoundError("category not found"));
+                                } else {
+                                    resolve(category);
+                                }
+                            }
+                        })
+                    });
+                })
+                .then((category) => {
+                    for (var key in data) {
+                        category[key] = data[key];
+                    }   
+                    category.save();
+                    return category;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);      
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
                             });
-                    }
+                        }
+                    });             
+                })
+                .catch((error) => {
+                    callback.onError(error);
                 });
             }
-        });
+          ], function(err, data) {
+                if (err) return callback.onError(err);
+                else return data;
+        });        
     }
-
+    
     getSingleCategory(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
@@ -284,6 +307,12 @@ class CategoryHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
+    }
+    objectify(array) {
+        return array.reduce(function(p, c) {
+             p[c['fieldname']] = c;
+             return p;
+        }, {});
     }
 }
 

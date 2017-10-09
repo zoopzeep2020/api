@@ -53,6 +53,46 @@ app.use(validationManager.provideDefaultValidator());
 //         }
 //     }
 // }));
+//requiring the validator
+var expressValidator = require('express-validator');
+//the app use part
+app.use(expressValidator({
+customValidators: {
+    isImage: function(value, filename) {
+        var extension = (path.extname(filename)).toLowerCase();
+        switch (extension) {
+            case '.jpg':
+                return '.jpg';
+            case '.jpeg':
+                return '.jpeg';
+            case  '.png':
+                return '.png';
+            default:
+                return false;
+        }
+    },
+    isOneTrue: function(value, bool1, bool2){
+        if((bool1 || bool2) && !(bool1 && bool2)){
+            return true;
+        }
+        return false;
+    },
+    checkNumberRange: function(value, inputNumber , min , max){
+        if((inputNumber >= min) && (inputNumber <= max)){
+            return true;
+        }
+        return false;
+    },
+    checkDateValidity: function(value, startDate, endDate){
+        var startDate = new Date(startDate).getTime();
+        var endDate = new Date(endDate).getTime();
+        var currentDate = new Date().getTime();
+        if(startDate >currentDate && endDate>currentDate && startDate<endDate){
+            return true;
+        }
+        return false;
+    }
+}}));
 
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
@@ -61,3 +101,4 @@ app.listen(global.config.server.PORT, function() {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);
 });
+
