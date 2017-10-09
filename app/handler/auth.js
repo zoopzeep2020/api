@@ -31,6 +31,7 @@ class AuthHandler extends BaseAutoBindedClass {
             } 
             user.save();
             let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
+            console.log(user);
             let data = {
                 _id:user._id,
                 token:userToken.token,
