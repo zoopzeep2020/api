@@ -260,6 +260,14 @@ class StoreHandler extends BaseAutoBindedClass {
                         { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
                         {
                             "$lookup": {
+                                "from": 'stores',
+                                "localField": "_id",
+                                "foreignField": "_id",
+                                "as": "storesInfo"
+                            }
+                        },
+                        {
+                            "$lookup": {
                                 "from": 'catalogs',
                                 "localField": "_id",
                                 "foreignField": "storeId",
@@ -319,6 +327,8 @@ class StoreHandler extends BaseAutoBindedClass {
                                 isActive: { $first : '$isActive' }, 
                                 address: { $first : '$address' }, 
                                 description: { $first : '$description' }, 
+
+                                storesInfo:{ $addToSet: '$storesInfo' },
                                 reviews: { $addToSet: '$reviews' },
                                 keywords: { $addToSet: '$keywords' },
                                 categoriesIds: { $addToSet: '$categoriesIds' },
@@ -328,24 +338,24 @@ class StoreHandler extends BaseAutoBindedClass {
                         },
                         {
                             $project: {
-                                _id: 1,
-                                storeName: 1,
-                                isActive: 1,
-                                address: 1,
-                                description:1,
+                                // _id: 1,
+                                // storeName: 1,
+                                // isActive: 1,
+                                // address: 1,
+                                // description:1,
                                 //description: { $ifNull: [ 1, null ] },
                                 // description: {
                                 //      $ne:null 
                                 // },
                                 // description: {
                                 //     $filter: { input: "$description", as: "a", cond: { $ifNull: ["$$a._id", false] } },
-                                // },
+                                // },      
+                                storesInfo: {
+                                    $filter: { input: "$storesInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
+                                },           
                                 reviews: {
-                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", true] } },   
-                                                              
+                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
                                 },
-                                reviews:{userId:1, storeId:1},
-                                
                                 keywords: {
                                     $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
                                 },
@@ -358,7 +368,52 @@ class StoreHandler extends BaseAutoBindedClass {
                                 storeCatalogs: {
                                     $filter: { input: "$storeCatalogs", as: "c", cond: { $ifNull: ["$$c._id", false] } },
                                 }
-                            }
+                            },
+                           
+                        },
+                        { 
+                            $project : { 
+                                dateModified: 0,
+                                dateCreated:0,
+                                __v:0,
+                                categoriesIds:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                },
+                                keyword:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                },
+                                storeCatalogs:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                },
+                                storeOffers:{
+                                    dateModified: 0,
+                                    dateCreated:0,
+                                    __v:0,
+                                },
+                                reviews:{
+                                    dateModified: 0,
+                                    dateCreated:0,  
+                                    __v:0,
+                                    users:{
+                                        hashedPassword: 0,
+                                        salt: 0,
+                                        phone: 0,
+                                        dateCreated:0,  
+                                        isStore:0,  
+                                        isUser:0,  
+                                        iSAdmin:0,  
+                                        resetPasswordExpires:0,  
+                                        resetPasswordToken:0,  
+                                        __v:0,
+                                    }
+                                },                                
+                            } 
                         }
                         // {
                         //     $lookup: {
@@ -397,6 +452,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         //     },                                
                         // } 
                     // }
+                    
                     ]).exec(function(err, results){
                         resolve(results);
                     })
