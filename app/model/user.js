@@ -8,6 +8,7 @@ let UserSchema = new Schema({
     name: String,
     phone: Number,
     deviceToken: String,
+    deviceType: String,
     userImage: String,
     userLat: Number,
     userLong: Number,

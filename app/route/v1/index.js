@@ -12,6 +12,9 @@ router.use('/keywords', require(ROUTE_V1_PATH + 'keyword'));
 router.use('/catalogs', require(ROUTE_V1_PATH + 'catalog'));
 router.use('/offers', require(ROUTE_V1_PATH + 'offer'));
 router.use('/reviews', require(ROUTE_V1_PATH + 'review'));
+router.use('/bookmarks', require(ROUTE_V1_PATH + 'bookmark'));
+router.use('/blogs', require(ROUTE_V1_PATH + 'blog'));
+router.use('/mylists', require(ROUTE_V1_PATH + 'mylist'));
 router.use('/reviewComments', require(ROUTE_V1_PATH + 'reviewComment'));
 
 module.exports = router;

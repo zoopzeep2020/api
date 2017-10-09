@@ -11,7 +11,7 @@ const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 var db = require('mongodb').Db;
-
+var path = require('path');
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -63,9 +63,8 @@ class StoreHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -100,7 +99,7 @@ class StoreHandler extends BaseAutoBindedClass {
         let files = this.objectify(req.files);        
         async.waterfall([
             function(done, err) {
-                if(typeof files['storeLogo'] !== "undefined"){
+                if(files != undefined && typeof files['storeLogo'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
                         var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeLogo'].path, targetDir + fileName, function(err) {
@@ -115,7 +114,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             },
             function(data, done, err) {
-                if(typeof files['storeBanner'] !== "undefined"){
+                if(files != undefined && typeof files['storeBanner'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
                         var fileName = files['storeBanner'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeBanner'].path, targetDir + fileName, function(err) {
@@ -142,7 +141,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 if(req.body.keyword != undefined){
                     req.checkBody('keyword', 'minimum one keyword is required').notEmpty();
                 }
-                console.log("categoriesIds", req.body.categoriesIds)
                 if(req.body.storeBanner != undefined){
                     req.checkBody('storeBanner', 'storeBanner is required').isImage(req.body.storeBanner);
                 }
@@ -252,9 +250,8 @@ class StoreHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -318,12 +315,10 @@ class StoreHandler extends BaseAutoBindedClass {
                         {
                             $group: {
                                 _id : "$_id",
-                                storeName :  {$first:"$storeName"}, 
-                                isActive: {$first:"$isActive"}, 
-                                address: {$max: '$address'}, 
-                                description: {
-                                    $max: '$description'
-                                }, 
+                                storeName : { $first : '$storeName' }, 
+                                isActive: { $first : '$isActive' }, 
+                                address: { $first : '$address' }, 
+                                description: { $first : '$description' }, 
                                 reviews: { $addToSet: '$reviews' },
                                 keywords: { $addToSet: '$keywords' },
                                 categoriesIds: { $addToSet: '$categoriesIds' },
@@ -445,10 +440,13 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
     objectify(array) {
-        return array.reduce(function(p, c) {
-             p[c['fieldname']] = c;
-             return p;
-        }, {});
+        console.log(array)
+        if(array!== undefined){
+            return array.reduce(function(p, c) {
+                p[c['fieldname']] = c;
+                return p;
+            }, {});
+        }
     }
 }
 

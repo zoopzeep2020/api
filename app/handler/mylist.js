@@ -1,35 +1,33 @@
 /**
  * Created by crosp on 5/13/17.
  */
-const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
+const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 
-class KeywordHandler extends BaseAutoBindedClass {
+class MylistHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
 
-    static get KEYWORD_VALIDATION_SCHEME() {
+    static get MYLIST_VALIDATION_SCHEME() {
         return {
-            'title': {
-                isLength: {
-                    options: [{ min: 2  }],
-                    errorMessage: 'Keyword title must be 2 characters long'
-                },
+            'listName': {
                 notEmpty: false,
-                errorMessage: 'Keyword title required'
+                errorMessage: 'list title required'
             },
         };
     }
 
-    createNewKeyword(req, callback) {
+    createNewMylist(req, callback) {
         let data = req.body;
+        console.log("mylisrt")
+        console.log(data)
         let validator = this._validator;
-        console.log(req.body)
-        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
+        req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
+        req.checkBody('stores', 'minimum one list is required').notEmpty();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -38,11 +36,11 @@ class KeywordHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new KeywordModel(data);
+                return new MylistModel(data);
             })
-            .then((keyword) => {
-                keyword.save();
-                return keyword;
+            .then((mylist) => {
+                mylist.save();
+                return mylist;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -52,9 +50,10 @@ class KeywordHandler extends BaseAutoBindedClass {
             });
     }
 
-    deleteKeyword(req, callback) {
+    deleteMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
+        
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -64,36 +63,40 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    MylistModel.findOne({ _id: req.params.id }, function(err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!mylist) {
+                                reject(new NotFoundError("Mylist not found"));
                             } else {
-                                resolve(keyword);
+                                resolve(mylist);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
-                keyword.remove();
-                return keyword;
+            .then((mylist) => {
+                mylist.remove();
+                return mylist;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Keyword id " + saved.id + " deleted successfully ");
+                callback.onSuccess({}, "Mylist id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    updateKeyword(req, callback) {
+    updateMylist(req, callback) {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
+        req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
+        if(req.body.categoriesIds != undefined){
+            req.checkBody('list', 'minimum one list is required').notEmpty();
+        }
+        
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -104,28 +107,28 @@ class KeywordHandler extends BaseAutoBindedClass {
                 }
 
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    MylistModel.findOne({ _id: req.params.id }, function(err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!mylist) {
+                                reject(new NotFoundError("Mylist not found"));
                             } else {
 
-                                resolve(keyword);
+                                resolve(mylist);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
+            .then((mylist) => {
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
-                        keyword[key] = data[key];
+                        mylist[key] = data[key];
                     }
                 }  
-                keyword.save();
-                return keyword;
+                mylist.save();
+                return mylist;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -134,8 +137,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
-    getSingleKeyword(req, callback) {
+    getUserMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -147,45 +149,77 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, category) {
+                    MylistModel.find({ userId: req.params.id }).populate({ path: 'stores', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!mylist) {
+                                reject(new NotFoundError("Mylist not found"));
                             } else {
-                                resolve(category);
+                                resolve(mylist);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
+            .then((mylist) => {
+                callback.onSuccess(mylist);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+    getSingleMylist(req, callback) {
+        let data = req.body;
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    MylistModel.findOne({ _id: req.params.id }).populate({ path: 'stores', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, mylist) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!mylist) {
+                                reject(new NotFoundError("Mylist not found"));
+                            } else {
+                                resolve(mylist);
+                            }
+                        }
+                    })
+                });
+            })
+            .then((mylist) => {
+                callback.onSuccess(mylist);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    getAllKeywords(req, callback) {
+    getAllMylists(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                KeywordModel.find({}, function(err, category) {
+            MylistModel.find().populate({ path: 'stores', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, mylist) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!category) {
-                            reject(new NotFoundError("Keyword not found"));
+                        if (!mylist) {
+                            reject(new NotFoundError("Mylist not found"));
                         } else {
-                            resolve(category);
+                            resolve(mylist);
                         }
                     }
                 })
 
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
+            .then((mylist) => {
+                callback.onSuccess(mylist);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -193,4 +227,4 @@ class KeywordHandler extends BaseAutoBindedClass {
     }
 }
 
-module.exports = KeywordHandler;
+module.exports = MylistHandler;

@@ -55,8 +55,7 @@ class UserHandler {
                 errorMessage: 'Phone is required'
             }
         };
-    }    
-
+    }   
     createNewUser(req, callback) {
         let data = req.body;
         let validator = this._validator;
@@ -70,12 +69,11 @@ class UserHandler {
             .then(function(result) {
                     var errorMessages = {};
                     if (!result.isEmpty()) {
-                        result.array().map(function(elem) {
-                            return errorMessages[elem.param] = elem.msg;
+                        let errorMessages = result.array().map(function (elem) {
+                                return elem.msg;
                         });
-                        throw new ValidationError(errorMessages);
+                        throw new ValidationError(errorMessages.join(' && ')); ValidationError(errorMessages);
                     }
-                
                 return data;
             })
             .then((user) => {
@@ -164,9 +162,8 @@ class UserHandler {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -247,16 +244,17 @@ class UserHandler {
     updateUser(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-
+        let files = this.objectify(req.files);        
+        
         mkdirp(targetDir, function(err) {
             if (err) {
                 callback.onError(err)
             }
 
-            if (req.files != undefined && req.files.length > 0 ) {
-                req.files.forEach(function(file) {
-                    var fileName = file.originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(file.path, targetDir + fileName, function(err) {
+            if (files != undefined && typeof files['userImage'] !== "undefined" ) {
+                files.forEach(function(file) {
+                    var fileName = files['userImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                    fs.rename(files['userImage'].path, targetDir + fileName, function(err) {
                         if (err) throw err;
                         req.body.userImage = targetDir + fileName;
                         let data = req.body;            
@@ -265,9 +263,8 @@ class UserHandler {
                         req.getValidationResult()
                         .then(function(result) {
                             if (!result.isEmpty()) {
-                                var errorMessages = {};
-                                result.array().map(function(elem) {
-                                    return errorMessages[elem.param] = elem.msg;
+                                let errorMessages = result.array().map(function (elem) {
+                                    return elem.msg;
                                 });
                                 throw new ValidationError(errorMessages);
                             }
@@ -318,16 +315,14 @@ class UserHandler {
         req.getValidationResult()
             .then((result) => {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
                     });
-                    throw new ValidationError(errorMessages);
+                    throw new ValidationError('There have been validation errors: ' + errorMessages.join(' && ')); ValidationError(errorMessages);
                 }
-
                 let userId = req.params.id;
                 if (userToken.id !== req.params.id) {
-                    throw new UnauthorizedError("Provided id doesn't match with  the requested user id")
+                    throw new UnauthorizedError("Provided id doesn't match with  the requested user id");
                 } else {
                     return new Promise(function(resolve, reject) {
                         UserModel.findById(userId).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'] }).exec(function(err, user) {
@@ -411,7 +406,14 @@ class UserHandler {
             algorithm: config.jwtOptions.algorithm
         };
     }
-
+    objectify(array) {
+        if(array!== undefined){
+            return array.reduce(function(p, c) {
+                p[c['fieldname']] = c;
+                return p;
+            }, {});
+        }
+    }
 }
 
 module.exports = UserHandler;

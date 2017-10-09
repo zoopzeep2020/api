@@ -1,35 +1,21 @@
 /**
  * Created by crosp on 5/13/17.
  */
-const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
+const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 
-class KeywordHandler extends BaseAutoBindedClass {
+class BookmarkHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
 
-    static get KEYWORD_VALIDATION_SCHEME() {
-        return {
-            'title': {
-                isLength: {
-                    options: [{ min: 2  }],
-                    errorMessage: 'Keyword title must be 2 characters long'
-                },
-                notEmpty: false,
-                errorMessage: 'Keyword title required'
-            },
-        };
-    }
-
-    createNewKeyword(req, callback) {
+    createNewBookmark(req, callback) {
         let data = req.body;
         let validator = this._validator;
         console.log(req.body)
-        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -38,11 +24,11 @@ class KeywordHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new KeywordModel(data);
+                return new BookmarkModel(data);
             })
-            .then((keyword) => {
-                keyword.save();
-                return keyword;
+            .then((bookmark) => {
+                bookmark.save();
+                return bookmark;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -51,8 +37,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
-    deleteKeyword(req, callback) {
+    deleteBookmark(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -64,36 +49,36 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    BookmarkModel.findOne({ _id: req.params.id }, function(err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!bookmark) {
+                                reject(new NotFoundError("Bookmark not found"));
                             } else {
-                                resolve(keyword);
+                                resolve(bookmark);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
-                keyword.remove();
-                return keyword;
+            .then((bookmark) => {
+                bookmark.remove();
+                return bookmark;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Keyword id " + saved.id + " deleted successfully ");
+                callback.onSuccess({}, "Bookmark id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    updateKeyword(req, callback) {
+    updateBookmark(req, callback) {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
+        req.checkBody(BookmarkHandler.BOOKMARK_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -104,28 +89,28 @@ class KeywordHandler extends BaseAutoBindedClass {
                 }
 
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    BookmarkModel.findOne({ _id: req.params.id }, function(err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!bookmark) {
+                                reject(new NotFoundError("Bookmark not found"));
                             } else {
 
-                                resolve(keyword);
+                                resolve(bookmark);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
+            .then((bookmark) => {
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
-                        keyword[key] = data[key];
+                        bookmark[key] = data[key];
                     }
                 }  
-                keyword.save();
-                return keyword;
+                bookmark.save();
+                return bookmark;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -135,7 +120,7 @@ class KeywordHandler extends BaseAutoBindedClass {
             });
     }
 
-    getSingleKeyword(req, callback) {
+    getSingleBookmark(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -147,45 +132,79 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, category) {
+                    BookmarkModel.findOne({ _id: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!bookmark) {
+                                reject(new NotFoundError("Bookmark not found"));
                             } else {
-                                resolve(category);
+                                resolve(bookmark);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
+            .then((bookmark) => {
+                console.log("book",bookmark)
+                callback.onSuccess(bookmark);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
-
-    getAllKeywords(req, callback) {
+    getUserBookmark(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-                KeywordModel.find({}, function(err, category) {
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+        req.getValidationResult()
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                BookmarkModel.find({ userId: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo'],  model: 'Store' }).exec(function(err, bookmark) {
+                    
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!category) {
-                            reject(new NotFoundError("Keyword not found"));
+                        if (!bookmark) {
+                            reject(new NotFoundError("Bookmark not found"));
                         } else {
-                            resolve(category);
+                            resolve(bookmark);
+                        }
+                    }
+                })
+            });
+        })
+        .then((bookmark) => {
+            callback.onSuccess(bookmark);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
+    getAllBookmarks(req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+                BookmarkModel.find({}, function(err, bookmark) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!bookmark) {
+                            reject(new NotFoundError("Bookmark not found"));
+                        } else {
+                            resolve(bookmark);
                         }
                     }
                 })
 
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
+            .then((bookmark) => {
+                callback.onSuccess(bookmark);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -193,4 +212,4 @@ class KeywordHandler extends BaseAutoBindedClass {
     }
 }
 
-module.exports = KeywordHandler;
+module.exports = BookmarkHandler;

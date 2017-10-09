@@ -25,13 +25,12 @@ class AuthHandler extends BaseAutoBindedClass {
         console.log(user)
         if (user) {                         
             for (var key in req.body) {
-                if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong')) {
+                if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
                     user[key] = req.body[key];
                 }
             } 
             user.save();
             let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
-            console.log(user);
             let data = {
                 _id:user._id,
                 token:userToken.token,
@@ -44,6 +43,7 @@ class AuthHandler extends BaseAutoBindedClass {
                 storeId:user.storeId,
                 isStore:user.isStore,
                 isUser:user.isUser,
+                deviceType:user.deviceType,
                 isAdmin:user.isAdmin
             };
             callback.onSuccess(data);
@@ -107,7 +107,6 @@ class AuthHandler extends BaseAutoBindedClass {
 
                     user.resetPasswordToken = token;
                     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-        
                     user.save(function(err) {
                         done(err, token, user);
                     });
@@ -233,7 +232,6 @@ class AuthHandler extends BaseAutoBindedClass {
         return hashedValid === hashed;
     }
 
-
     _provideTokenPayload(user) {
         if(user.storeId){
             return {
@@ -266,8 +264,6 @@ class AuthHandler extends BaseAutoBindedClass {
             algorithm: config.jwtOptions.algorithm
         };
     }
-
-
 }
 
 module.exports = AuthHandler;

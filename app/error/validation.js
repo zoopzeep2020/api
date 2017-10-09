@@ -3,12 +3,11 @@
  */
 
 'use strict';
-const BaseObjError = require(APP_ERROR_PATH + 'baseObj');   
+const BaseError = require(APP_ERROR_PATH + 'base');
 
-class ValidationError extends BaseObjError {
+class ValidationError extends BaseError {
     constructor(message) {
         super(message, 400);
     }
 }
-5
 module.exports = ValidationError;

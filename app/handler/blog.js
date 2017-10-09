@@ -1,47 +1,33 @@
-/**
- * Created by crosp on 5/13/17.
- */
+
 /**
  * Created by crosp on 5/9/17.
  */
-const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const BlogModel = require(APP_MODEL_PATH + 'blog').BlogModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const fs = require('fs');
-var async = require('async');
+const async = require('async');
 const mkdirp = require('mkdirp');
 const path = require('path');
 
-class CatalogHandler extends BaseAutoBindedClass {
+class BlogHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
 
-    static get CATALOG_VALIDATION_SCHEME() {
-        return {
-            'catalogDescription': {
-                isLength: {
-                    options: [{ min: 2}],
-                    errorMessage: 'Catalog description must be 2 characters long'
-                },
-                notEmpty: true,
-                errorMessage: 'Catalog description is required'
-            }
-        };
-    }    
-
-    createNewCatalog(req, callback) {
+    createNewBlog(req, callback) {
+        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
             function(done, err) {
-                if(typeof files['catalogUrl'] !== "undefined"){
+                if(typeof files['blogPicture'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function(err) {
-                            req.body.catalogUrl = targetDir + fileName;
+                        var fileName = files['blogPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['blogPicture'].path, targetDir + fileName, function(err) {
+                            req.body.blogPicture = targetDir + fileName;
                             let data = req.body;   
                             done(err, data);   
                         });
@@ -52,25 +38,26 @@ class CatalogHandler extends BaseAutoBindedClass {
                 }
             },
             function(data, done){
-                req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-                if(req.body.catalogUrl != undefined){
-                    req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
+                if(req.body.blogPicture != undefined){
+                    req.checkBody('blogPicture', 'blogPicture is required').isImage(req.body.blogPicture);
                 }else{
-                    req.checkBody('catalogUrl', 'Catalog image is required').notEmpty();
-                }
+                    req.checkBody('blogPicture', 'blogPicture is required').notEmpty();
+                } 
+                req.checkBody('title', 'title is required').notEmpty();  
                 req.getValidationResult()
                 .then(function(result) {
+                    var errorMessages = {};
                     if (!result.isEmpty()) {
                         let errorMessages = result.array().map(function (elem) {
                             return elem.msg;
                         });
                         throw new ValidationError(errorMessages);
                     }  
-                    return new CatalogModel(data);
+                    return new BlogModel(data);                    
                 })
-                .then((catalog) => {
-                    catalog.save();
-                    return catalog;
+                .then((blog) => {
+                    blog.save();
+                    return blog;
                 })
                 .then((saved) => {
                     callback.onSuccess(saved);      
@@ -93,8 +80,8 @@ class CatalogHandler extends BaseAutoBindedClass {
                 else return data;
         });
     }
-   
-    deleteCatalog(user, req, callback) {
+
+    deleteBlog(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -106,45 +93,46 @@ class CatalogHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                    BlogModel.findOne({ _id: req.params.id }, function(err, blog) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
+                            if (!blog) {
+                                reject(new NotFoundError("blog not found"));
                             } else {
-                                if(user.isAdmin || (catalog.storeId === user.storeId)){
-                                    resolve(catalog);
+                                if(user.isAdmin || (blog.storeId === user.storeId)){
+                                    resolve(blog);
                                 }else{
-                                    reject(new NotFoundError("you are not allow to remove this catalog"));
+                                    reject(new NotFoundError("you are not allow to remove this blog"));
                                 }
                             }
                         }
                     })
                 });
             })
-            .then((catalog) => {
-                catalog.remove();
-                return catalog;
+            .then((blog) => {
+                blog.remove();
+                return blog;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Catalog id " + saved.id + " deleted successfully ");
+                callback.onSuccess({}, "Blog id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    updateCatalog(req, callback) {
+    updateBlog(req, callback) {
+        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
             function(done, err) {
-                if(typeof files['catalogUrl'] !== "undefined"){
+                if(typeof files['blogPicture'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function(err) {
-                            req.body.catalogUrl = targetDir + fileName;
+                        var fileName = files['blogPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['blogPicture'].path, targetDir + fileName, function(err) {
+                            req.body.blogPicture = targetDir + fileName;
                             let data = req.body;   
                             done(err, data);   
                         });
@@ -155,41 +143,42 @@ class CatalogHandler extends BaseAutoBindedClass {
                 }
             },
             function(data, done){
-                if(req.body.catalogDescription != undefined){
-                    req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-                }
-                if(req.body.catalogUrl != undefined){
-                    req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
+                if(req.body.blogPicture != undefined){
+                    req.checkBody('blogPicture', 'blogPicture is required').isImage(req.body.blogPicture);
+                } 
+                if(req.body.title != undefined){
+                    req.checkBody('title', 'title is required').notEmpty();
                 }
                 req.getValidationResult()
                 .then(function(result) {
+                    var errorMessages = {};
                     if (!result.isEmpty()) {
                         let errorMessages = result.array().map(function (elem) {
                             return elem.msg;
                         });
                         throw new ValidationError(errorMessages);
-                    }      
-
+                    }  
                     return new Promise(function(resolve, reject) {
-                        CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                        BlogModel.findOne({ _id: req.params.id }, function(err, blog) {
                             if (err !== null) {
                                 reject(err);
                             } else {
-                                if (!catalog) {
-                                    reject(new NotFoundError("Catalog not found"));
+                                if (!blog) {
+                                    reject(new NotFoundError("blog not found"));
                                 } else {
-                                    resolve(catalog);
+                                    resolve(blog);
                                 }
                             }
                         })
                     });
                 })
-                .then((catalog) => {
+                .then((blog) => {
                     for (var key in data) {
-                        catalog[key] = data[key];
-                    }     
-                    catalog.save();
-                    return catalog;
+                        console.log(key)
+                        blog[key] = data[key];
+                    }  
+                    blog.save();
+                    return blog;
                 })
                 .then((saved) => {
                     callback.onSuccess(saved);      
@@ -201,7 +190,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 if (err) throw error;
                             });
                         }
-                    });
+                    });            
                 })
                 .catch((error) => {
                     callback.onError(error);
@@ -210,46 +199,46 @@ class CatalogHandler extends BaseAutoBindedClass {
           ], function(err, data) {
                 if (err) return callback.onError(err);
                 else return data;
-          });
+        });
     }
 
-    getSingleCatalog(req, callback) {
+    getSingleBlog(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
-                            } else {
-                                resolve(catalog);
-                            }
-                        }
-                    })
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            })
-            .then((catalog) => {
-                callback.onSuccess(catalog);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                BlogModel.findOne({ _id: req.params.id }, function(err, blog) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!blog) {
+                            reject(new NotFoundError("Blog not found"));
+                        } else {
+                            resolve(blog);
+                        }
+                    }
+                })
             });
+        })
+        .then((blog) => {
+            callback.onSuccess(blog);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
-    getAllCatalogs(req, callback) {
+    getAllBlogs(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                CatalogModel.find({}, function(err, posts) {
+                BlogModel.find({}, function(err, posts) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -264,40 +253,6 @@ class CatalogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
-    getCatalogByStoreId(req, callback) {
-        let data = req.body;
-        req.checkParams('storeId', 'Invalid storeId provided').isMongoId();
-        req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) {
-                    CatalogModel.find({ storeId: req.params.storeId }, function(err, catalog) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
-                            } else {
-                                resolve(catalog);
-                            }
-                        }
-                    })
-                });
-            })
-            .then((catalog) => {
-                callback.onSuccess(catalog);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
-    
     objectify(array) {
         return array.reduce(function(p, c) {
              p[c['fieldname']] = c;
@@ -305,4 +260,5 @@ class CatalogHandler extends BaseAutoBindedClass {
         }, {});
     }
 }
-module.exports = CatalogHandler;
+
+module.exports = BlogHandler;

@@ -42,9 +42,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     req.checkBody('offerPicture', 'offerPicture is required').isImage(req.body.offerPicture);
                 }else{
                     req.checkBody('offerPicture', 'offerPicture is required').notEmpty();
-                }
-                console.log(req.body.discountTypePercentage) 
-                
+                }                
                 req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
                 req.checkBody('discountTypeFlat', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
                 if(req.body.discountTypePercentage){
@@ -61,8 +59,8 @@ class OfferHandler extends BaseAutoBindedClass {
                 .then(function(result) {
                     var errorMessages = {};
                     if (!result.isEmpty()) {
-                        result.array().map(function(elem) {
-                            return errorMessages[elem.param] = elem.msg;
+                        let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
                         });
                         throw new ValidationError(errorMessages);
                     }  
@@ -100,9 +98,8 @@ class OfferHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -186,8 +183,8 @@ class OfferHandler extends BaseAutoBindedClass {
                 .then(function(result) {
                     var errorMessages = {};
                     if (!result.isEmpty()) {
-                        result.array().map(function(elem) {
-                            return errorMessages[elem.param] = elem.msg;
+                        let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
                         });
                         throw new ValidationError(errorMessages);
                     }  
@@ -241,9 +238,8 @@ class OfferHandler extends BaseAutoBindedClass {
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
-                var errorMessages = {};
-                result.array().map(function(elem) {
-                    return errorMessages[elem.param] = elem.msg;
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
                 throw new ValidationError(errorMessages);
             }

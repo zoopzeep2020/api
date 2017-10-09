@@ -30,9 +30,8 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -62,9 +61,8 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -106,9 +104,8 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
@@ -184,9 +181,8 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
-                    var errorMessages = {};
-                    result.array().map(function(elem) {
-                        return errorMessages[elem.param] = elem.msg;
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
