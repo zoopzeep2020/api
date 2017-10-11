@@ -10,7 +10,6 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
-var db = require('mongodb').Db;
 var path = require('path');
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
@@ -46,6 +45,7 @@ class StoreHandler extends BaseAutoBindedClass {
             return new StoreModel({});
         })
         .then((store) => {
+            store.viewCount = 1
             store.save();
             return store;
         })
@@ -96,7 +96,9 @@ class StoreHandler extends BaseAutoBindedClass {
     
     updateStore(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-        let files = this.objectify(req.files);        
+        let files = this.objectify(req.files);  
+        let data = req.body;        
+        
         async.waterfall([
             function(done, err) {
                 if(files != undefined && typeof files['storeLogo'] !== "undefined"){
@@ -109,7 +111,6 @@ class StoreHandler extends BaseAutoBindedClass {
                         });
                     });
                 }else{
-                    let data = req.body;        
                     done(err, data);
                 }
             },
@@ -265,7 +266,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "storesInfo"
                             }
-                        },
+                        },                
                         {
                             "$lookup": {
                                 "from": 'catalogs',
@@ -321,13 +322,21 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         },
                         {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: false
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: false
+                              }
+                        },
+                        {
                             $group: {
                                 _id : "$_id",
-                                storeName : { $first : '$storeName' }, 
-                                isActive: { $first : '$isActive' }, 
-                                address: { $first : '$address' }, 
-                                description: { $first : '$description' }, 
-
+                                avgRating : { "$avg" : "$reviews.ratingScale"},
                                 storesInfo:{ $addToSet: '$storesInfo' },
                                 reviews: { $addToSet: '$reviews' },
                                 keywords: { $addToSet: '$keywords' },
@@ -338,21 +347,28 @@ class StoreHandler extends BaseAutoBindedClass {
                         },
                         {
                             $project: {
-                                // _id: 1,
-                                // storeName: 1,
-                                // isActive: 1,
-                                // address: 1,
-                                // description:1,
-                                //description: { $ifNull: [ 1, null ] },
-                                // description: {
-                                //      $ne:null 
-                                // },
-                                // description: {
-                                //     $filter: { input: "$description", as: "a", cond: { $ifNull: ["$$a._id", false] } },
-                                // },      
-                                storesInfo: {
-                                    $filter: { input: "$storesInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
-                                },           
+                                'storeName': '$storesInfo.storeName',
+                                'isActive': '$storesInfo.isActive',
+                                'address': '$storesInfo.address',
+                                'storeLogo': '$storesInfo.storeLogo',
+                                'storeBanner': '$storesInfo.storeBanner',
+                                'otherKeyword': '$storesInfo.otherKeyword',
+                                'buisnessOnline': '$storesInfo.buisnessOnline',
+                                'buisnessOffline': '$storesInfo.buisnessOffline',
+                                'buisnessBoth': '$storesInfo.buisnessBoth',
+                                'storePhone': '$storesInfo.storePhone',
+                                'storeDiscription': '$storesInfo.storeDiscription',
+                                'webAddress': '$storesInfo.webAddress',
+                                'countries': '$storesInfo.countries',
+                                'dispatchDayMin': '$storesInfo.dispatchDayMin',
+                                'dispatchDayMax': '$storesInfo.dispatchDayMax',
+                                'customization': '$storesInfo.customization',
+                                'giftWrap': '$storesInfo.giftWrap',
+                                'cod': '$storesInfo.cod',
+                                'viewCount':  "$storesInfo.viewCount",
+                                'freeShiping': '$storesInfo.freeShiping',
+                                'returnandreplace': '$storesInfo.returnandreplace',
+                                'avgRating': {$divide:[{$subtract:[{$multiply:['$avgRating',10]}, { $mod: [{ $multiply: [ "$avgRating", 10 ] }, 1 ] },]},10]},
                                 reviews: {
                                     $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
                                 },
@@ -367,10 +383,159 @@ class StoreHandler extends BaseAutoBindedClass {
                                 },
                                 storeCatalogs: {
                                     $filter: { input: "$storeCatalogs", as: "c", cond: { $ifNull: ["$$c._id", false] } },
-                                }
+                                },
                             },
-                           
                         },
+                        {
+                            $unwind: {
+                                path: "$storeName",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$isActive",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$address",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$viewCount",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeLogo",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeBanner",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$buisnessOnline",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$buisnessOffline",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$buisnessBoth",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storePhone",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeDiscription",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$webAddress",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$dispatchDayMin",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$dispatchDayMax",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$customization",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$giftWrap",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$cod",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$freeShiping",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$returnandreplace",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$countries",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$otherKeyword",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$keywords",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        }, 
+                        {
+                            $unwind: {
+                                path: "$categoriesIds",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        }, 
+                        {
+                            $unwind: {
+                                path: "$storeOffers",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        }, 
+                        {
+                            $unwind: {
+                                path: "$storeCatalogs",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },  
                         { 
                             $project : { 
                                 dateModified: 0,
@@ -414,45 +579,8 @@ class StoreHandler extends BaseAutoBindedClass {
                                     }
                                 },                                
                             } 
-                        }
-                        // {
-                        //     $lookup: {
-                        //       from: "users",
-                        //       localField: "storeReview.userId",
-                        //       foreignField: "_id",
-                        //       as: "storeReviewUser"
-                        //     },
-                        // },
-                        // { 
-                        //     $project : { 
-                        //     categoriesIds:{
-                        //         dateModified: 0,
-                        //         dateCreated:0,
-                        //         __v:0,
-                        //     },
-                        //     keyword:{
-                        //         dateModified: 0,
-                        //         dateCreated:0,
-                        //         __v:0,
-                        //     },
-                        //     storeCatalogs:{
-                        //         dateModified: 0,
-                        //         dateCreated:0,
-                        //         __v:0,
-                        //     },
-                        //     storeOffers:{
-                        //         dateModified: 0,
-                        //         dateCreated:0,
-                        //         __v:0,
-                        //     },
-                        //     storeReview:{
-                        //         dateModified: 0,
-                        //         dateCreated:0,
-                        //         __v:0,
-                        //     },                                
-                        // } 
-                    // }
-                    
+                        },      
+                                   
                     ]).exec(function(err, results){
                         resolve(results);
                     })
@@ -469,7 +597,98 @@ class StoreHandler extends BaseAutoBindedClass {
                     // })
                 });
             })
-            .then((result) => {         
+            .then((result) => {   
+                StoreModel.findOne({ _id: req.params.id }, function(err, store) {
+                    if (err !== null) {
+                        new NotFoundError("store not found");
+                    } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            store.viewCount = store.viewCount + 1;
+                            store.avgRating = result[0].avgRating;
+                            console.log(store.avgRating)
+                            store.save();
+                        }
+                    }
+                }) 
+                callback.onSuccess(result);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+    
+    getTrendingStore(req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+                StoreModel.aggregate([
+                    {
+                        $project: {
+                            finalTotal: {
+                                $let: {
+                                    vars: {
+                                    total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
+                                    },
+                                    in: { $add: [ "$avgRating", "$$total" ] }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "_id",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    },  
+                    {
+                        $project: {
+                            storeName:'$storesInfo.storeName',
+                            avgRating:'$storesInfo.avgRating',
+                            storeBanner:'$storesInfo.storeBanner',
+                            storeDiscription:'$storesInfo.storeDiscription',
+                            storeLogo:'$storesInfo.storeLogo',
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeName",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$avgRating",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeBanner",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeDiscription",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeLogo",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {$sort:{finalTotal:-1}},
+                    {$limit: 5}
+                ]).exec(function(err, results){
+                    resolve(results);
+                })
+            })
+            .then((result) => {   
                 callback.onSuccess(result);
             })
             .catch((error) => {
@@ -496,7 +715,6 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
     objectify(array) {
-        console.log(array)
         if(array!== undefined){
             return array.reduce(function(p, c) {
                 p[c['fieldname']] = c;
@@ -505,5 +723,4 @@ class StoreHandler extends BaseAutoBindedClass {
         }
     }
 }
-
 module.exports = StoreHandler;

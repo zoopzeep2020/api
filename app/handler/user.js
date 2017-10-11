@@ -9,8 +9,10 @@ const AlreadyExistsError = require(APP_ERROR_PATH + 'already-exists');
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const UnauthorizedError = require(APP_ERROR_PATH + 'unauthorized');
 const fs = require('fs');
+const async = require('async');
 const mkdirp = require('mkdirp');
 let crypto = require('crypto');
+var path = require('path');
 
 class UserHandler {
     constructor() {
@@ -19,7 +21,6 @@ class UserHandler {
         this._jwtTokenHandler = require('jsonwebtoken');
         this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
-
     static get USER_VALIDATION_SCHEME() {
         return {
             'name': {
@@ -240,75 +241,87 @@ class UserHandler {
                 callback.onError(error);
             });
     }
-
     updateUser(req, callback) {
-        let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);        
-        
-        mkdirp(targetDir, function(err) {
-            if (err) {
-                callback.onError(err)
-            }
-
-            if (files != undefined && typeof files['userImage'] !== "undefined" ) {
-                files.forEach(function(file) {
-                    var fileName = files['userImage'].originalname.replace(/\s+/g, '-').toLowerCase();
-                    fs.rename(files['userImage'].path, targetDir + fileName, function(err) {
-                        if (err) throw err;
-                        req.body.userImage = targetDir + fileName;
-                        let data = req.body;            
-                        req.checkParams('id', 'Invalid id provided').isMongoId();
-                        req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
-                        req.getValidationResult()
-                        .then(function(result) {
-                            if (!result.isEmpty()) {
-                                let errorMessages = result.array().map(function (elem) {
-                                    return elem.msg;
-                                });
-                                throw new ValidationError(errorMessages);
-                            }
-            
-                            return new Promise(function(resolve, reject) {
-                                UserModel.findOne({ _id: req.params.id }, function(err, user) {
-                                    if (err !== null) {
-                                        reject(err);
-                                    } else {
-                                        if (!user) {
-                                            reject(new NotFoundError("User not found"));
-                                        } else {
-                                            resolve(user);
-                                        }
-                                    }
-                                })
-                            });
-                        })
-                        .then((user) => {
-                            for (var key in data) {
-                                user[key] = data[key];
-                            }  
-                            user.save();
-                            return user;
-                        })
-                        .then((saved) => {
-                            callback.onSuccess(saved);
-                        })
-                        .catch((error) => {
-                            callback.onError(error);
+        async.waterfall([
+            function(done, err) {
+                if(files != undefined && typeof files['userImage'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['userImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['userImage'].path, targetDir + fileName, function(err) {
+                            req.body.userImage = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
                         });
                     });
-                });
-            }else{
-                let err = {
-                    status: 400,
-                    message:"Images not found"
+                }else{
+                    let data = req.body;        
+                    done(err, data);
                 }
-                return callback.onError(err);
+            },
+            
+            function(data, done){
+                if(req.body.name != undefined){
+                    req.checkBody('name').notEmpty();
+                }
+                if(req.body.email != undefined){
+                    req.checkBody('email', 'email format is not valid').isEmail();
+                }
+                if(req.body.password != undefined){
+                    req.checkBody('password', 'password is too short').checkLength(req.body.password, 8);
+                }
+                req.getValidationResult()
+                .then(function(result) {
+                console.log("result", result)
+                    if (!result.isEmpty()) {
+                        let errorMessages = result.array().map(function(elem) {
+                            return elem.msg;
+                        });
+                        throw new ValidationError(errorMessages.join(' && '));
+                    }  
+                    return new Promise(function(resolve, reject) {                         
+                        UserModel.findOne({ _id: req.params.id }, function(err, user) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!user) {
+                                    reject(new NotFoundError("user not found"));
+                                } else {
+                                    resolve(user);
+                                }
+                            }
+                        })
+                    });
+                })
+                .then((user) => {
+                    for (var key in data) {
+                        user[key] = data[key];
+                    }   
+                    user.save();
+                    return user;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);      
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });             
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
-
-        });
+          ], function(err, data) {
+                if (err) return callback.onError(err);
+                else return data;
+        });        
     }
-
 
     getUserInfo(req, userToken, callback) {
         req.checkParams('id', 'Invalid user id provided').isMongoId();
@@ -396,7 +409,6 @@ class UserHandler {
             };
         }
     }
-
     _provideTokenOptions() {
         let config = global.config;
         return {

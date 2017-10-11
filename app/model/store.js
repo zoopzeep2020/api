@@ -22,6 +22,10 @@ let StoreSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Keyword'
     }],
+    featureCatalog: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'catalog'
+    },
     otherKeyword: [],
     webAddress: String,
     countries: [],
@@ -32,6 +36,9 @@ let StoreSchema = new Schema({
     cod: Boolean,
     freeShiping: Boolean,
     returnandreplace: String,
+    viewCount: Number,
+    reviewCount: Number,
+    avgRating: Number,
     isActive: { type: Boolean, default: false },
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },

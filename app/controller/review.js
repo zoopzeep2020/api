@@ -66,7 +66,7 @@ class ReviewController extends BaseController {
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || user.isUser){
-                this._reviewHandler.deleteReview(req, this._responseManager.getDefaultResponseHandler(res));
+                this._reviewHandler.deleteReview(user, req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        
             }

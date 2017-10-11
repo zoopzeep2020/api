@@ -2,6 +2,7 @@
  * Created by crosp on 5/13/17.
  */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
+const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -23,7 +24,6 @@ class ReviewHandler extends BaseAutoBindedClass {
 
     createNewReview(req, callback) {
         let data = req.body;
-        console.log(req.body)
         let validator = this._validator;
         let ModelData = {};
         req.checkBody(ReviewHandler.REVIEW_VALIDATION_SCHEME);
@@ -35,7 +35,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
                         ModelData[key] = data[key];
@@ -48,6 +47,19 @@ class ReviewHandler extends BaseAutoBindedClass {
                 return review;
             })
             .then((saved) => {
+                StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
+                    if (err !== null) {
+                        new NotFoundError("store not found");
+                    } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            store.avgRating = (store.avgRating*store.reviewCount + ModelData.ratingScale)/(store.reviewCount+1);
+                            store.reviewCount = store.reviewCount + 1;
+                            store.save();
+                        }
+                    }
+                }) 
                 callback.onSuccess(saved);
             })
             .catch((error) => {
@@ -55,7 +67,7 @@ class ReviewHandler extends BaseAutoBindedClass {
             });
     }
 
-    deleteReview(req, callback) {
+    deleteReview(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -85,10 +97,25 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
-                review.remove();
+                StoreModel.findOne({ _id: review.storeId }, function(err, store) {
+                    if (err !== null) {
+                        new NotFoundError("store not found");
+                    } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            store.avgRating = (store.avgRating*store.reviewCount - review.ratingScale)/(store.reviewCount-1);
+                            store.reviewCount = store.reviewCount - 1;
+                            store.save();
+                        }
+                    }
+                })
                 return review;
             })
-            .then((saved) => {
+            .then((review) => {
+                review.remove();
+                return review;
+            }).then((saved) => {     
                 callback.onSuccess({}, "Review id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
@@ -125,6 +152,22 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
+                return new Promise(function(resolve, reject) {
+                    StoreModel.findOne({ _id: review.storeId }, function(err, store) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!store) {
+                                reject(new NotFoundError("Review not found"));
+                            } else {
+                                store.avgRating = (store.avgRating*store.reviewCount - review.ratingScale + req.body.ratingScale)/(store.reviewCount); 
+                                store.save();
+                            }
+                        }
+                    })
+                });
+            })
+            .then((review) => {
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
                         review[key] = data[key];
@@ -154,14 +197,14 @@ class ReviewHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    ReviewModel.findOne({ _id: req.params.id }, function(err, category) {
+                    ReviewModel.findOne({ _id: req.params.id }, function(err, review) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
+                            if (!review) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                resolve(category);
+                                resolve(review);
                             }
                         }
                     })
@@ -187,14 +230,14 @@ class ReviewHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    ReviewModel.find({ storeId: req.params.id }, function(err, category) {
+                    ReviewModel.find({ storeId: req.params.id }, function(err, review) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
+                            if (!review) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                resolve(category);
+                                resolve(review);
                             }
                         }
                     })
@@ -256,7 +299,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                         }
                     }
                 })
-
             })
             .then((review) => {
                 callback.onSuccess(review);

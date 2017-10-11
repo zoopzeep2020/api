@@ -5,6 +5,7 @@
  * Created by crosp on 5/9/17.
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -53,6 +54,7 @@ class CatalogHandler extends BaseAutoBindedClass {
             },
             function(data, done){
                 req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
+                console.log(req.body.catalogUrl)
                 if(req.body.catalogUrl != undefined){
                     req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
                 }else{
@@ -71,6 +73,25 @@ class CatalogHandler extends BaseAutoBindedClass {
                 .then((catalog) => {
                     catalog.save();
                     return catalog;
+                })
+                .then((catalog) => {
+                    return new Promise(function(resolve, reject) {
+                        StoreModel.findOne({ _id: catalog.storeId }, function(err, store) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!store) {
+                                    reject(new NotFoundError("Review not found"));
+                                } else {
+                                    if(store.featureCatalog == undefined){
+                                        store.featureCatalog = catalog._id 
+                                    }
+                                    store.save();
+                                    resolve(catalog);
+                                }
+                            }
+                        })
+                    });
                 })
                 .then((saved) => {
                     callback.onSuccess(saved);      
@@ -300,8 +321,8 @@ class CatalogHandler extends BaseAutoBindedClass {
     
     objectify(array) {
         return array.reduce(function(p, c) {
-             p[c['fieldname']] = c;
-             return p;
+            p[c['fieldname']] = c;
+            return p;
         }, {});
     }
 }

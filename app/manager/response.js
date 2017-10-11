@@ -91,6 +91,5 @@ class ResponseManager {
         response.links = links;
         res.status(errorCode).json(response);
     }
-
 }
 module.exports = ResponseManager;

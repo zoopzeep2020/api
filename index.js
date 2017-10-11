@@ -91,6 +91,12 @@ customValidators: {
             return true;
         }
         return false;
+    },
+    checkLength:function(value, str, min) {
+        if(str.length<min){
+            return false;
+        }
+        return true;
     }
 }}));
 
