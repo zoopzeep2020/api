@@ -202,6 +202,52 @@ class BlogHandler extends BaseAutoBindedClass {
         });
     }
 
+    // likeBlog(req, callback) {
+    //     let data = req.body;
+    //     console.log("req",req.query)
+    //     // req.checkQuery('keywordId', 'Invalid urlparam').notEmpty();
+    //     req.getValidationResult()
+    //         .then(function(result) {
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+    //             return new Promise(function(resolve, reject) {
+    //                 BlogModel.aggregate([
+    //                     { "$match" : { "_id": { "$in" : [ mongoose.Types.ObjectId(req.body.blogId) ] } } },
+    //                     {
+    //                         "$lookup": {
+    //                             "from": 'keywords',
+    //                             "localField": "keyword",
+    //                             "foreignField": "_id",
+    //                             "as": "keywordInfo"
+    //                         }
+    //                     },
+    //                     {
+    //                         $project: {
+    //                             storeName:'$storeName',
+    //                             avgRating:'$avgRating',
+    //                             storeLogo:'$storeLogo',
+    //                             storeBanner:'$storeBanner',
+    //                             title:'$keywordInfo.title',
+    //                         }
+    //                     },
+    //                     { "$unwind" : "$title" },
+    //                 ]).exec(function(err, results){
+    //                     resolve(results);
+    //                 })
+    //             });
+    //         })
+    //         .then((keyword) => {
+    //             callback.onSuccess(keyword);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
+
     getSingleBlog(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();

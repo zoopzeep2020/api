@@ -38,6 +38,11 @@ let StoreSchema = new Schema({
     returnandreplace: String,
     viewCount: Number,
     reviewCount: Number,
+    location: {
+        type: [Number],  // [<longitude>, <latitude>]
+        index: '2dsphere'      // create the geospatial index
+    },
+   
     avgRating: Number,
     isActive: { type: Boolean, default: false },
     dateCreated: { type: Date, default: Date.now },

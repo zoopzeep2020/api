@@ -46,6 +46,7 @@ class StoreHandler extends BaseAutoBindedClass {
         })
         .then((store) => {
             store.viewCount = 1
+            store.avgRating = 0
             store.save();
             return store;
         })
@@ -195,12 +196,11 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 req.getValidationResult()
                 .then(function(result) {
-                console.log("result", result)
                     if (!result.isEmpty()) {
                         var errorMessages = {};
                         result.array().map(function(elem) {
                             return errorMessages[elem.param] = elem.msg;
-                        });
+                        }); 
                         throw new ValidationError(errorMessages);
                     }  
                     return new Promise(function(resolve, reject) {
@@ -607,7 +607,6 @@ class StoreHandler extends BaseAutoBindedClass {
                         } else {
                             store.viewCount = store.viewCount + 1;
                             store.avgRating = result[0].avgRating;
-                            console.log(store.avgRating)
                             store.save();
                         }
                     }
@@ -621,81 +620,109 @@ class StoreHandler extends BaseAutoBindedClass {
     
     getTrendingStore(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-                StoreModel.aggregate([
-                    {
-                        $project: {
-                            finalTotal: {
-                                $let: {
-                                    vars: {
-                                    total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
-                                    },
-                                    in: { $add: [ "$avgRating", "$$total" ] }
+        req.checkQuery('lng', 'Invalid urlparam').notEmpty()
+        req.checkQuery('lat', 'Invalid urlparam').notEmpty()
+        // req.checkParams(req.query.lat, 'Invalid urlparam').notEmpty();
+        req.getValidationResult()
+            .then(function(result) {
+                console.log(req.query.lng)
+                console.log(req.query.lat)
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                new Promise(function(resolve, reject) {
+                    StoreModel.aggregate([
+                        {
+                            "$geoNear": {
+                                "near": {
+                                    "type": "Point",
+                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                },
+                                "distanceField": "distance",
+                                "spherical": true,
+                                "maxDistance": 0
+                            }
+                        },
+                        {
+                            $project: {
+                                finalTotal: {
+                                    $let: {
+                                        vars: {
+                                        total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
+                                        },
+                                        in: { $add: [ "$avgRating", "$$total" ] }
+                                    }
                                 }
                             }
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'stores',
-                            "localField": "_id",
-                            "foreignField": "_id",
-                            "as": "storesInfo"
-                        }
-                    },  
-                    {
-                        $project: {
-                            storeName:'$storesInfo.storeName',
-                            avgRating:'$storesInfo.avgRating',
-                            storeBanner:'$storesInfo.storeBanner',
-                            storeDiscription:'$storesInfo.storeDiscription',
-                            storeLogo:'$storesInfo.storeLogo',
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeName",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$avgRating",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeBanner",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeDiscription",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeLogo",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {$sort:{finalTotal:-1}},
-                    {$limit: 5}
-                ]).exec(function(err, results){
-                    resolve(results);
-                })
-            })
-            .then((result) => {   
-                callback.onSuccess(result);
-            })
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'stores',
+                                "localField": "_id",
+                                "foreignField": "_id",
+                                "as": "storesInfo"
+                            }
+                        },  
+                        {
+                            $project: {
+                                storeName:'$storesInfo.storeName',
+                                avgRating:'$storesInfo.avgRating',
+                                storeBanner:'$storesInfo.storeBanner',
+                                storeDiscription:'$storesInfo.storeDiscription',
+                                storeLogo:'$storesInfo.storeLogo',
+                                finalTotal:'$finalTotal',
+                                distance:'$distance',
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeName",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$avgRating",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeBanner",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeDiscription",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeLogo",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {$sort:{finalTotal:-1}},
+                        {$limit:5},
+                    ])
+                    .exec(function(err, results){
+                        console.log("resukt",results)
+                        resolve(results);
+                    }) .then((results) => {   
+                        callback.onSuccess(results);
+                    })
+                });
+             })
+           
             .catch((error) => {
                 callback.onError(error);
             });
     }
-
     getAllStores(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {

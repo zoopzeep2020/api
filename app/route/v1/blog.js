@@ -9,6 +9,8 @@ router.get('/', blogController.getAll);
 router.get('/:id', blogController.get);
 router.post('/', blogController.create);
 router.delete('/:id', blogController.remove);
+// router.put('/like', blogController.likeBlog);
+// router.put('/save', blogController.saveBlog);
 router.put('/:id', blogController.update);
 
 module.exports = router;

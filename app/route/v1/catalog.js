@@ -9,8 +9,8 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/', catalogController.getAll);
-router.get('/:id', catalogController.get);
 router.get('/featurecatalog', catalogController.getFeatureCatalog);
+router.get('/:id', catalogController.get);
 router.post('/', upload.any(), catalogController.create);
 router.delete('/:id', catalogController.remove);
 router.put('/:id', upload.any(), catalogController.update);

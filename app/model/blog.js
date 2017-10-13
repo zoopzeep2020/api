@@ -10,6 +10,14 @@ let BlogSchema = new Schema({
     description:String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
+    likedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
+    savedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
 });
 BlogSchema.pre('update', function(next, done) {
     this.dateModified = Date.now();

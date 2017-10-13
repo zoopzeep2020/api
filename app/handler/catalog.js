@@ -234,6 +234,100 @@ class CatalogHandler extends BaseAutoBindedClass {
           });
     }
 
+    getFeatureCatalog(req, callback) {
+        let data = req.body;
+        req.checkQuery('lng', 'Invalid urlparam').notEmpty()
+        req.checkQuery('lat', 'Invalid urlparam').notEmpty()
+        // req.checkParams(req.query.lat, 'Invalid urlparam').notEmpty();
+        req.getValidationResult()
+            .then(function(result) {
+                console.log(req.query.lng)
+                console.log(req.query.lat)
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                new Promise(function(resolve, reject) {
+                    StoreModel.aggregate([
+                        {
+                            "$geoNear": {
+                                "near": {
+                                    "type": "Point",
+                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                },
+                                "distanceField": "distance",
+                                "spherical": true,
+                                "maxDistance": 155000
+                            }
+                        },
+                        {
+                            $project: {
+                                finalTotal: {
+                                    $let: {
+                                        vars: {
+                                        total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
+                                        },
+                                        in: { $add: [ "$avgRating", "$$total" ] }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'stores',
+                                "localField": "_id",
+                                "foreignField": "_id",
+                                "as": "storeInfo"
+                            }
+                        }, 
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "storeInfo.featureCatalog",
+                                "foreignField": "_id",
+                                "as": "catalogInfo"
+                            }
+                        },  
+                         {
+                            $unwind: {
+                                path: "$storeInfo",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$catalogInfo",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $project: {
+                                storeId:'$catalogInfo.storeId',
+                                featureCatalog:'$catalogInfo.featureCatalog',
+                                catalogUrl:'$catalogInfo.catalogUrl',
+                                catalogDescription:'$catalogInfo.catalogDescription',
+                                finalTotal:'$finalTotal',
+                            }
+                        },
+                        {$sort:{finalTotal:-1}},
+                        {$limit:5},
+                    ])
+                    .exec(function(err, results){
+                        console.log("resukt",results)
+                        resolve(results);
+                    }) .then((results) => {   
+                        callback.onSuccess(results);
+                    })
+                });
+             })
+           
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+   
     getSingleCatalog(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();

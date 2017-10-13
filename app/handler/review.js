@@ -54,7 +54,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
-                            store.avgRating = (store.avgRating*store.reviewCount + ModelData.ratingScale)/(store.reviewCount+1);
+                            store.avgRating = (store.avgRating*store.reviewCount + parseInt(ModelData.ratingScale))/(store.reviewCount+1);
                             store.reviewCount = store.reviewCount + 1;
                             store.save();
                         }

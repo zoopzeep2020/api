@@ -5,7 +5,8 @@ const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
-
+const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const mongoose = require('mongoose');
 class KeywordHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -157,6 +158,55 @@ class KeywordHandler extends BaseAutoBindedClass {
                                 resolve(category);
                             }
                         }
+                    })
+                });
+            })
+            .then((keyword) => {
+                callback.onSuccess(keyword);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    getSearchResult(req, callback) {
+        let data = req.body;
+        console.log("req",req.query)
+        req.checkQuery('keywordId', 'Invalid urlparam').notEmpty()
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    StoreModel.aggregate([
+                        { "$unwind" : "$keyword" },
+                        { "$match" : { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] }} },
+                        
+                        {
+                            "$lookup": {
+                                "from": 'keywords',
+                                "localField": "keyword",
+                                "foreignField": "_id",
+                                "as": "keywordInfo"
+                            }
+                        },
+                        
+                        {
+                            $project: {
+                                storeName:'$storeName',
+                                avgRating:'$avgRating',
+                                storeLogo:'$storeLogo',
+                                storeBanner:'$storeBanner',
+                                title:'$keywordInfo.title',
+                            }
+                        },
+                        { "$unwind" : "$title" },
+                    ]).exec(function(err, results){
+                        resolve(results);
                     })
                 });
             })
