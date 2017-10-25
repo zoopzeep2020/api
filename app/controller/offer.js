@@ -32,7 +32,6 @@ class OfferController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            console.log(user);
             if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
                 this._offerHandler.createNewOffer(req, this._responseManager.getDefaultResponseHandler(res));
             }else{

@@ -40,20 +40,17 @@ class StoreController extends BaseController {
         });
     }
 
-    update(req, res, next) {
-
-        
+    update(req, res, next) {        
         this.authenticate(req, res, next, (token, user) => {
-            console.log(user.isStore)
-            console.log(user.storeId )
-            console.log(req.params.id )
-            console.log(user);
+            
             if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId && user.storeId == req.params.id)){  
                 this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not allow");
             } 
         });
+        console.log("errorMessage")
+        
     }
 
     remove(req, res, next) {

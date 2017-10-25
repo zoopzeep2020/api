@@ -3,6 +3,7 @@
  */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const ReportModel = require(APP_MODEL_PATH + 'report').ReportModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -18,6 +19,19 @@ class ReviewHandler extends BaseAutoBindedClass {
             'ratingScale': {
                 notEmpty: false,
                 errorMessage: 'rating Scale required'
+            },
+        };
+    }
+
+    static get REPORT_VALIDATION_SCHEME() {
+        return {
+            'description': {
+                isLength: {
+                    options: [{ min: 10  }],
+                    errorMessage: 'description title must be 2 characters long'
+                },
+                notEmpty: false,
+                errorMessage: 'description required'
             },
         };
     }
@@ -60,6 +74,55 @@ class ReviewHandler extends BaseAutoBindedClass {
                         }
                     }
                 }) 
+                callback.onSuccess(saved);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    createReportReview(req, callback) {
+        let data = req.body;
+        let validator = this._validator;
+        let ModelData = {};
+        req.checkBody(ReviewHandler.REPORT_VALIDATION_SCHEME);
+        req.checkBody('reviewId', 'Invalid reviewId').isMongoId().notEmpty();
+        req.checkBody('userId', 'Invalid userId').isMongoId().notEmpty();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    ReviewModel.findOne({ _id: req.body.reviewId }, function(err, review) {
+                        console.log(req.body.reviewId)
+                        if (err !== null) {
+                            console.log()
+                                reject(new NotFoundError("review not found"));
+                        } else {
+                            console.log("review",review);
+                            if (review == null) {
+                                reject(new NotFoundError("review not found"));
+                            } 
+                            for (var key in data) {
+                                if (data.hasOwnProperty(key)) {
+                                    ModelData[key] = data[key];
+                                }
+                            } 
+                            resolve(new ReportModel(ModelData));
+                        }
+                    }) 
+                })
+            })
+            .then((report) => {
+                console.log("report",report)
+                report.save();
+                return report;
+            })
+            .then((saved) => {               
                 callback.onSuccess(saved);
             })
             .catch((error) => {
@@ -161,13 +224,16 @@ class ReviewHandler extends BaseAutoBindedClass {
                                 reject(new NotFoundError("Review not found"));
                             } else {
                                 store.avgRating = (store.avgRating*store.reviewCount - review.ratingScale + req.body.ratingScale)/(store.reviewCount); 
+                                console.log("store",store.avgRating)
                                 store.save();
+                                resolve(review)
                             }
                         }
                     })
                 });
             })
             .then((review) => {
+                console.log("review",review)                
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
                         review[key] = data[key];
@@ -189,13 +255,14 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
+                console.log("result",result)
                 if (!result.isEmpty()) {
                     var errorMessages = {};
                     result.array().map(function(elem) {
                         return errorMessages[elem.param] = elem.msg;
                     });
                     throw new ValidationError(errorMessages);
-                }
+                }                
                 return new Promise(function(resolve, reject) {
                     ReviewModel.findOne({ _id: req.params.id }, function(err, review) {
                         if (err !== null) {
@@ -206,11 +273,14 @@ class ReviewHandler extends BaseAutoBindedClass {
                             } else {
                                 resolve(review);
                             }
+                            resolve(review);
                         }
+                        resolve(review);
                     })
                 });
             })
             .then((review) => {
+                console.log("review",review)
                 callback.onSuccess(review);
             })
             .catch((error) => {

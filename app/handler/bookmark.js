@@ -15,7 +15,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
     createNewBookmark(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        console.log(req.body)
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -146,7 +145,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 });
             })
             .then((bookmark) => {
-                console.log("book",bookmark)
                 callback.onSuccess(bookmark);
             })
             .catch((error) => {

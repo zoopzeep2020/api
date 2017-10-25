@@ -96,6 +96,7 @@ class StoreHandler extends BaseAutoBindedClass {
     }
     
     updateStore(req, callback) {
+        
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);  
         let data = req.body;        
@@ -622,11 +623,8 @@ class StoreHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkQuery('lng', 'Invalid urlparam').notEmpty()
         req.checkQuery('lat', 'Invalid urlparam').notEmpty()
-        // req.checkParams(req.query.lat, 'Invalid urlparam').notEmpty();
         req.getValidationResult()
             .then(function(result) {
-                console.log(req.query.lng)
-                console.log(req.query.lat)
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -711,7 +709,6 @@ class StoreHandler extends BaseAutoBindedClass {
                         {$limit:5},
                     ])
                     .exec(function(err, results){
-                        console.log("resukt",results)
                         resolve(results);
                     }) .then((results) => {   
                         callback.onSuccess(results);

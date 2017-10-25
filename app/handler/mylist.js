@@ -23,8 +23,6 @@ class MylistHandler extends BaseAutoBindedClass {
 
     createNewMylist(req, callback) {
         let data = req.body;
-        console.log("mylisrt")
-        console.log(data)
         let validator = this._validator;
         req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
         req.checkBody('stores', 'minimum one list is required').notEmpty();

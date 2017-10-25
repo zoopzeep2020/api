@@ -54,7 +54,6 @@ class CatalogHandler extends BaseAutoBindedClass {
             },
             function(data, done){
                 req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-                console.log(req.body.catalogUrl)
                 if(req.body.catalogUrl != undefined){
                     req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
                 }else{
@@ -81,7 +80,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 reject(err);
                             } else {
                                 if (!store) {
-                                    reject(new NotFoundError("Review not found"));
+                                    reject(new NotFoundError("store not found"));
                                 } else {
                                     if(store.featureCatalog == undefined){
                                         store.featureCatalog = catalog._id 
@@ -241,8 +240,6 @@ class CatalogHandler extends BaseAutoBindedClass {
         // req.checkParams(req.query.lat, 'Invalid urlparam').notEmpty();
         req.getValidationResult()
             .then(function(result) {
-                console.log(req.query.lng)
-                console.log(req.query.lat)
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -315,7 +312,6 @@ class CatalogHandler extends BaseAutoBindedClass {
                         {$limit:5},
                     ])
                     .exec(function(err, results){
-                        console.log("resukt",results)
                         resolve(results);
                     }) .then((results) => {   
                         callback.onSuccess(results);

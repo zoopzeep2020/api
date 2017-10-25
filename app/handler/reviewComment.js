@@ -166,14 +166,14 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, category) {
+                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!category) {
+                        if (!reviewComment) {
                             reject(new NotFoundError("Comment not found"));
                         } else {
-                            resolve(category);
+                            resolve(reviewComment);
                         }
                     }
                 })

@@ -3,6 +3,8 @@
  * Created by crosp on 5/9/17.
  */
 const BlogModel = require(APP_MODEL_PATH + 'blog').BlogModel;
+const mongoose = require('mongoose');
+
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -43,7 +45,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 }else{
                     req.checkBody('blogPicture', 'blogPicture is required').notEmpty();
                 } 
-                req.checkBody('title', 'title is required').notEmpty();  
+                req.checkBody('title', 'title is required').isEmpty();  
                 req.getValidationResult()
                 .then(function(result) {
                     var errorMessages = {};
@@ -124,6 +126,7 @@ class BlogHandler extends BaseAutoBindedClass {
 
     updateBlog(req, callback) {
         let validator = this._validator;
+        console.log(req.files)
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
@@ -174,7 +177,6 @@ class BlogHandler extends BaseAutoBindedClass {
                 })
                 .then((blog) => {
                     for (var key in data) {
-                        console.log(key)
                         blog[key] = data[key];
                     }  
                     blog.save();
@@ -202,51 +204,102 @@ class BlogHandler extends BaseAutoBindedClass {
         });
     }
 
-    // likeBlog(req, callback) {
-    //     let data = req.body;
-    //     console.log("req",req.query)
-    //     // req.checkQuery('keywordId', 'Invalid urlparam').notEmpty();
-    //     req.getValidationResult()
-    //         .then(function(result) {
-    //             if (!result.isEmpty()) {
-    //                 let errorMessages = result.array().map(function (elem) {
-    //                     return elem.msg;
-    //                 });
-    //                 throw new ValidationError(errorMessages);
-    //             }
-    //             return new Promise(function(resolve, reject) {
-    //                 BlogModel.aggregate([
-    //                     { "$match" : { "_id": { "$in" : [ mongoose.Types.ObjectId(req.body.blogId) ] } } },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'keywords',
-    //                             "localField": "keyword",
-    //                             "foreignField": "_id",
-    //                             "as": "keywordInfo"
-    //                         }
-    //                     },
-    //                     {
-    //                         $project: {
-    //                             storeName:'$storeName',
-    //                             avgRating:'$avgRating',
-    //                             storeLogo:'$storeLogo',
-    //                             storeBanner:'$storeBanner',
-    //                             title:'$keywordInfo.title',
-    //                         }
-    //                     },
-    //                     { "$unwind" : "$title" },
-    //                 ]).exec(function(err, results){
-    //                     resolve(results);
-    //                 })
-    //             });
-    //         })
-    //         .then((keyword) => {
-    //             callback.onSuccess(keyword);
-    //         })
-    //         .catch((error) => {
-    //             callback.onError(error);
-    //         });
-    // }
+    likeBlog(req, callback) {
+        let data = req.body;
+        req.checkBody('blogId', 'Invalid urlparam').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    var like = req.body.like;
+                    if(like){
+                        BlogModel.update({
+                            '_id': mongoose.Types.ObjectId(req.body.blogId),
+                            'likedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
+                        },{
+                            '$push': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) }
+                        },{
+                            $project: {
+                                likedBy:'$likedBy',
+                            }
+                        },function(err, results){
+                            console.log("results",results)
+                            resolve(results);
+                        });
+                    }else if(!like){
+                        BlogModel.update({
+                            '_id': mongoose.Types.ObjectId(req.body.blogId),
+                            'likedBy':  mongoose.Types.ObjectId(req.body.userId)
+                        },{
+                            "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        },{
+                            $project: {
+                                likedBy:'$likedBy',
+                            }
+                        },function(err, results){
+                            console.log("results",results)
+                            resolve(results);
+                        });
+                    }
+                });
+            })
+            .then((result) => {
+                console.log(result)
+                callback.onSuccess(result);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    saveBlog(req, callback) {
+        let data = req.body;
+        req.checkBody('blogId', 'Invalid urlparam').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    var save = req.body.save;
+                    if(save){
+                        BlogModel.update({
+                            '_id': mongoose.Types.ObjectId(req.body.blogId),
+                            'savedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
+                        },
+                        {
+                            '$push': { 'savedBy': mongoose.Types.ObjectId(req.body.userId) }
+                        }).exec(function(err, results){
+                            resolve(results);
+                        }) 
+                    }else if(!save){
+                        BlogModel.update({
+                            '_id': mongoose.Types.ObjectId(req.body.blogId),
+                            'savedBy':  mongoose.Types.ObjectId(req.body.userId)
+                        },{
+                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        }).exec(function(err, results){
+                            resolve(results);
+                        })
+                    }
+                    
+                });
+            })
+            .then((result) => {
+                callback.onSuccess(result);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
 
     getSingleBlog(req, callback) {
         let data = req.body;
@@ -300,10 +353,13 @@ class BlogHandler extends BaseAutoBindedClass {
             });
     }
     objectify(array) {
-        return array.reduce(function(p, c) {
-             p[c['fieldname']] = c;
-             return p;
-        }, {});
+        if(array!== undefined){
+            return array.reduce(function(p, c) {
+                p[c['fieldname']] = c;
+                return p;
+            }, {});
+            return array;
+        }
     }
 }
 

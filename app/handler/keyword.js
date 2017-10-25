@@ -29,7 +29,6 @@ class KeywordHandler extends BaseAutoBindedClass {
     createNewKeyword(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        console.log(req.body)
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
@@ -171,10 +170,18 @@ class KeywordHandler extends BaseAutoBindedClass {
 
     getSearchResult(req, callback) {
         let data = req.body;
-        console.log("req",req.query)
+        var matchQuery = [];
+        var qString = {};
+        for (var param in req.query) {
+            // You need objects in your query not strings so push objects
+            qString = {};
+            qString[param] = is_numeric(req.query[param]) ? Number(req.query[param]) : req.query[param];
+            matchQuery.push(qString);              
+        }
+        console.log(matchQuery)
         req.checkQuery('keywordId', 'Invalid urlparam').notEmpty()
         req.getValidationResult()
-            .then(function(result) {
+            .then(function(result) {                
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -182,10 +189,12 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    StoreModel.aggregate([
+                    console.log("inside promise",req.query.online)
+                   
+                    
+                    StoreModel.find({businessOnlne:  req.query.online}).aggregate([
                         { "$unwind" : "$keyword" },
-                        { "$match" : { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] }} },
-                        
+                        { $match: { $and: [ strmatchQuery ]} }  ,                    
                         {
                             "$lookup": {
                                 "from": 'keywords',
@@ -194,7 +203,6 @@ class KeywordHandler extends BaseAutoBindedClass {
                                 "as": "keywordInfo"
                             }
                         },
-                        
                         {
                             $project: {
                                 storeName:'$storeName',

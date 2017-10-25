@@ -25,6 +25,7 @@ class BookmarkController extends BaseController {
             })));
         });
     }
+    
     getUserBookmark(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
@@ -38,12 +39,9 @@ class BookmarkController extends BaseController {
             }
         });
     }
+
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            console.log(user.isAdmin)
-            console.log(user.isUser)
-            console.log(user.id)
-            console.log(req.body.userId)
             if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
                 this._bookmarkHandler.createNewBookmark(req, this._responseManager.getDefaultResponseHandler(res));
             }else{

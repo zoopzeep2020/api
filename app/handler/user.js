@@ -273,7 +273,6 @@ class UserHandler {
                 }
                 req.getValidationResult()
                 .then(function(result) {
-                console.log("result", result)
                     if (!result.isEmpty()) {
                         let errorMessages = result.array().map(function(elem) {
                             return elem.msg;

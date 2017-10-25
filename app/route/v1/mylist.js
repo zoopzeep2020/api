@@ -11,5 +11,4 @@ router.get('/user/:id', mylistController.getUserMylist);
 router.post('/', mylistController.create);
 router.delete('/:id', mylistController.remove);
 router.put('/:id', mylistController.update);
-
 module.exports = router;

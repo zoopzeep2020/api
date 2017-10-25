@@ -194,7 +194,6 @@ class CategoryHandler extends BaseAutoBindedClass {
                 if(req.body.category != undefined){
                     req.checkBody('category', 'category is required').notEmpty();
                 }
-                console.log(req.body.categoryImage)
                 if(req.body.categoryImage != undefined){
                     req.checkBody('categoryImage', 'categoryImage is required').isImage(req.body.categoryImage);
                 }

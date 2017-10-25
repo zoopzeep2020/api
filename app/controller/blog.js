@@ -37,6 +37,7 @@ class BlogController extends BaseController {
     }
 
     update(req, res, next) {
+        console.log(req.files)
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin){
                 this._blogHandler.updateBlog(req, this._responseManager.getDefaultResponseHandler(res));
@@ -46,15 +47,25 @@ class BlogController extends BaseController {
         });
     }
     
-    // likeBlog(req, res, next) {
-    //     this.authenticate(req, res, next, (token, user) => {
-    //         if(user.isAdmin){
-    //             this._blogHandler.likeBlog(req, this._responseManager.getDefaultResponseHandler(res));
-    //         }else{
-    //             this._responseManager.respondWithError(res, 404, "access not available")                        
-    //         } 
-    //     });
-    // }
+    likeBlog(req, res, next) {
+        this.authenticate(req, res, next, (token, user) => {
+            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+                this._blogHandler.likeBlog(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
+        });
+    }
+
+    saveBlog(req, res, next) {
+        this.authenticate(req, res, next, (token, user) => {
+            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+                this._blogHandler.saveBlog(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
+        });
+    }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {

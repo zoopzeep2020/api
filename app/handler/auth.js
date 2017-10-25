@@ -21,8 +21,6 @@ class AuthHandler extends BaseAutoBindedClass {
     
     issueNewToken(req, user, callback) {
         let that = this;
-        console.log(req.body)
-        console.log(user)
         if (user) {                         
             for (var key in req.body) {
                 if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
@@ -181,7 +179,6 @@ class AuthHandler extends BaseAutoBindedClass {
             user.password = req.body.password;
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
-
             user.save();
             return user;
         })

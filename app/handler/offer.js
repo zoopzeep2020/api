@@ -204,7 +204,6 @@ class OfferHandler extends BaseAutoBindedClass {
                 })
                 .then((offer) => {
                     for (var key in data) {
-                        console.log(key)
                         offer[key] = data[key];
                     }  
                     offer.save();
