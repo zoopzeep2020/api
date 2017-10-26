@@ -10,7 +10,7 @@ let UserSchema = new Schema({
     deviceToken: String,
     deviceType: String,
     userImage: String,
-    location:[{ lat : String, lng : String}],
+    location:[{ lng : String, lat : String}],
     userLat: Number,
     userLong: Number,
     isUser: { type: Boolean, default: false },

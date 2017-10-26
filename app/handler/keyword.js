@@ -171,15 +171,17 @@ class KeywordHandler extends BaseAutoBindedClass {
     getSearchResult(req, callback) {
         let data = req.body;
         var matchQuery = [];
+        console.log("matchQuery")
+        var ObjectID = require('mongodb').ObjectID;
+        console.log(mongoose.Types.ObjectId.isValid(req.query.keywordId));
         var qString = {};
         for (var param in req.query) {
             // You need objects in your query not strings so push objects
             qString = {};
-            qString[param] = is_numeric(req.query[param]) ? Number(req.query[param]) : req.query[param];
-            matchQuery.push(qString);              
+            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+            matchQuery.push(qString);             
         }
-        console.log(matchQuery)
-        req.checkQuery('keywordId', 'Invalid urlparam').notEmpty()
+        req.checkQuery('keyword', 'Invalid urlparam').notEmpty()
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -188,13 +190,11 @@ class KeywordHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    console.log("inside promise",req.query.online)
-                   
-                    
-                    StoreModel.find({businessOnlne:  req.query.online}).aggregate([
+                return new Promise(function(resolve, reject) { 
+                    console.log(matchQuery) 
+                    StoreModel.aggregate([
                         { "$unwind" : "$keyword" },
-                        { $match: { $and: [ strmatchQuery ]} }  ,                    
+                        { $match: { $and:  matchQuery } }  ,                    
                         {
                             "$lookup": {
                                 "from": 'keywords',
@@ -219,6 +219,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                 });
             })
             .then((keyword) => {
+                console.log("keyword",keyword);
                 callback.onSuccess(keyword);
             })
             .catch((error) => {
@@ -240,7 +241,6 @@ class KeywordHandler extends BaseAutoBindedClass {
                         }
                     }
                 })
-
             })
             .then((keyword) => {
                 callback.onSuccess(keyword);

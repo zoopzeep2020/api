@@ -111,11 +111,7 @@ class OfferHandler extends BaseAutoBindedClass {
                             if (!offer) {
                                 reject(new NotFoundError("offer not found"));
                             } else {
-                                if(user.isAdmin || (offer.storeId === user.storeId)){
-                                    resolve(offer);
-                                }else{
-                                    reject(new NotFoundError("you are not allow to remove this offer"));
-                                }
+                                resolve(offer);
                             }
                         }
                     })

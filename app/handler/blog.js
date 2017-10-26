@@ -18,11 +18,32 @@ class BlogHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-
+    static get BLOG_VALIDATION_SCHEME() {
+        return {
+            'description': {
+                isLength: {
+                    options: [{ min: 500}],
+                    errorMessage: 'description must be 500 characters long'
+                },
+                notEmpty: true,
+                errorMessage: 'description is required'
+            },
+            'title': {
+                isLength: {
+                    options: [{ min: 2}],
+                    errorMessage: 'title must be 2 characters long'
+                },
+                notEmpty: true,
+                errorMessage: 'title is required'
+            },
+        };
+    }  
     createNewBlog(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
+        req.checkBody(BlogHandler.BLOG_VALIDATION_SCHEME);
+        
         async.waterfall([
             function(done, err) {
                 if(typeof files['blogPicture'] !== "undefined"){
@@ -44,8 +65,7 @@ class BlogHandler extends BaseAutoBindedClass {
                     req.checkBody('blogPicture', 'blogPicture is required').isImage(req.body.blogPicture);
                 }else{
                     req.checkBody('blogPicture', 'blogPicture is required').notEmpty();
-                } 
-                req.checkBody('title', 'title is required').isEmpty();  
+                }   
                 req.getValidationResult()
                 .then(function(result) {
                     var errorMessages = {};
@@ -102,11 +122,7 @@ class BlogHandler extends BaseAutoBindedClass {
                             if (!blog) {
                                 reject(new NotFoundError("blog not found"));
                             } else {
-                                if(user.isAdmin || (blog.storeId === user.storeId)){
-                                    resolve(blog);
-                                }else{
-                                    reject(new NotFoundError("you are not allow to remove this blog"));
-                                }
+                                resolve(blog);
                             }
                         }
                     })
@@ -152,6 +168,10 @@ class BlogHandler extends BaseAutoBindedClass {
                 if(req.body.title != undefined){
                     req.checkBody('title', 'title is required').notEmpty();
                 }
+                if(req.body.description != undefined){
+                    req.checkBody(BlogHandler.BLOG_VALIDATION_SCHEME);
+                }
+        
                 req.getValidationResult()
                 .then(function(result) {
                     var errorMessages = {};
@@ -218,40 +238,36 @@ class BlogHandler extends BaseAutoBindedClass {
                 return new Promise(function(resolve, reject) {
                     var like = req.body.like;
                     if(like){
-                        BlogModel.update({
+                        BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
-                            'likedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
+                            'likedBy':  mongoose.Types.ObjectId(req.body.userId) 
                         },{
                             '$push': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) }
-                        },{
-                            $project: {
-                                likedBy:'$likedBy',
+                        } ,{'new': true, 'multi':true}, function(err, blog){
+                            if(err){
+                                console.log(err);
                             }
-                        },function(err, results){
-                            console.log("results",results)
-                            resolve(results);
-                        });
+                            console.log("RESULT: " + blog);
+                            resolve(blog);
+                        })
                     }else if(!like){
-                        BlogModel.update({
+                        BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
-                            'likedBy':  mongoose.Types.ObjectId(req.body.userId)
+                            'likedBy':{ '$ne':  mongoose.Types.ObjectId(req.body.userId)}
                         },{
                             "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        },{
-                            $project: {
-                                likedBy:'$likedBy',
+                        } ,{'new': true, 'multi':true},function(err, blog){
+                            if(err){
+                                console.log(err);
                             }
-                        },function(err, results){
-                            console.log("results",results)
-                            resolve(results);
-                        });
+                            resolve(blog);
+                        }
+                    )
                     }
                 });
-            })
-            .then((result) => {
-                console.log(result)
-                callback.onSuccess(result);
-            })
+            }).then((blog) => {
+                callback.onSuccess(blog);
+            })          
             .catch((error) => {
                 callback.onError(error);
             });

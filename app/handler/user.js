@@ -138,7 +138,9 @@ class UserHandler {
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
                     token:userToken.token,
+                    _id:user._id,
                     name:user.name,
+                    userId:user.name,
                     email:user.email,  
                     phone:user.phone,
                     latLong:user.latLong,

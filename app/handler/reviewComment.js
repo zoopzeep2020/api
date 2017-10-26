@@ -86,11 +86,6 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                         if (!reviewComment) {
                             reject(new NotFoundError("Comment not found"));
                         } else {
-                            if(user.isAdmin || (review.userId === user.userId) || (review.storeId === user.storeId)){
-                                resolve(reviewComment);
-                            }else{
-                                reject(new NotFoundError("you are not allow to remove this comment"));
-                            }
                             resolve(reviewComment);
                         }
                     }

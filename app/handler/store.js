@@ -710,16 +710,16 @@ class StoreHandler extends BaseAutoBindedClass {
                     ])
                     .exec(function(err, results){
                         resolve(results);
-                    }) .then((results) => {   
+                    }).then((results) => {   
                         callback.onSuccess(results);
                     })
                 });
-             })
-           
+             })           
             .catch((error) => {
                 callback.onError(error);
             });
     }
+    
     getAllStores(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -738,6 +738,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {

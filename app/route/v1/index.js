@@ -16,5 +16,7 @@ router.use('/bookmarks', require(ROUTE_V1_PATH + 'bookmark'));
 router.use('/blogs', require(ROUTE_V1_PATH + 'blog'));
 router.use('/mylists', require(ROUTE_V1_PATH + 'mylist'));
 router.use('/reviewComments', require(ROUTE_V1_PATH + 'reviewComment'));
+router.use('/collections', require(ROUTE_V1_PATH + 'collection'));
+// router.use('/reports', require(ROUTE_V1_PATH + 'report'));
 
 module.exports = router;
