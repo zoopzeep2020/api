@@ -720,17 +720,7 @@ class StoreHandler extends BaseAutoBindedClass {
     }
 
     getStoreBySearch(req, callback) {
-        let data = req.body;
-        var matchQuery = [];
-        console.log("matchQuery")
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        for (var param in req.query) {
-            // You need objects in your query not strings so push objects
-            qString = {};
-            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
-            matchQuery.push(qString);             
-        }
+        let data = req.body;      
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -740,8 +730,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) { 
-                    console.log(matchQuery) 
-                    StoreModel.find({$or:[{"storeName" : {$regex : req.query.word}},{"storeDescription" : {$regex : req.query.word}}]})
+                    StoreModel.find({$or:[{"storeName" : {$regex : req.query.search}},{"storeDescription" : {$regex : req.query.search}}]})
                     .exec(function(err, results){
                         resolve(results);
                     })

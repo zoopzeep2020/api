@@ -45,7 +45,6 @@ class FeedbackController extends BaseController {
     }
 
     update(req, res, next) {
-        console.log(req.files)
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isUser && user.id == req.body.userId) || (user.isStore && user.id == req.body.storeId)){
                 this._feedbackHandler.updateFeedback(req, this._responseManager.getDefaultResponseHandler(res));

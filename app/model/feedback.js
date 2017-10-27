@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 let FeedbackSchema = new Schema({
-    title: Number,
+    title: String,
     feedbackImage:String,
     description: String,
     dateCreated: { type: Date, default: Date.now },

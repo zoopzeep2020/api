@@ -92,6 +92,31 @@ class OfferHandler extends BaseAutoBindedClass {
         });
     }
 
+    getOfferBySearch(req, callback) {
+        let data = req.body;      
+        req.getValidationResult()
+            .then(function(result) {                
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) { 
+                    OfferModel.find({$or:[{"offerName" : {$regex : req.query.search}},{"offerDescription" : {$regex : req.query.search}}]})
+                    .exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            })
+            .then((offer) => {
+                callback.onSuccess(offer);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
     deleteOffer(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();

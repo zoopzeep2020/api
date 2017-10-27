@@ -408,6 +408,31 @@ class CatalogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
+    getCatalogBySearch(req, callback) {
+        let data = req.body;      
+        req.getValidationResult()
+            .then(function(result) {                
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) { 
+                    CatalogModel.find({"catalogDescription" : {$regex : req.query.search}})
+                    .exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            })
+            .then((catalog) => {
+                callback.onSuccess(catalog);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     
     objectify(array) {
         return array.reduce(function(p, c) {

@@ -29,7 +29,6 @@ class ReportHandler extends BaseAutoBindedClass {
 
     createNewReport(req, callback) {
         let data = req.body;
-        console.log(data)
         let validator = this._validator;
         let ModelData = {};
         req.checkBody(ReportHandler.REPORT_VALIDATION_SCHEME);
@@ -71,7 +70,6 @@ class ReportHandler extends BaseAutoBindedClass {
 
     deleteReport(user, req, callback) {
         let data = req.body;
-        console.log(req)
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
@@ -137,8 +135,7 @@ class ReportHandler extends BaseAutoBindedClass {
                     })
                 });
             })
-            .then((report) => {
-                console.log("report",report)                
+            .then((report) => {                
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
                         report[key] = data[key];
@@ -157,11 +154,9 @@ class ReportHandler extends BaseAutoBindedClass {
 
     getSingleReport(req, callback) {
         let data = req.body;
-        console.log(req)
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
-                console.log("result",result)
                 if (!result.isEmpty()) {
                     var errorMessages = {};
                     result.array().map(function(elem) {
@@ -186,7 +181,6 @@ class ReportHandler extends BaseAutoBindedClass {
                 });
             })
             .then((report) => {
-                console.log("report",report)
                 callback.onSuccess(report);
             })
             .catch((error) => {

@@ -9,6 +9,7 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/', offerController.getAll);
+router.get('/search', offerController.getOfferBySearch);
 router.get('/:id', offerController.get);
 router.post('/', upload.any(), offerController.create);
 router.delete('/:id', offerController.remove);

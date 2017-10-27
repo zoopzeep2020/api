@@ -37,7 +37,6 @@ class BlogController extends BaseController {
     }
 
     update(req, res, next) {
-        console.log(req.files)
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin){
                 this._blogHandler.updateBlog(req, this._responseManager.getDefaultResponseHandler(res));

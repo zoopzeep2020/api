@@ -40,8 +40,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
             },
         };
     }
-
-
    
     createNewFeedback(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
@@ -62,21 +60,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     done(err, data);
                 }
             },
-            function(data, done, err) {
-                if(typeof files['feedbackActiveImage'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
-                        var fileName = files['feedbackActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['feedbackActiveImage'].path, targetDir + fileName, function(err) {
-                            req.body.feedbackActiveImage = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
-                        });
-                    });
-                }else{
-                    let data = req.body;        
-                    done(err, data);
-                }
-            },
             function(data, done){
                 req.checkBody(FeedbackHandler.FEEDBACK_VALIDATION_SCHEME);
                 if(req.body.feedbackImage != undefined){
@@ -85,12 +68,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     req.checkBody('feedbackImage', 'feedbackImage is required').notEmpty();
                 }
 
-                if(req.body.feedbackActiveImage != undefined){
-                    req.checkBody('feedbackActiveImage', 'feedbackActiveImage is required').isImage(req.body.feedbackActiveImage);
-                }else{
-                    req.checkBody('feedbackActiveImage', 'feedbackActiveImage  is required').notEmpty();
-                }
-                req.getValidationResult()
+               req.getValidationResult()
                 .then(function(result) {
                     if (!result.isEmpty()) {
                         let errorMessages = result.array().map(function (elem) {
@@ -126,9 +104,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
         });
     }
 
-    
-
-    deleteFeedback(req, callback) {
+    deleteFeedback(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -293,7 +269,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
             });
     }
 
-    getAllCategories(req, callback) {
+    getAllFeedbacks(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
                 FeedbackModel.find({}, function(err, posts) {

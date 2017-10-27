@@ -79,60 +79,10 @@ class ReviewHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
-    }
-
-    // createReportReview(req, callback) {
-    //     let data = req.body;
-    //     let validator = this._validator;
-    //     let ModelData = {};
-    //     req.checkBody(ReviewHandler.REPORT_VALIDATION_SCHEME);
-    //     req.checkBody('reviewId', 'Invalid reviewId').isMongoId().notEmpty();
-    //     req.checkBody('userId', 'Invalid userId').isMongoId().notEmpty();
-    //     req.getValidationResult()
-    //         .then(function(result) {
-    //             if (!result.isEmpty()) {
-    //                 let errorMessages = result.array().map(function (elem) {
-    //                     return elem.msg;
-    //                 });
-    //                 throw new ValidationError(errorMessages);
-    //             }
-    //             return new Promise(function(resolve, reject) {
-    //                 ReviewModel.findOne({ _id: req.body.reviewId }, function(err, review) {
-    //                     console.log(req.body.reviewId)
-    //                     if (err !== null) {
-    //                         console.log()
-    //                             reject(new NotFoundError("review not found"));
-    //                     } else {
-    //                         console.log("review",review);
-    //                         if (review == null) {
-    //                             reject(new NotFoundError("review not found"));
-    //                         } 
-    //                         for (var key in data) {
-    //                             if (data.hasOwnProperty(key)) {
-    //                                 ModelData[key] = data[key];
-    //                             }
-    //                         } 
-    //                         resolve(new ReportModel(ModelData));
-    //                     }
-    //                 }) 
-    //             })
-    //         })
-    //         .then((report) => {
-    //             console.log("report",report)
-    //             report.save();
-    //             return report;
-    //         })
-    //         .then((saved) => {               
-    //             callback.onSuccess(saved);
-    //         })
-    //         .catch((error) => {
-    //             callback.onError(error);
-    //         });
-    // }
+    }  
 
     deleteReview(user, req, callback) {
         let data = req.body;
-        console.log(user);
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
@@ -225,7 +175,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                                 reject(new NotFoundError("Review not found"));
                             } else {
                                 store.avgRating = (store.avgRating*store.reviewCount - review.ratingScale + req.body.ratingScale)/(store.reviewCount); 
-                                console.log("store",store.avgRating)
                                 store.save();
                                 resolve(review)
                             }
@@ -234,7 +183,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
-                console.log("review",review)                
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
                         review[key] = data[key];
@@ -256,7 +204,6 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function(result) {
-                console.log("result",result)
                 if (!result.isEmpty()) {
                     var errorMessages = {};
                     result.array().map(function(elem) {
@@ -281,7 +228,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
-                console.log("review",review)
                 callback.onSuccess(review);
             })
             .catch((error) => {

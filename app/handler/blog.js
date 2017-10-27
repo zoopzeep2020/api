@@ -141,7 +141,6 @@ class BlogHandler extends BaseAutoBindedClass {
 
     updateBlog(req, callback) {
         let validator = this._validator;
-        console.log(req.files)
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
@@ -243,10 +242,6 @@ class BlogHandler extends BaseAutoBindedClass {
                         },{
                             '$push': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) }
                         } ,{'new': true, 'multi':true}, function(err, blog){
-                            if(err){
-                                console.log(err);
-                            }
-                            console.log("RESULT: " + blog);
                             resolve(blog);
                         })
                     }else if(!like){
@@ -256,9 +251,6 @@ class BlogHandler extends BaseAutoBindedClass {
                         },{
                             "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
                         } ,{'new': true, 'multi':true},function(err, blog){
-                            if(err){
-                                console.log(err);
-                            }
                             resolve(blog);
                         }
                     )
