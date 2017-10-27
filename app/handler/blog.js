@@ -4,7 +4,6 @@
  */
 const BlogModel = require(APP_MODEL_PATH + 'blog').BlogModel;
 const mongoose = require('mongoose');
-
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');

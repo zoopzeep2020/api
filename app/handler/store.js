@@ -96,11 +96,9 @@ class StoreHandler extends BaseAutoBindedClass {
     }
     
     updateStore(req, callback) {
-        
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);  
-        let data = req.body;        
-        
+        let data = req.body;       
         async.waterfall([
             function(done, err) {
                 if(files != undefined && typeof files['storeLogo'] !== "undefined"){
@@ -246,6 +244,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 else return data;
         });        
     }
+
     getSingleStore(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
@@ -618,7 +617,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+   
     getTrendingStore(req, callback) {
         let data = req.body;
         req.checkQuery('lng', 'Invalid urlparam').notEmpty()
@@ -719,7 +718,43 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
+    getStoreBySearch(req, callback) {
+        let data = req.body;
+        var matchQuery = [];
+        console.log("matchQuery")
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        for (var param in req.query) {
+            // You need objects in your query not strings so push objects
+            qString = {};
+            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+            matchQuery.push(qString);             
+        }
+        req.getValidationResult()
+            .then(function(result) {                
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) { 
+                    console.log(matchQuery) 
+                    StoreModel.find({$or:[{"storeName" : {$regex : req.query.word}},{"storeDescription" : {$regex : req.query.word}}]})
+                    .exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            })
+            .then((keyword) => {
+                callback.onSuccess(keyword);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
     getAllStores(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {

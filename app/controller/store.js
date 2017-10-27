@@ -29,6 +29,16 @@ class StoreController extends BaseController {
             })));
         });
     }
+
+    getStoreBySearch(req, res, next) {
+        let responseManager = this._responseManager;
+        this.authenticate(req, res, next, (token, user) => {
+            this._storeHandler.getStoreBySearch(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });
+    }
     
     getTrendingStore(req, res, next) {
         let responseManager = this._responseManager;
