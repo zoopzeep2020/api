@@ -46,6 +46,9 @@ class CollectionHandler extends BaseAutoBindedClass {
                 }       
                 req.checkBody('collectionName', 'collectionName is required').notEmpty();
                 req.checkBody('collectionType', 'collectionType is required').notEmpty();
+                if((req.files.storId === null || req.files.storId === undefined) && (req.files.offerId === null || req.files.offerId === undefined) && (req.files.catalogId === null || req.files.catalogId === undefined)){
+                    req.checkBody('storeId','storeId,offerID or catalogId is required').notEmpty();
+                }
                 req.getValidationResult()
                 .then(function(result) {
                     var errorMessages = {};
@@ -343,24 +346,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                             },                               
                         } 
                     },
-                    {
-                        $unwind: {
-                            path: "$offerInfo",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storesInfo",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$catalogInfo",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
                 ]).exec(function(err, results){
                     resolve(results);
                 })
@@ -377,155 +362,13 @@ class CollectionHandler extends BaseAutoBindedClass {
     getAllCollections(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            CollectionModel.aggregate([
-                {
-                    $unwind: {
-                        path: "$storeId",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$offerId",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$catalogId",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    "$lookup": {
-                        "from": 'stores',
-                        "localField": "storeId",
-                        "foreignField": "_id",
-                        "as": "storesInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'offers',
-                        "localField": "offerId",
-                        "foreignField": "_id",
-                        "as": "offerInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'catalogs',
-                        "localField": "catalogId",
-                        "foreignField": "_id",
-                        "as": "catalogInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'collections',
-                        "localField": "_id",
-                        "foreignField": "_id",
-                        "as": "collectionInfo"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$storesInfo",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$offerInfo",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$catalogInfo",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$collectionInfo",
-                        preserveNullAndEmptyArrays: false
-                      }
-                },
-                {
-                    $group: {
-                        _id : "$_id",
-                        collectionInfo:{ $addToSet: '$collectionInfo' },
-                        storesInfo:{ $addToSet: '$storesInfo' },
-                        offerInfo:{ $addToSet: '$offerInfo' },
-                        catalogInfo:{ $addToSet: '$catalogInfo' }
-                    },
-                },
-                {
-                    $unwind: {
-                        path: "$collectionInfo",
-                        preserveNullAndEmptyArrays: false
-                      }
-                },
-                {
-                    $project: {
-                        'collectionName':'$collectionInfo.collectionName',
-                        'collectionType':'$collectionInfo.collectionType',
-                        'collectionPicture':'$collectionInfo.collectionPicture',
-                        storesInfo: {
-                            $filter: { input: "$storesInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
-                        },
-                        offerInfo: {
-                            $filter: { input: "$offerInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
-                        },
-                        catalogInfo: {
-                            $filter: { input: "$catalogInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
-                        }
-                    },
-                },
-                { 
-                    $project : { 
-                        collectionName:1,                    
-                        collectionType:1,                    
-                        collectionPicture:1,                    
-                        storesInfo:{
-                            _id: 1,
-                            storeName: 1,
-                            storeLogo: 1,
-                            storeBanner: 1,
-                        }, 
-                        offerInfo:{
-                            _id: 1,
-                            offerName: 1,
-                            offerPicture: 1,
-                            offerDescription: 1,
-                        },  
-                        catalogInfo:{
-                            _id: 1,
-                            catalogUrl: 1,
-                            catalogDescription: 1,
-                        },                               
-                    } 
-                },
-                {
-                    $unwind: {
-                        path: "$offerInfo",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$storesInfo",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-                {
-                    $unwind: {
-                        path: "$catalogInfo",
-                        preserveNullAndEmptyArrays: true
-                      }
-                },
-            ]).exec(function(err, results){
+            CollectionModel.find({}, function(err, collections) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    resolve(collections);
+                }
+            }).exec(function(err, results){
                 resolve(results);
             })
             })
