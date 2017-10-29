@@ -24,6 +24,7 @@ class UserController extends BaseController {
             }
         })(req, res, next);
     }
+    
     getAdminKey(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;

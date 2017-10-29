@@ -21,7 +21,7 @@ class ReviewController extends BaseController {
     }
 
     getStoreReviews(req, res, next) {
-        this.authenticate(req, res, next, (token, user) => {
+        this.basicAuthenticate(req, res, () => {
             this._reviewHandler.getAllStoreReviews(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
@@ -91,6 +91,16 @@ class ReviewController extends BaseController {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
+    }
+
+    basicAuthenticate(req, res, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('secret-key-auth', {
+            onVerified: callback,
+            onFailure: function (error) {
+                responseManager.respondWithError(res, error.status || 401, error.message);
+            }
+        })(req, res);
     }
 }
 

@@ -22,7 +22,7 @@ class CollectionController extends BaseController {
 
     get(req, res, next) {
         let responseManager = this._responseManager;
-        this.authenticate(req, res, next, (token, user) => {
+        this.basicAuthenticate(req, res, () => {
             this._collectionHandler.getSingleCollection(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
@@ -68,6 +68,16 @@ class CollectionController extends BaseController {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
+    }
+
+    basicAuthenticate(req, res, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('secret-key-auth', {
+            onVerified: callback,
+            onFailure: function (error) {
+                responseManager.respondWithError(res, error.status || 401, error.message);
+            }
+        })(req, res);
     }
 }
 
