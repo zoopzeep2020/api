@@ -606,7 +606,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             new NotFoundError("store not found");
                         } else {
                             store.viewCount = store.viewCount + 1;
-                            store.avgRating = result[0].avgRating;
+                            //store.avgRating = result[0].avgRating;
                             store.save();
                         }
                     }
