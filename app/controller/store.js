@@ -50,7 +50,8 @@ class StoreController extends BaseController {
         });
     }
 
-    update(req, res, next) {        
+    update(req, res, next) {       
+        console.log("controllee",req.body) 
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId && user.storeId == req.params.id)){  
                 this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));

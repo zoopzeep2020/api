@@ -53,16 +53,6 @@ class ReviewController extends BaseController {
         });
     }
 
-    // createReportReview(req, res, next) {
-    //     this.authenticate(req, res, next, (token, user) => {
-    //         if(user.isAdmin || (user.isUser && user.id == req.body.userId) || (user.isStore && store.id == req.body.storeId) ){
-    //             this._reviewHandler.createReportReview(req, this._responseManager.getDefaultResponseHandler(res));            
-    //         }else{
-    //             this._responseManager.respondWithError(res, 404, "access not available")                        
-    //         } 
-    //     });
-    // }
-
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isUser && user.id == req.body.userId)){

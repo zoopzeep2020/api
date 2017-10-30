@@ -4,6 +4,7 @@
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const mongoose = require('mongoose');
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -33,7 +34,7 @@ class StoreHandler extends BaseAutoBindedClass {
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        req.checkBody(StoreHandler.Store_VALIDATION_SCHEME); 
+        req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME); 
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -48,6 +49,7 @@ class StoreHandler extends BaseAutoBindedClass {
             store.viewCount = 1
             store.avgRating = 0
             store.save();
+            console.log("store",store)
             return store;
         })
         .then((saved) => {
@@ -96,6 +98,7 @@ class StoreHandler extends BaseAutoBindedClass {
     }
     
     updateStore(req, callback) {
+        console.log(req.body)
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);  
         let data = req.body;       
@@ -220,6 +223,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     for (var key in data) {
                         store[key] = data[key];
                     }   
+                    console.log(store)
                     store.save();
                     return store;
                 })
@@ -310,7 +314,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         {
                             $unwind: {
                                 path: "$reviews",
-                                preserveNullAndEmptyArrays: false
+                                preserveNullAndEmptyArrays: true
                               }
                         },
                         {
@@ -323,14 +327,20 @@ class StoreHandler extends BaseAutoBindedClass {
                         },
                         {
                             $unwind: {
-                                path: "$storesInfo",
-                                preserveNullAndEmptyArrays: false
+                                path: "$reviews.users",
+                                preserveNullAndEmptyArrays: true
                               }
                         },
                         {
                             $unwind: {
                                 path: "$storesInfo",
-                                preserveNullAndEmptyArrays: false
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: true
                               }
                         },
                         {
@@ -370,7 +380,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 'returnandreplace': '$storesInfo.returnandreplace',
                                 'avgRating': {$divide:[{$subtract:[{$multiply:['$avgRating',10]}, { $mod: [{ $multiply: [ "$avgRating", 10 ] }, 1 ] },]},10]},
                                 reviews: {
-                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", true] } },                            
+                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },                            
                                 },
                                 keywords: {
                                     $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
@@ -579,9 +589,9 @@ class StoreHandler extends BaseAutoBindedClass {
                                     }
                                 },                                
                             } 
-                        },      
-                                   
+                        },         
                     ]).exec(function(err, results){
+                        console.log("promise",results)
                         resolve(results);
                     })
                     //    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).populate('Catalog').exec(function(err, store) {
@@ -602,11 +612,12 @@ class StoreHandler extends BaseAutoBindedClass {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
+                        console.log("inside findone",store)
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
                             store.viewCount = store.viewCount + 1;
-                            //store.avgRating = result[0].avgRating;
+                            store.avgRating = result[0].avgRating;
                             store.save();
                         }
                     }
@@ -729,15 +740,40 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
+                
                 return new Promise(function(resolve, reject) { 
-                    StoreModel.find({$or:[{"storeName" : {$regex : req.query.search}},{"storeDescription" : {$regex : req.query.search}}]})
+                    KeywordModel.aggregate(
+                        {"$match":{"title" : {$regex : req.query.search}}},
+                        {
+                            $project:{
+                                _id:1,
+                            }
+                        }
+                    )
                     .exec(function(err, results){
                         resolve(results);
                     })
                 });
+            }).then((keywords) => {
+                let objectAray = [];
+                for(var i=0;i<keywords.length;i++){
+                    objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
+                }
+                return new Promise(function(resolve, reject) { 
+                    StoreModel.find(
+                    {
+                        $or:[
+                            {"storeName" : {$regex : req.query.search}},
+                            {"storeDescription" : {$regex : req.query.search}},
+                            {"keyword": { "$in": objectAray }}
+                        ]
+                    }).exec(function(err, results){
+                        resolve(results);
+                    })
+                });
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
+            .then((stores) => {
+                callback.onSuccess(stores);
             })
             .catch((error) => {
                 callback.onError(error);

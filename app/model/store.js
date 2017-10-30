@@ -20,7 +20,7 @@ let StoreSchema = new Schema({
     storeDiscription: String,
     keyword: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Keyword'
+        ref: 'keyword'
     }],
     featureCatalog: {
         type: mongoose.Schema.Types.ObjectId,
