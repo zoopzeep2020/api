@@ -34,7 +34,6 @@ class StoreHandler extends BaseAutoBindedClass {
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        req.checkBody(StoreHandler.STORE_VALIDATION_SCHEME); 
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -740,7 +739,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                
                 return new Promise(function(resolve, reject) { 
                     KeywordModel.aggregate(
                         {"$match":{"title" : {$regex : req.query.search}}},
