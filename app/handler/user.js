@@ -122,7 +122,6 @@ class UserHandler {
                                         resolve(new UserModel(user));
                                     },
                                     onError: function(data) {
-                                        console.log("data",data)
                                         reject(new AlreadyExistsError("Somthing happend wrong"));
                                     },
                                 });
@@ -135,7 +134,6 @@ class UserHandler {
                 });
             })
             .then((user) => {
-                console.log(user)
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {

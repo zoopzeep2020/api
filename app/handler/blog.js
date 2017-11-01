@@ -35,6 +35,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 notEmpty: true,
                 errorMessage: 'title is required'
             },
+            
         };
     }  
     createNewBlog(req, callback) {
@@ -59,11 +60,31 @@ class BlogHandler extends BaseAutoBindedClass {
                     done(err, data);
                 }
             },
+            function(data, done, err) {
+                if(typeof files['authorImage'] !== "undefined"){
+                    mkdirp(targetDir, function(err) {
+                        var fileName = files['authorImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['authorImage'].path, targetDir + fileName, function(err) {
+                            req.body.authorImage = targetDir + fileName;
+                            let data = req.body;   
+                            done(err, data);   
+                        });
+                    });
+                }else{
+                    let data = req.body;        
+                    done(err, data);
+                }
+            },
             function(data, done){
                 if(req.body.blogPicture != undefined){
                     req.checkBody('blogPicture', 'blogPicture is required').isImage(req.body.blogPicture);
                 }else{
                     req.checkBody('blogPicture', 'blogPicture is required').notEmpty();
+                } 
+                if(req.body.authorImage != undefined){
+                    req.checkBody('authorImage', 'blogPicture is required').isImage(req.body.blogPicture);
+                }else{
+                    req.checkBody('authorImage', 'blogPicture is required').notEmpty();
                 }   
                 req.getValidationResult()
                 .then(function(result) {
@@ -239,21 +260,30 @@ class BlogHandler extends BaseAutoBindedClass {
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'likedBy':  mongoose.Types.ObjectId(req.body.userId) 
-                        },{
-                            '$push': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) }
-                        } ,{'new': true, 'multi':true}, function(err, blog){
+                        },
+                        {
+                            '$addToSet': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
+                        },
+                        {'new': true, 'multi':true},
+                        function(err, blog){
+                            blog.likeCount = blog.likeCount+1;
+                            blog.save();
                             resolve(blog);
                         })
                     }else if(!like){
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'likedBy':{ '$ne':  mongoose.Types.ObjectId(req.body.userId)}
-                        },{
+                        },
+                        {
                             "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        } ,{'new': true, 'multi':true},function(err, blog){
+                        },
+                        {'new': true, 'multi':true},
+                        function(err, blog){
+                            blog.likeCount = blog.likeCount-1;
+                            blog.save();
                             resolve(blog);
-                        }
-                    )
+                        })
                     }
                 });
             }).then((blog) => {
@@ -285,6 +315,8 @@ class BlogHandler extends BaseAutoBindedClass {
                         {
                             '$push': { 'savedBy': mongoose.Types.ObjectId(req.body.userId) }
                         }).exec(function(err, results){
+                            blog.saveCount = blog.saveCount+1;
+                            blog.save();
                             resolve(results);
                         }) 
                     }else if(!save){
@@ -294,6 +326,8 @@ class BlogHandler extends BaseAutoBindedClass {
                         },{
                             "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
                         }).exec(function(err, results){
+                            blog.saveCount = blog.saveCount-1;
+                            blog.save();
                             resolve(results);
                         })
                     }
@@ -308,7 +342,7 @@ class BlogHandler extends BaseAutoBindedClass {
             });
     }
 
-    getSingleBlog(req, callback) {
+    getSingleBlog(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -320,7 +354,63 @@ class BlogHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                BlogModel.findOne({ _id: req.params.id }, function(err, blog) {
+                BlogModel.aggregate({ "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                {
+                    $unwind: {
+                        path: "$savedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$likedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        isLike: { 
+                            $cond: {
+                                if    : {$eq: ["$likedBy",mongoose.Types.ObjectId(user.id)]},
+                                then  : true,
+                                else  : false
+                            }
+                        },
+                        isSave: { 
+                            $cond: {
+                                if    : {$eq: ["$savedBy",mongoose.Types.ObjectId(user.id)]},
+                                then  : true,
+                                else  : false
+                            }
+                        },
+                        dateCreated: 1,
+                        dateModified: 1,
+                        likeCount: 1,
+                        title: 1,
+                        blogPicture: 1,
+                        description: 1,
+                        authorName: 1,
+                        authorImage: 1,
+                        saveCount: 1,                        
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        title: {$first: '$title'},
+                        blogPicture: {$first: '$blogPicture'},
+                        description: {$first: '$description'},
+                        authorName: {$first: '$authorName'},
+                        authorImage: {$first: '$authorImage'},
+                        dateCreated: {$first: '$dateCreated'},
+                        dateModified: {$first: '$dateModified'},
+                        likeCount: {$first: '$likeCount'},
+                        saveCount: {$first: '$saveCount'},
+                        isLike: {$max: '$isLike'},
+                        isSave: {$max: '$isSave'}
+                    }
+                },
+                function(err, blog) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -341,19 +431,76 @@ class BlogHandler extends BaseAutoBindedClass {
         });
     }
 
-    getAllBlogs(req, callback) {
+    getAllBlogs(user, req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                BlogModel.find({}, function(err, posts) {
+                BlogModel.aggregate(
+                    {
+                    $unwind: {
+                        path: "$savedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$likedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        isLike: { 
+                            $cond: {
+                                if    : {$eq: ["$likedBy",mongoose.Types.ObjectId(user.id)]},
+                                then  : true,
+                                else  : false
+                            }
+                        },
+                        isSave: { 
+                            $cond: {
+                                if    : {$eq: ["$savedBy",mongoose.Types.ObjectId(user.id)]},
+                                then  : true,
+                                else  : false
+                            }
+                        },
+                        dateCreated: 1,
+                        dateModified: 1,
+                        likeCount: 1,
+                        title: 1,
+                        blogPicture: 1,
+                        description: 1,
+                        authorName: 1,
+                        authorImage: 1,
+                        saveCount: 1,                        
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        title: {$first: '$title'},
+                        blogPicture: {$first: '$blogPicture'},
+                        description: {$first: '$description'},
+                        authorName: {$first: '$authorName'},
+                        authorImage: {$first: '$authorImage'},
+                        dateCreated: {$first: '$dateCreated'},
+                        dateModified: {$first: '$dateModified'},
+                        likeCount: {$first: '$likeCount'},
+                        saveCount: {$first: '$saveCount'},
+                        isLike: {$max: '$isLike'},
+                        isSave: {$max: '$isSave'}
+                    }
+                },
+                 function(err, blogs) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        resolve(posts);
+                        resolve(blogs);
                     }
                 });
             })
-            .then((posts) => {
-                callback.onSuccess(posts);
+            .then((blogs) => {
+                
+                callback.onSuccess(blogs);
             })
             .catch((error) => {
                 callback.onError(error);

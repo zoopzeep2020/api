@@ -8,6 +8,12 @@ let BlogSchema = new Schema({
     title: String,
     blogPicture:String,
     description:String,
+    authorImage:String,
+    authorName:String,
+    isLike:Boolean,
+    isSave:Boolean,
+    likeCount:Number,
+    saveCount:Number,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
     likedBy: [{
@@ -30,8 +36,6 @@ BlogSchema.pre('save', function(next, done) {
 BlogSchema.methods.toJSON = function() {
     let obj = this.toObject();
     delete obj.__v;
-    delete obj.dateModified;
-    delete obj.dateCreated;
     return obj
 };
 module.exports.BlogModel = mongoose.model('Blog', BlogSchema);

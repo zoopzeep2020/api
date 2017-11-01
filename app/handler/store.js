@@ -48,7 +48,6 @@ class StoreHandler extends BaseAutoBindedClass {
             store.viewCount = 1
             store.avgRating = 0
             store.save();
-            console.log("store",store)
             return store;
         })
         .then((saved) => {
@@ -97,7 +96,6 @@ class StoreHandler extends BaseAutoBindedClass {
     }
     
     updateStore(req, callback) {
-        console.log(req.body)
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);  
         let data = req.body;       
@@ -222,7 +220,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     for (var key in data) {
                         store[key] = data[key];
                     }   
-                    console.log(store)
                     store.save();
                     return store;
                 })
@@ -590,7 +587,6 @@ class StoreHandler extends BaseAutoBindedClass {
                             } 
                         },         
                     ]).exec(function(err, results){
-                        console.log("promise",results)
                         resolve(results);
                     })
                     //    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).populate('Catalog').exec(function(err, store) {
@@ -611,7 +607,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
-                        console.log("inside findone",store)
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {

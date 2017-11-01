@@ -15,7 +15,7 @@ class AuthController extends BaseController {
     create(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
-        this.authenticate(req, res, next, (user) => {
+        this.basicAuthenticate(req, res, next, (user) => {
             that._authHandler.issueNewToken(req, user, responseManager.getDefaultResponseHandler(res));
         });
     }
@@ -60,6 +60,15 @@ class AuthController extends BaseController {
         })(req, res, next);
     }
 
+    basicAuthenticate(req, res, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('secret-key-auth', {
+            onVerified: callback,
+            onFailure: function (error) {
+                responseManager.respondWithError(res, error.status || 401, error.message);
+            }
+        })(req, res);
+    }
 }
 
 module.exports = AuthController;
