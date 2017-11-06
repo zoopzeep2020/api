@@ -11,7 +11,7 @@ class CollectionController extends BaseController {
     }
 
     getAll(req, res, next) {
-        this.authenticate(req, res, next, (token, user) => {
+        this.basicAuthenticate(req, res, next, (token, user) => {
             if(user.isAdmin){
                 this._collectionHandler.getAllCollections(req, this._responseManager.getDefaultResponseHandler(res));            
             }else{
