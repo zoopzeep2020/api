@@ -11,7 +11,7 @@ class BlogController extends BaseController {
     }
 
     getAll(req, res, next){
-        this.basicAuthenticate(req, res, next, (token, user) => {
+        this.authenticate(req, res, next, (token, user) => {
             this._blogHandler.getAllBlogs(user, req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
