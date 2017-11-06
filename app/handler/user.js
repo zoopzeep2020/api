@@ -79,6 +79,8 @@ class UserHandler {
             .then((user) => {
                 return new Promise(function(resolve, reject) {
                     UserModel.findOne({ email: user.email }, function(err, docs) {
+                        user.userImage = "";
+                        
                         // for result found or not 
                         if (docs != null) {                    
                             // check user already exists
@@ -143,6 +145,7 @@ class UserHandler {
                     email:user.email,  
                     phone:user.phone,
                     latLong:user.latLong,
+                    userImage:user.userImage,
                     deviceToken:user.deviceToken,
                     storeId:user.storeId,
                     isStore:user.isStore,
@@ -150,8 +153,8 @@ class UserHandler {
                 };
                 return data;
             })
-            .then((saved) => {
-                callback.onSuccess(saved);
+            .then((user) => {
+                callback.onSuccess(user);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -242,6 +245,7 @@ class UserHandler {
                 callback.onError(error);
             });
     }
+
     updateUser(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);        
@@ -359,6 +363,7 @@ class UserHandler {
                 callback.onError(error);
             });
     }
+
     getAdminKey(req, userToken, callback) {
         req.getValidationResult()
             .then((result) => {
@@ -396,6 +401,7 @@ class UserHandler {
                 isUser:user.isUser,
                 isStore:user.isStore,   
                 email:user.email,
+                userImage:user.userImage,
                 scope: 'default'
             };
         }else{
@@ -405,6 +411,7 @@ class UserHandler {
                 isUser:user.isUser,
                 isStore:user.isStore,   
                 email:user.email,
+                userImage:user.userImage,
                 scope: 'default'
             };
         }

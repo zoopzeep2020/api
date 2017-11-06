@@ -288,8 +288,6 @@ class OfferHandler extends BaseAutoBindedClass {
 
     getStoreOffer(req, callback) {
         let data = req.body;
-        console.log(req.params.id)
-        
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
         .then(function(result) {

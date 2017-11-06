@@ -9,7 +9,7 @@ class OfferController extends BaseController {
         this._offerHandler = new OfferHandler();
         this._passport = require('passport');
     }
-
+ 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin){

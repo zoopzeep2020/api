@@ -41,6 +41,7 @@ class AuthHandler extends BaseAutoBindedClass {
                 storeId:user.storeId,
                 isStore:user.isStore,
                 isUser:user.isUser,
+                userImage:user.userImage,  
                 deviceType:user.deviceType,
                 isAdmin:user.isAdmin
             };
@@ -236,7 +237,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 storeId:user.storeId._id,
                 isAdmin:user.isAdmin,
                 isUser:user.isUser,
-                isStore:user.isStore,   
+                isStore:user.isStore,  
+                userImage:user.userImage,   
                 email:user.email,
                 scope: 'default'
             };
@@ -245,7 +247,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 id: user.id,
                 isAdmin:user.isAdmin,
                 isUser:user.isUser,
-                isStore:user.isStore,   
+                isStore:user.isStore,
+                userImage:user.userImage,   
                 email:user.email,
                 scope: 'default'
             };

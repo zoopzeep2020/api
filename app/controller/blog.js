@@ -11,7 +11,7 @@ class BlogController extends BaseController {
     }
 
     getAll(req, res, next){
-        this.authenticate(req, res, next, (token, user) => {
+        this.basicAuthenticate(req, res, next, (token, user) => {
             this._blogHandler.getAllBlogs(user, req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
@@ -84,6 +84,16 @@ class BlogController extends BaseController {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
+    }
+
+    basicAuthenticate(req, res, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('secret-key-auth', {
+            onVerified: callback,
+            onFailure: function (error) {
+                responseManager.respondWithError(res, error.status || 401, error.message);
+            }
+        })(req, res);
     }
 }
 
