@@ -3,6 +3,7 @@
  * Created by crosp on 5/9/17.
  */
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
+const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -265,6 +266,41 @@ class OfferHandler extends BaseAutoBindedClass {
             }
             return new Promise(function(resolve, reject) {
                 OfferModel.findOne({ _id: req.params.id }, function(err, offer) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!offer) {
+                            reject(new NotFoundError("Offer not found"));
+                        } else {
+                            resolve(offer);
+                        }
+                    }
+                })
+            });
+        })
+        .then((offer) => {
+            callback.onSuccess(offer);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
+    getStoreOffer(req, callback) {
+        let data = req.body;
+        console.log(req.params.id)
+        
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+        req.getValidationResult()
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                OfferModel.find({ storeId: req.params.id }, function(err, offer) {
                     if (err !== null) {
                         reject(err);
                     } else {

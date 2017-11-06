@@ -39,6 +39,8 @@ class StoreController extends BaseController {
             })));
         });
     }
+
+    
     
     getTrendingStore(req, res, next) {
         let responseManager = this._responseManager;

@@ -65,7 +65,6 @@ class UserHandler {
         req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
         req.checkBody('isStore', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
         req.checkBody('isUser', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
-        
         req.getValidationResult()
             .then(function(result) {
                     var errorMessages = {};
@@ -268,7 +267,7 @@ class UserHandler {
                     req.checkBody('name').notEmpty();
                 }
                 if(req.body.email != undefined){
-                    req.checkBody('email', 'email format is not valid').isEmail();
+                    req.checkBody('email', 'you cannot update email').isEmpty().notEmpty();
                 }
                 if(req.body.password != undefined){
                     req.checkBody('password', 'password is too short').checkLength(req.body.password, 8);
@@ -335,7 +334,7 @@ class UserHandler {
                     throw new ValidationError('There have been validation errors: ' + errorMessages.join(' && ')); ValidationError(errorMessages);
                 }
                 let userId = req.params.id;
-                if (userToken.id !== req.params.id) {
+                if (userToken.id !== req.params.id && !userToken.isAdmin) {
                     throw new UnauthorizedError("Provided id doesn't match with  the requested user id");
                 } else {
                     return new Promise(function(resolve, reject) {

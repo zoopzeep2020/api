@@ -5,6 +5,8 @@ const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+const mongoose = require('mongoose');
+
 
 class MylistHandler extends BaseAutoBindedClass {
     constructor() {
@@ -147,16 +149,45 @@ class MylistHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    MylistModel.find({ userId: req.params.id }).populate({ path: 'stores', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, mylist) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!mylist) {
-                                reject(new NotFoundError("Mylist not found"));
-                            } else {
-                                resolve(mylist);
-                            }
+                MylistModel.aggregate([
+                    { "$match": { "userId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                    {
+                        $unwind: {
+                            path: "$stores",
+                            preserveNullAndEmptyArrays: true
                         }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "stores",
+                            "foreignField": "_id",
+                            "as": "storeInfo"
+                        }
+                    }, 
+                    {
+                        $unwind: {
+                            path: "$storeInfo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            userId: 1,
+                            listName: 1,
+                            dateCreated: 1,
+                            dateModified: 1,
+                            storeInfo:{
+                                _id: 1,
+                                storeName: 1,
+                                storeLogo: 1,
+                                storeBanner: 1,
+                            },                      
+                        }
+                    },
+                    ]).exec(function(err, results){
+                        resolve(results);
                     })
                 });
             })

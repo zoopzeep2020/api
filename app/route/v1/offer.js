@@ -11,6 +11,7 @@ var upload = multer({ dest: 'uploads/' });
 router.get('/', offerController.getAll);
 router.get('/search', offerController.getOfferBySearch);
 router.get('/:id', offerController.get);
+router.get('/store/:id', offerController.getStoreOffer);
 router.post('/', upload.any(), offerController.create);
 router.delete('/:id', offerController.remove);
 router.put('/:id', upload.any(), offerController.update);
