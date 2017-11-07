@@ -39,6 +39,8 @@ class CollectionHandler extends BaseAutoBindedClass {
                 }
             },
             function(data, done){
+                console.log(req.body)
+                console.log(req.files.storId=== undefined)
                 if(req.body.collectionPicture != undefined){
                     req.checkBody('collectionPicture', 'collectionPicture is required').isImage(req.body.collectionPicture);
                 }else{
@@ -46,9 +48,10 @@ class CollectionHandler extends BaseAutoBindedClass {
                 }       
                 req.checkBody('collectionName', 'collectionName is required').notEmpty();
                 req.checkBody('collectionType', 'collectionType is required').notEmpty();
-                if((req.files.storId === null || req.files.storId === undefined) && (req.files.offerId === null || req.files.offerId === undefined) && (req.files.catalogId === null || req.files.catalogId === undefined)){
-                    req.checkBody('storeId','storeId,offerID or catalogId is required').notEmpty();
+                if((req.body.storId === null || req.body.storId === undefined) && (req.body.offerId === null || req.body.offerId === undefined) && (req.body.catalogId === null || req.body.catalogId === undefined)){
+                    req.checkBody('storeId','storeId,offerId or catalogId is required').notEmpty();
                 }
+
                 req.getValidationResult()
                 .then(function(result) {
                     var errorMessages = {};
