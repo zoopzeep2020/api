@@ -32,28 +32,17 @@ app.use(authManager.providePassport().initialize());
 app.use(validationManager.provideDefaultValidator());
 
 
-// app.use(function(req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept-Language, Authorization");
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-//     res.setHeader('Content-Type', 'application/json');
-//     if ('OPTIONS' === req.method) {
-//         res.sendStatus(200);
-//     } else
-//         next();
-// });
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept-Language, Authorization");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Content-Type', 'application/json');
+    if ('OPTIONS' === req.method) {
+        res.sendStatus(200);
+    } else
+        next();
+});
 
-// Setup routes
-
-// app.use(expressValidator({
-//     customValidators: {
-//         isPDF: function(value, filename) {
-//             var extension = (path.extname(filename)).toLowerCase();
-//             return extension == '.pdf';
-//         }
-//     }
-// }));
-//requiring the validator
 var expressValidator = require('express-validator');
 //the app use part
 app.use(expressValidator({
