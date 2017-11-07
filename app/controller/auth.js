@@ -11,6 +11,16 @@ class AuthController extends BaseController {
         this._passport = require('passport');
     }
 
+     /**
+   * @swagger
+   * /:
+   *   get:
+   *     description: Returns the homepage
+   *     responses:
+   *       200:
+   *         description: hello world
+   */
+  
     // Request token by credentials
     create(req, res, next) {
         let responseManager = this._responseManager;

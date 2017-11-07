@@ -31,6 +31,39 @@ app.use(authManager.providePassport().initialize());
 // Set Up validation middleware
 app.use(validationManager.provideDefaultValidator());
 
+////-------------------swagger-------------------//
+var swaggerJSDoc = require('swagger-jsdoc');
+if(global.config.server.PORT === 3000){
+    var host = 'http://locahost:' + global.config.server.PORT;
+}else{
+    var host = 'http://webrexstudio.com:' + global.config.server.PORT;
+}
+console.log("host",host)
+//swagger swaggerDefinition
+var swaggerDefinition = {
+  info: {
+    title: 'Welcome to MangoBilling API Doc',
+    version: '1.0.0',
+    description: 'Using this doc you may understand the functionality and test the MangoBilling RESTful APIs. We developed Some webservices so far and it is growing.',
+  },
+  host: host,
+  basePath: '/'
+};
+
+var options = {
+  // import swaggerDefinitions
+  swaggerDefinition: swaggerDefinition,
+  // path to the API docs
+  apis: ['./app/handler/*.js']
+};
+
+// initialize swagger-jsdoc
+var swaggerSpec = swaggerJSDoc(options);
+// serve swagger
+app.get('/api.json', function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -42,6 +75,7 @@ app.use(function(req, res, next) {
     } else
         next();
 });
+
 
 var expressValidator = require('express-validator');
 //the app use part
@@ -88,11 +122,15 @@ customValidators: {
         return true;
     }
 }}));
-
+app.get('/swagger', function (req, res) {
+    res.setHeader('Content-Type', 'text/html');
+    res.sendFile(path.join(__dirname+ '/swagger/api-docs/index.html'));
+});
+app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
 
-app.listen(global.config.server.PORT, function() {
+var server = app.listen(global.config.server.PORT, function() {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);
 });

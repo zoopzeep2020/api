@@ -38,6 +38,7 @@
     "passport-local": "latest",
     "passport-strategy": "latest",
     "should": "^11.2.1",
+    "swagger-jsdoc": "^1.9.7",
     "utf8": "^2.1.2",
     "validator": "^7.0.0"
   }
