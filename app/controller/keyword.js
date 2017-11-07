@@ -11,7 +11,7 @@ class KeywordController extends BaseController {
     }
 
     getAll(req, res, next) {
-        this.authenticate(req, res, next, (token, user) => {
+        this.basicAuthenticate(req, res,() => {
             this._keywordHandler.getAllKeywords(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }

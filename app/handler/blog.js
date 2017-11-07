@@ -506,6 +506,65 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
+    getAllWithoutLogin( req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+                BlogModel.aggregate(
+                {
+                    $unwind: {
+                        path: "$savedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$likedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        dateCreated: 1,
+                        dateModified: 1,
+                        likeCount: 1,
+                        title: 1,
+                        blogPicture: 1,
+                        description: 1,
+                        authorName: 1,
+                        authorImage: 1,
+                        saveCount: 1,                        
+                    }
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        title: {$first: '$title'},
+                        blogPicture: {$first: '$blogPicture'},
+                        description: {$first: '$description'},
+                        authorName: {$first: '$authorName'},
+                        authorImage: {$first: '$authorImage'},
+                        dateCreated: {$first: '$dateCreated'},
+                        dateModified: {$first: '$dateModified'},
+                        likeCount: {$first: '$likeCount'},
+                        saveCount: {$first: '$saveCount'},
+                    }
+                },
+                 function(err, blogs) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        resolve(blogs);
+                    }
+                });
+            })
+            .then((blogs) => {
+                callback.onSuccess(blogs);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {

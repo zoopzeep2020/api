@@ -16,6 +16,12 @@ class BlogController extends BaseController {
         });
     }
 
+    getAllWithoutLogin(req, res, next){
+        this.basicAuthenticate(req, res, () => {
+            this._blogHandler.getAllWithoutLogin( req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
