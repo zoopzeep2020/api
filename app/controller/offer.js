@@ -12,11 +12,7 @@ class OfferController extends BaseController {
  
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin){
-                this._offerHandler.getAllOffers(req, this._responseManager.getDefaultResponseHandler(res));            
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            this._offerHandler.getAllOffers(req, this._responseManager.getDefaultResponseHandler(res));    
         });
     }
 

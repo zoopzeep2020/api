@@ -1,22 +1,13 @@
-/**
- * Created by crosp on 5/13/17.
- */
-const ReviewCommentModel = require(APP_MODEL_PATH + 'reviewComment').ReviewCommentModel;
+const ServiceModel = require(APP_MODEL_PATH + 'service').ServiceModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
-
-class ReviewCommentHandler extends BaseAutoBindedClass {
-    constructor() {
-        super();
-        this._validator = require('validator');
-    }
 /**
  * @swagger
- * /reviewComments:
+ * /services:
  *   post:
  *     tags:
- *       - ReviewComment
+ *       - Service
  *     description: activity object
  *     produces:
  *       - application/json
@@ -32,20 +23,13 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: application/json
- *       - name: userId
- *         description: userId
+ *       - name: title
+ *         description: title
  *         in: body
+ *         required: true
  *         type: string
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         type: string
- *       - name: reviewId
- *         description: reviewId
- *         in: body
- *         type: string
- *       - name: comment
- *         description: comment
+ *       - name: content
+ *         description: content
  *         in: body
  *         required: true
  *         type: string
@@ -57,10 +41,10 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
  */
 /**
  * @swagger
- * /reviewComments/{reviewCommentId}:
+ * /services/{serviceId}:
  *   put:
  *     tags:
- *       - ReviewComment
+ *       - Service
  *     description: activity object
  *     produces:
  *       - application/json
@@ -76,24 +60,17 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: application/json
- *       - name: reviewCommentId
- *         description: reviewCommentId
+ *       - name: serviceId
+ *         description: serviceId
  *         in: path
+ *         required: true
  *         type: string
- *       - name: userId
- *         description: userId
+ *       - name: title
+ *         description: title
  *         in: body
  *         type: string
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         type: string
- *       - name: reviewId
- *         description: reviewId
- *         in: body
- *         type: string
- *       - name: comment
- *         description: comment
+ *       - name: content
+ *         description: content
  *         in: body
  *         type: string
  *         schema:
@@ -102,115 +79,115 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".
  */
-
-  /**
+/**
  * @swagger
- * /reviewComments:
- *   get:
- *     tags:
- *       - ReviewComment
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-  /**
- * @swagger
- * /reviewComments/{reviewCommentId}:
- *   get:
- *     tags:
- *       - ReviewComment
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: reviewCommentId
- *         description: reviewCommentId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-  /**
- * @swagger
- * /reviewComments/{reviewCommentId}:
+ * /services/{serviceId}:
  *   delete:
  *     tags:
- *       - ReviewComment
+ *       - Service
  *     description: activity object
  *     produces:
  *       - application/json
  *     parameters:
  *       - name: Authorization
  *         description: token authorization
- *         in: path
+ *         in: header
  *         required: true
  *         type: string
- *       - name: reviewCommentId
- *         description: reviewCommentId
+ *       - name: serviceId
+ *         description: serviceId
  *         in: path
  *         required: true
  *         type: string
  *     responses:
  *       200:
- *         description: object of activity".     
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /services/{serviceId}:
+ *   get:
+ *     tags:
+ *       - Service
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: serviceId
+ *         description: serviceId
+ *         in: path
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /services:
+ *   get:
+ *     tags:
+ *       - Service
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".
  */
  /**
  * @swagger
  * definition:
  *   UpdateActivitiesObj:
  *     properties:
- *       userId:
+ *       title:
  *         type: string
- *       storeId:
- *         type: string
- *       reviewId:
- *         type: string
- *       comment:
+ *       content:
  *         type: string
  */
-    static get REVIEWCOMMENT_VALIDATION_SCHEME() {
+class ServiceHandler extends BaseAutoBindedClass {
+    constructor() {
+        super();
+        this._validator = require('validator');
+    }
+
+    static get SERVICE_VALIDATION_SCHEME() {
         return {
-            'comment': {
+            'title': {
                 isLength: {
                     options: [{ min: 2  }],
                     errorMessage: 'Comment must be 2 characters long'
                 },
                 notEmpty: false,
-                errorMessage: 'Comment title required'
+                errorMessage: 'title is required'
+            },
+            'content': {
+                isLength: {
+                    options: [{ min: 50  }],
+                    errorMessage: 'content must be 50 characters long'
+                },
+                notEmpty: false,
+                errorMessage: 'content is required'
             },
         };
     }
 
-    createNewReviewComment(req, callback) {
+    createNewService(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        let ModelData = {};
-
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                if( ( key == 'reviewId' || key == 'userId' )){
-                    req.checkBody(key, 'Invalid '+ key +' provided').isMongoId();
-                }
-            }
-        }         
-        req.checkBody(ReviewCommentHandler.REVIEWCOMMENT_VALIDATION_SCHEME);        
-        req.checkBody('reviewId', 'only one is allowed either reviewId or storeId').isOneTrue(req.body.userId == undefined,req.body.storeId  == undefined);
+        let ModelData = {};        
+        req.checkBody(ServiceHandler.SERVICE_VALIDATION_SCHEME);        
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -225,11 +202,11 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                     ModelData[key] = data[key];
                 }
             }
-            return new ReviewCommentModel(ModelData);
+            return new ServiceModel(ModelData);
         })
-        .then((reviewComment) => {      
-            reviewComment.save();
-            return reviewComment;
+        .then((service) => {      
+            service.save();
+            return service;
         })
         .then((saved) => {
             callback.onSuccess(saved);      
@@ -239,7 +216,7 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
         });
     }
 
-    deleteReviewComment(req, callback) {
+    deleteService(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -251,35 +228,35 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
+                ServiceModel.findOne({ _id: req.params.id }, function(err, service) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!reviewComment) {
-                            reject(new NotFoundError("Comment not found"));
+                        if (!service) {
+                            reject(new NotFoundError("service not found"));
                         } else {
-                            resolve(reviewComment);
+                            resolve(service);
                         }
                     }
                 })
             });
         })
-        .then((reviewComment) => {
-            reviewComment.remove();
-            return reviewComment;
+        .then((service) => {
+            service.remove();
+            return service;
         })
         .then((saved) => {
-            callback.onSuccess({}, "Comment id " + saved.id + " deleted successfully ");
+            callback.onSuccess({}, "service id " + saved.id + " deleted successfully ");
         })
         .catch((error) => {
             callback.onError(error);
         });
     }
 
-    updateReviewComment(req, callback) {
+    updateService(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        req.checkBody(ReviewCommentHandler.REVIEWCOMMENT_VALIDATION_SCHEME);
+        req.checkBody(ServiceHandler.REVIEWCOMMENT_VALIDATION_SCHEME);
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
         .then(function(result) {
@@ -291,27 +268,27 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
             }
 
             return new Promise(function(resolve, reject) {
-                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
+                ServiceModel.findOne({ _id: req.params.id }, function(err, service) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!reviewComment) {
-                            reject(new NotFoundError("Comment not found"));
+                        if (!service) {
+                            reject(new NotFoundError("service not found"));
                         } else {
-                            resolve(reviewComment);
+                            resolve(service);
                         }
                     }
                 })
             });
         })
-        .then((reviewComment) => {
+        .then((service) => {
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
-                    reviewComment[key] = data[key];
+                    service[key] = data[key];
                 }
             }       
-            reviewComment.save();
-            return reviewComment;
+            service.save();
+            return service;
         })
         .then((saved) => {
             callback.onSuccess(saved);
@@ -321,7 +298,7 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
         });
     }
 
-    getSingleReviewComment(req, callback) {
+    getSingleService(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -333,36 +310,36 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                ReviewCommentModel.findOne({ _id: req.params.id }, function(err, reviewComment) {
+                ServiceModel.findOne({ _id: req.params.id }, function(err, service) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!reviewComment) {
-                            reject(new NotFoundError("Comment not found"));
+                        if (!service) {
+                            reject(new NotFoundError("service not found"));
                         } else {
-                            resolve(reviewComment);
+                            resolve(service);
                         }
                     }
                 })
             });
         })
-        .then((reviewComment) => {
-            callback.onSuccess(reviewComment);
+        .then((service) => {
+            callback.onSuccess(service);
         })
         .catch((error) => {
             callback.onError(error);
         });
     }
 
-    getAllReviewComments(req, callback) {
+    getAllServices(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            ReviewCommentModel.find({}, function(err, category) {
+            ServiceModel.find({}, function(err, category) {
                 if (err !== null) {
                     reject(err);
                 } else {
                     if (!category) {
-                        reject(new NotFoundError("Comment not found"));
+                        reject(new NotFoundError("service not found"));
                     } else {
                         resolve(category);
                     }
@@ -370,13 +347,14 @@ class ReviewCommentHandler extends BaseAutoBindedClass {
             })
 
         })
-        .then((reviewComment) => {
-            callback.onSuccess(reviewComment);
+        .then((service) => {
+            callback.onSuccess(service);
         })
         .catch((error) => {
             callback.onError(error);
         });
     }
+
 }
 
-module.exports = ReviewCommentHandler;
+module.exports = ServiceHandler;

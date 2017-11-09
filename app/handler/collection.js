@@ -17,7 +17,213 @@ class CollectionHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
+/**
+ * @swagger
+ * /collections:
+ *   post:
+ *     tags:
+ *       - Collection
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: Content-Type
+ *         description: content-type
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: application/json
+ *       - name: collectionName
+ *         description: collectionName
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: collectionType
+ *         description: collectionType
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: collectionPicture
+ *         in: formData
+ *         description: The uploaded file of collectionPicture
+ *         type: file
+ *       - name: catalogId
+ *         description: catalogId
+ *         in: body
+ *         type: array
+ *       - name: offerId
+ *         description: offerId
+ *         in: body
+ *         type: array
+ *       - name: storeId
+ *         description: storeId
+ *         in: body
+ *         type: array
+ *         schema:
+ *          $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /collections/{collectionId}:
+ *   put:
+ *     tags:
+ *       - Collection
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: Content-Type
+ *         description: content-type
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: application/json
+ *       - name: collectionName
+ *         description: collectionName
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: collectionId
+ *         description: collectionId
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: collectionType
+ *         description: collectionType
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: collectionPicture
+ *         in: formData
+ *         description: The uploaded file of collectionPicture
+ *         type: file
+ *       - name: catalogId
+ *         description: catalogId
+ *         in: body
+ *         type: array
+ *       - name: offerId
+ *         description: offerId
+ *         in: body
+ *         type: array
+ *       - name: storeId
+ *         description: storeId
+ *         in: body
+ *         type: array
+ *         schema:
+ *          $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /collections:
+ *   get:
+ *     tags:
+ *       - Collection
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
 
+ /**
+ * @swagger
+ * /colections/{collectionId}:
+ *   get:
+ *     tags:
+ *       - Collection
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: collectionId
+ *         description: collectionId
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+  /**
+ * @swagger
+ * /colections/{collectionId}:
+ *   delete:
+ *     tags:
+ *       - Collection
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: collectionId
+ *         description: collectionId
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+ /**
+ * @swagger
+ * definition:
+ *   UpdateActivitiesObj:
+ *     properties:
+ *       collectionName:
+ *         type: string
+ *         required: true
+ *       collectionType:
+ *         type: string
+ *         required: true
+ *       collectionPicture:
+ *         type: string
+ *         required: true
+ *       offerId:
+ *         type: array
+ *         items:
+ *          type: string
+ *       catalogId:
+ *         type: array
+ *         items:
+ *          type: string
+ *       storeId:
+ *         type: array
+ *         items:
+ *          type: string
+ */
     createNewCollection(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
@@ -39,8 +245,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                 }
             },
             function(data, done){
-                console.log(req.body)
-                console.log(req.files.storId=== undefined)
                 if(req.body.collectionPicture != undefined){
                     req.checkBody('collectionPicture', 'collectionPicture is required').isImage(req.body.collectionPicture);
                 }else{

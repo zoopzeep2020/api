@@ -10,7 +10,10 @@ let UserSchema = new Schema({
     deviceToken: String,
     deviceType: String,
     userImage: String,
-    location:[{ lng : String, lat : String}],
+    location: {
+        type: [Number],  // [<longitude>, <latitude>]
+        index: '2dsphere'      // create the geospatial index
+    },
     userLat: Number,
     userLong: Number,
     isUser: { type: Boolean, default: false },

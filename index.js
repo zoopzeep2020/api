@@ -34,11 +34,10 @@ app.use(validationManager.provideDefaultValidator());
 ////-------------------swagger-------------------//
 var swaggerJSDoc = require('swagger-jsdoc');
 if(global.config.server.PORT === 3000){
-    var host = 'http://locahost:' + global.config.server.PORT;
+    var host = 'localhost:' + global.config.server.PORT;
 }else{
-    var host = 'http://webrexstudio.com:' + global.config.server.PORT;
+    var host = 'webrexstudio.com:' + global.config.server.PORT;
 }
-console.log("host",host)
 //swagger swaggerDefinition
 var swaggerDefinition = {
   info: {
@@ -69,13 +68,12 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept-Language, Authorization");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Type', 'text/css');
     if ('OPTIONS' === req.method) {
         res.sendStatus(200);
     } else
         next();
 });
-
 
 var expressValidator = require('express-validator');
 //the app use part
@@ -126,6 +124,7 @@ app.get('/swagger', function (req, res) {
     res.setHeader('Content-Type', 'text/html');
     res.sendFile(path.join(__dirname+ '/swagger/api-docs/index.html'));
 });
+
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);

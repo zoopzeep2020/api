@@ -17,7 +17,322 @@ class OfferHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
+/**
+ * @swagger
+ * /offers:
+ *   post:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: Content-Type
+ *         description: content-type
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: application/json
+ *       - name: offerName
+ *         description: offerName
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: offerDescription
+ *         description: offerDescription
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: storeId
+ *         in: body
+ *         description: storeId
+ *         type: string
+ *       - name: aplicableForAll
+ *         description: aplicableForAll
+ *         in: body
+ *         type: boolean
+ *       - name: orderAbovePrice
+ *         description: orderAbovePrice
+ *         in: body
+ *         type: number
+ *       - name: discountTypePercentage
+ *         description: discountTypePercentage
+ *         in: body
+ *         type: boolean
+ *       - name: discountTypeFlat
+ *         description: discountTypeFlat
+ *         in: body
+ *         type: boolean
+ *       - name: percentageDiscount
+ *         description: percentageDiscount
+ *         in: body
+ *         type: number
+ *       - name: flatDiscount
+ *         description: flatDiscount
+ *         in: body
+ *         type: number
+ *       - name: startDate
+ *         description: startDate
+ *         in: body
+ *         type: string
+ *         format: date
+ *       - name: endDate
+ *         description: endDate
+ *         in: body
+ *         type: string
+ *         format: date
+ *       - name: offerPicture
+ *         in: formData
+ *         description: The uploaded file of offerPicture
+ *         required: true
+ *         type: file
+ *         schema:
+ *          $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /offers/{offerId}:
+ *   put:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: Content-Type
+ *         description: content-type
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: application/json
+ *       - name: offerName
+ *         description: offerName
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: offerId
+ *         description: offerId
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: offerDescription
+ *         description: offerDescription
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: storeId
+ *         in: body
+ *         description: storeId
+ *         type: string
+ *       - name: aplicableForAll
+ *         description: aplicableForAll
+ *         in: body
+ *         type: boolean
+ *       - name: orderAbovePrice
+ *         description: orderAbovePrice
+ *         in: body
+ *         type: number
+ *       - name: discountTypePercentage
+ *         description: discountTypePercentage
+ *         in: body
+ *         type: boolean
+ *       - name: discountTypeFlat
+ *         description: discountTypeFlat
+ *         in: body
+ *         type: boolean
+ *       - name: percentageDiscount
+ *         description: percentageDiscount
+ *         in: body
+ *         type: number
+ *       - name: flatDiscount
+ *         description: flatDiscount
+ *         in: body
+ *         type: number
+ *       - name: startDate
+ *         description: startDate
+ *         in: body
+ *         type: string
+ *         format: date
+ *       - name: endDate
+ *         description: endDate
+ *         in: body
+ *         type: string
+ *         format: date
+ *       - name: offerPicture
+ *         in: formData
+ *         description: The uploaded file of offerPicture
+ *         required: true
+ *         type: file
+ *         schema:
+ *          $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /offers/{offerId}:
+ *   get:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: offerId
+ *         description: offerId
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+/**
+ * @swagger
+ * /offers/search?{search}:
+ *   get:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: search
+ *         description: offer description or name
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
 
+/**
+ * @swagger
+ * /offers/store/{storeId}:
+ *   get:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: storeId
+ *         description: storeId
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+/**
+ * @swagger
+ * /offers:
+ *   get:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+    /**
+ * @swagger
+ * /offers/{offerId}:
+ *   delete:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: offerId
+ *         description: offerId
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+/**
+ * @swagger
+ * definition:
+ *   UpdateActivitiesObj:
+ *     properties:
+ *       storeId:
+ *         type: string
+ *         required: true
+ *       offerName:
+ *         type: string
+ *         required: true
+ *       offerDescription:
+ *         type: string
+ *         required: true
+ *       aplicableForAll:
+ *         type: boolean
+ *       orderAbovePrice:
+ *         type: number
+ *       discountTypePercentage:
+ *         type: boolean
+ *       discountTypeFlat:
+ *         type: boolean
+ *       percentageDiscount:
+ *         type: number
+ *       flatDiscount:
+ *         type: number
+ *       startDate:
+ *         type: string
+ *         format: date
+ *       endDate:
+ *         type: string
+ *         format: date
+ *       offerPicture:
+ *         type: string
+ */
     createNewOffer(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');

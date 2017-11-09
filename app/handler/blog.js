@@ -12,11 +12,256 @@ const async = require('async');
 const mkdirp = require('mkdirp');
 const path = require('path');
 
+/**
+ * @swagger
+ * /blogs/withoutlogin:
+ *   get:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: Basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+ /**
+ * @swagger
+ * /blogs:
+ *   get:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+ /**
+ * @swagger
+ * /blogs/{blogId}:
+ *   get:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: blogId
+ *         description: blogId
+ *         in: path
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+/**
+ * @swagger
+ * /blogs/{blogId}:
+ *   put:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: blogPicture
+ *         in: formData
+ *         description: The uploaded file of blogPicture
+ *         required: true
+ *         type: file
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         type: string
+ *       - name: blogId
+ *         description: blogId
+ *         in: path
+ *         type: string
+ *         schema:
+ *          $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+ /**
+ * @swagger
+ * /blogs/like:
+ *   put:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         type: string
+ *       - name: blogId
+ *         description: blogId
+ *         in: body
+ *         type: string
+ *       - name: userId
+ *         description: userId
+ *         in: body
+ *         type: string
+ *       - name: like
+ *         description: like
+ *         in: body
+ *         type: boolean
+ *     schema:
+ *       $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+ /**
+ * @swagger
+ * /blogs/save:
+ *   put:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         type: string
+ *       - name: blogId
+ *         description: blogId
+ *         in: body
+ *         type: string
+ *       - name: userId
+ *         description: userId
+ *         in: body
+ *         type: string
+ *       - name: like
+ *         description: save
+ *         in: body
+ *         type: boolean
+ *     schema:
+ *       $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
+/**
+ * @swagger
+ * /blogs:
+ *   post:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: blogPicture
+ *         in: formData
+ *         description: The uploaded file of blogPicture
+ *         required: true
+ *         type: file
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: Content-Type
+ *         description: content-type
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: application/json
+ *       - name: userId
+ *         description: userId
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: description
+ *         description: description of blog
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: title
+ *         description: title of blog
+ *         in: body
+ *         required: true
+ *         type: string
+ *         schema:
+ *          $ref: '#/definitions/UpdateActivitiesObj'
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+ 
+ /**
+ * @swagger
+ * definition:
+ *   UpdateActivitiesObj:
+ *     properties:
+ *       title:
+ *         type: string
+ *         required: true
+ *       blogPicture:
+ *         type: string
+ *         required: true
+ *       description:
+ *         type: string
+ *         required: true
+ *       authorImage:
+ *         type: string
+ *         required: true
+ *       authorName:
+ *         type: string
+ *         required: true 
+ *       likeCount:
+ *         type: integer
+ *         required: true 
+ *       saveCount:
+ *         type: integer
+ *         required: true
+ *       likedBy:
+ *         type: array
+ *         items:
+ *          type: string
+ *       savedBy:
+ *         type: array
+ *         items:
+ *          type: string
+ */
 class BlogHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
+
     static get BLOG_VALIDATION_SCHEME() {
         return {
             'description': {
@@ -38,6 +283,7 @@ class BlogHandler extends BaseAutoBindedClass {
             
         };
     }  
+
     createNewBlog(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
@@ -308,34 +554,36 @@ class BlogHandler extends BaseAutoBindedClass {
                 return new Promise(function(resolve, reject) {
                     var save = req.body.save;
                     if(save){
-                        BlogModel.update({
+                        BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'savedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
                         },
                         {
-                            '$push': { 'savedBy': mongoose.Types.ObjectId(req.body.userId) }
-                        }).exec(function(err, results){
+                            '$addToSet': { 'savedBy': mongoose.Types.ObjectId(req.body.userId) }
+                        }, {'new': true, 'multi':true}).exec(function(err, blog){
                             blog.saveCount = blog.saveCount+1;
-                            blog.save();
-                            resolve(results);
+                            blog.save()                            
+                            resolve(blog);
                         }) 
                     }else if(!save){
-                        BlogModel.update({
+                        BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'savedBy':  mongoose.Types.ObjectId(req.body.userId)
-                        },{
+                        },
+                        {
                             "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        }).exec(function(err, results){
+                        }, {'new': true, 'multi':true}).exec(function(err, blog){
+
                             blog.saveCount = blog.saveCount-1;
-                            blog.save();
-                            resolve(results);
+                            blog.save()                            
+                            resolve(blog);
                         })
                     }
                     
                 });
             })
-            .then((result) => {
-                callback.onSuccess(result);
+            .then((blog) => {
+                callback.onSuccess(blog);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -565,6 +813,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {

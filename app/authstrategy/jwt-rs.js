@@ -89,7 +89,6 @@ class JwtRsStrategy extends BaseAuthStrategy {
         });
     }
 
-
     provideOptions() {
         return this._options;
     }
