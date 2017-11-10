@@ -327,6 +327,7 @@ class CategoryHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     updateCategory(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);        

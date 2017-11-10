@@ -7,7 +7,6 @@ const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const mongoose = require('mongoose');
 
-
 class MylistHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -332,12 +331,12 @@ class MylistHandler extends BaseAutoBindedClass {
                             if (!mylist) {
                                 reject(new NotFoundError("Mylist not found"));
                             } else {
-
                                 resolve(mylist);
                             }
                         }
                     })
                 });
+
             })
             .then((mylist) => {
                 for (var key in data) {
@@ -417,6 +416,7 @@ class MylistHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     getSingleMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
@@ -429,7 +429,7 @@ class MylistHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    MylistModel.findOne({ _id: req.params.id }).populate({ path: 'stores', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, mylist) {
+                    MylistModel.findOne({ _id: req.params.id }).populate({ path: 'stores', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store'  }).exec(function(err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -453,7 +453,7 @@ class MylistHandler extends BaseAutoBindedClass {
     getAllMylists(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            MylistModel.find().populate({ path: 'stores', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, mylist) {
+            MylistModel.find().populate({ path: 'stores', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store'  }).exec(function(err, mylist) {
                     if (err !== null) {
                         reject(err);
                     } else {

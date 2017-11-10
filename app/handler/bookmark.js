@@ -194,6 +194,11 @@ class BookmarkHandler extends BaseAutoBindedClass {
     createNewBookmark(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        req.checkBody('userId', 'Invalid userId provided').isMongoId();
+        req.checkBody('userId', 'userId is required').isEmpty();
+        req.checkBody('storeId', 'storeId is required').isEmpty();
+        req.checkBody('storeId', 'Invalid storeId provided').isMongoId();
+        
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -257,7 +262,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.checkBody(BookmarkHandler.BOOKMARK_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -275,7 +279,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
                             if (!bookmark) {
                                 reject(new NotFoundError("Bookmark not found"));
                             } else {
-
                                 resolve(bookmark);
                             }
                         }
@@ -311,7 +314,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    BookmarkModel.findOne({ _id: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo'],  model: 'Store'  }).exec(function(err, bookmark) {
+                    BookmarkModel.findOne({ _id: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store'  }).exec(function(err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -344,7 +347,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                BookmarkModel.find({ userId: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo'],  model: 'Store' }).exec(function(err, bookmark) {
+                BookmarkModel.find({ userId: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store' }).exec(function(err, bookmark) {
                     
                     if (err !== null) {
                         reject(err);
@@ -369,25 +372,24 @@ class BookmarkHandler extends BaseAutoBindedClass {
     getAllBookmarks(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                BookmarkModel.find({}, function(err, bookmark) {
-                    if (err !== null) {
-                        reject(err);
+            BookmarkModel.find({}, function(err, bookmark) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!bookmark) {
+                        reject(new NotFoundError("Bookmark not found"));
                     } else {
-                        if (!bookmark) {
-                            reject(new NotFoundError("Bookmark not found"));
-                        } else {
-                            resolve(bookmark);
-                        }
+                        resolve(bookmark);
                     }
-                })
-
+                }
             })
-            .then((bookmark) => {
-                callback.onSuccess(bookmark);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        })
+        .then((bookmark) => {
+            callback.onSuccess(bookmark);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 }
 

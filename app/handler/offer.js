@@ -11,6 +11,7 @@ const fs = require('fs');
 const async = require('async');
 const mkdirp = require('mkdirp');
 const path = require('path');
+const mongoose = require('mongoose');
 
 class OfferHandler extends BaseAutoBindedClass {
     constructor() {
@@ -420,8 +421,9 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) { 
                     OfferModel.find({$or:[{"offerName" : {$regex : req.query.search}},{"offerDescription" : {$regex : req.query.search}}]})
-                    .exec(function(err, results){
-                        resolve(results);
+                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store' })
+                    .exec(function(err, offer) {
+                        resolve(offer);
                     })
                 });
             })
@@ -580,7 +582,32 @@ class OfferHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                OfferModel.findOne({ _id: req.params.id }, function(err, offer) {
+                OfferModel.aggregate(
+                    { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "storeId",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            offerName:1,
+                            offerDescription:1,
+                            aplicableForAll:1,
+                            discountTypePercentage:1,
+                            discountTypeFlat:1,
+                            storesInfo:{
+                                storeName:1,
+                                storeLogo:1,
+                                storeBanner:1,
+                            }
+                        }
+                    },
+                    function(err, offer) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -613,17 +640,30 @@ class OfferHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                OfferModel.find({ storeId: req.params.id }, function(err, offer) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        if (!offer) {
-                            reject(new NotFoundError("Offer not found"));
-                        } else {
-                            resolve(offer);
-                        }
-                    }
-                })
+                 OfferModel.find({"storeId" : req.params.id})
+                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store' })
+                    .exec(function(err, offer) {
+                        if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!offer) {
+                                    reject(new NotFoundError("Offer not found"));
+                                } else {
+                                    resolve(offer);
+                                }
+                            }
+                    })
+                // OfferModel.find({ storeId: req.params.id }, function(err, offer) {
+                //     if (err !== null) {
+                //         reject(err);
+                //     } else {
+                //         if (!offer) {
+                //             reject(new NotFoundError("Offer not found"));
+                //         } else {
+                //             resolve(offer);
+                //         }
+                //     }
+                // })
             });
         })
         .then((offer) => {
@@ -637,21 +677,45 @@ class OfferHandler extends BaseAutoBindedClass {
     getAllOffers(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                OfferModel.find({}, function(err, posts) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        resolve(posts);
+            OfferModel.aggregate(
+            {
+                "$lookup": {
+                    "from": 'stores',
+                    "localField": "storeId",
+                    "foreignField": "_id",
+                    "as": "storesInfo"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    offerName:1,
+                    offerDescription:1,
+                    aplicableForAll:1,
+                    discountTypePercentage:1,
+                    discountTypeFlat:1,
+                    storesInfo:{
+                        storeName:1,
+                        storeLogo:1,
+                        storeBanner:1,
                     }
-                });
-            })
-            .then((posts) => {
-                callback.onSuccess(posts);
-            })
-            .catch((error) => {
-                callback.onError(error);
+            },
+            }, function(err, posts) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    resolve(posts);
+                }
             });
+        })
+        .then((posts) => {
+            callback.onSuccess(posts);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
+
     objectify(array) {
         return array.reduce(function(p, c) {
              p[c['fieldname']] = c;
