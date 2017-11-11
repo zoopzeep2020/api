@@ -41,9 +41,9 @@ if(global.config.server.PORT === 3000){
 //swagger swaggerDefinition
 var swaggerDefinition = {
   info: {
-    title: 'Welcome to MangoBilling API Doc',
+    title: 'Welcome to ZeepZoop API Doc',
     version: '1.0.0',
-    description: 'Using this doc you may understand the functionality and test the MangoBilling RESTful APIs. We developed Some webservices so far and it is growing.',
+    description: 'Using this doc you may understand the functionality and test the ZeepZoop RESTful APIs. We developed Some webservices so far and it is growing.',
   },
   host: host,
   basePath: '/'
