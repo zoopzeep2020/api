@@ -58,7 +58,7 @@ class UserController extends BaseController {
 
     update(req, res, next) {    
         this.userAuthenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){  
+            if(user.isAdmin || (user.isUser && user.id == req.body.userId) || (user.isStore && user.id == req.body.userId)){  
                 this._authHandler.updateUser(req, this._responseManager.getDefaultResponseHandler(res));            
             }else{
                 this._responseManager.respondWithError(res, 404, "access not allow")                        

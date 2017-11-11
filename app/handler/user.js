@@ -43,6 +43,11 @@ var path = require('path');
  *         in: path
  *         required: true
  *         type: string
+ *       - name: userId
+ *         description: userId
+ *         in: body
+ *         required: true
+ *         type: string
  *       - name: phone
  *         description: phone
  *         in: body

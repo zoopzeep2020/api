@@ -586,10 +586,26 @@ class OfferHandler extends BaseAutoBindedClass {
                     { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
                     {
                         "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storeId",
+                            "foreignField": "storeId",
+                            "as": "catalogsInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
                             "from": 'stores',
                             "localField": "storeId",
                             "foreignField": "_id",
                             "as": "storesInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storesInfo.featureCatalog",
+                            "foreignField": "_id",
+                            "as": "featureCatalog"
                         }
                     },
                     {
@@ -604,6 +620,16 @@ class OfferHandler extends BaseAutoBindedClass {
                                 storeName:1,
                                 storeLogo:1,
                                 storeBanner:1,
+                                avgRating:1,
+                                address:1,                                
+                            },
+                            featureCatalog:{
+                                catalogUrl:1,
+                                catalogDescription:1
+                            },
+                            catalogsInfo:{
+                                catalogUrl:1,
+                                catalogDescription:1
                             }
                         }
                     },
@@ -639,33 +665,91 @@ class OfferHandler extends BaseAutoBindedClass {
                 });
                 throw new ValidationError(errorMessages);
             }
+            
             return new Promise(function(resolve, reject) {
-                 OfferModel.find({"storeId" : req.params.id})
-                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store' })
-                    .exec(function(err, offer) {
-                        if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!offer) {
-                                    reject(new NotFoundError("Offer not found"));
-                                } else {
-                                    resolve(offer);
-                                }
+                 OfferModel.aggregate(
+                    { "$match": { "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storeId",
+                            "foreignField": "storeId",
+                            "as": "catalogsInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "storeId",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storesInfo.featureCatalog",
+                            "foreignField": "_id",
+                            "as": "featureCatalog"
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            offerName:1,
+                            offerDescription:1,
+                            aplicableForAll:1,
+                            discountTypePercentage:1,
+                            discountTypeFlat:1,
+                            storesInfo:{
+                                storeName:1,
+                                storeLogo:1,
+                                storeBanner:1,
+                                avgRating:1,
+                                address:1,                                
+                            },
+                            featureCatalog:{
+                                catalogUrl:1,
+                                catalogDescription:1
+                            },
+                            catalogsInfo:{
+                                catalogUrl:1,
+                                catalogDescription:1
                             }
-                    })
-                // OfferModel.find({ storeId: req.params.id }, function(err, offer) {
-                //     if (err !== null) {
-                //         reject(err);
-                //     } else {
-                //         if (!offer) {
-                //             reject(new NotFoundError("Offer not found"));
-                //         } else {
-                //             resolve(offer);
-                //         }
-                //     }
-                // })
+                        }
+                    },
+                    function(err, offer) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!offer) {
+                            reject(new NotFoundError("Offer not found"));
+                        } else {
+                            resolve(offer);
+                        }
+                    }
+                })
             });
         })
+                 
+        //          find({"storeId" : req.params.id})
+        //         .populate([{ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating', 'addreess', 'featureCatalog'],  model: 'Store'} ,
+        //         {
+        //             path: 'storeId.', select: ['catalogUrl', 'catalogDescription'],  model: 'Catalog'
+        //         }])
+        //         .exec(function(err, offer) {
+        //             if (err !== null) {
+        //                 reject(err);
+        //             } else {
+        //                 if (!offer) {
+        //                     reject(new NotFoundError("Offer not found"));
+        //                 } else {
+        //                     resolve(offer);
+        //                 }
+        //             }
+        //         })
+        //     });
+        // })
         .then((offer) => {
             callback.onSuccess(offer);
         })
@@ -678,35 +762,67 @@ class OfferHandler extends BaseAutoBindedClass {
         let data = req.body;
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
-            {
-                "$lookup": {
-                    "from": 'stores',
-                    "localField": "storeId",
-                    "foreignField": "_id",
-                    "as": "storesInfo"
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    offerName:1,
-                    offerDescription:1,
-                    aplicableForAll:1,
-                    discountTypePercentage:1,
-                    discountTypeFlat:1,
-                    storesInfo:{
-                        storeName:1,
-                        storeLogo:1,
-                        storeBanner:1,
+                {
+                    "$lookup": {
+                        "from": 'catalogs',
+                        "localField": "storeId",
+                        "foreignField": "storeId",
+                        "as": "catalogsInfo"
                     }
-            },
-            }, function(err, posts) {
-                if (err !== null) {
-                    reject(err);
-                } else {
-                    resolve(posts);
+                },
+                {
+                    "$lookup": {
+                        "from": 'stores',
+                        "localField": "storeId",
+                        "foreignField": "_id",
+                        "as": "storesInfo"
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": 'catalogs',
+                        "localField": "storesInfo.featureCatalog",
+                        "foreignField": "_id",
+                        "as": "featureCatalog"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        offerName:1,
+                        offerDescription:1,
+                        aplicableForAll:1,
+                        discountTypePercentage:1,
+                        discountTypeFlat:1,
+                        storesInfo:{
+                            storeName:1,
+                            storeLogo:1,
+                            storeBanner:1,
+                            avgRating:1,
+                            address:1,                                
+                        },
+                        featureCatalog:{
+                            catalogUrl:1,
+                            catalogDescription:1
+                        },
+                        catalogsInfo:{
+                            catalogUrl:1,
+                            catalogDescription:1
+                        }
+                    }
+                },
+                function(err, offer) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!offer) {
+                            reject(new NotFoundError("Offer not found"));
+                        } else {
+                            resolve(offer);
+                        }
+                    }
                 }
-            });
+            );
         })
         .then((posts) => {
             callback.onSuccess(posts);

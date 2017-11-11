@@ -384,6 +384,22 @@ class MylistHandler extends BaseAutoBindedClass {
                         }
                     }, 
                     {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "stores",
+                            "foreignField": "storeId",
+                            "as": "catalogsInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storesInfo.featureCatalog",
+                            "foreignField": "_id",
+                            "as": "featureCatalog"
+                        }
+                    },
+                    {
                         $unwind: {
                             path: "$storeInfo",
                             preserveNullAndEmptyArrays: true
@@ -398,10 +414,21 @@ class MylistHandler extends BaseAutoBindedClass {
                             dateModified: 1,
                             storeInfo:{
                                 _id: 1,
-                                storeName: 1,
-                                storeLogo: 1,
-                                storeBanner: 1,
-                            },                      
+                                storeName:1,
+                                storeLogo:1,
+                                storeBanner:1,
+                                avgRating:1,
+                                address:1, 
+                                featureCatalog:1
+                            },  
+                            catalogsInfo:{
+                                catalogUrl:1,
+                                catalogDescription:1
+                            },
+                            featureCatalog:{
+                                catalogUrl:1,
+                                catalogDescription:1
+                            },                  
                         }
                     },
                     ]).exec(function(err, results){
@@ -429,12 +456,81 @@ class MylistHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    MylistModel.findOne({ _id: req.params.id }).populate({ path: 'stores', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store'  }).exec(function(err, mylist) {
+                    MylistModel.aggregate(
+                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                        {
+                            $unwind: {
+                                path: "$stores",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'stores',
+                                "localField": "stores",
+                                "foreignField": "_id",
+                                "as": "storesInfo"
+                            }
+                        }, 
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "stores",
+                                "foreignField": "storeId",
+                                "as": "catalogsInfo"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "storesInfo.featureCatalog",
+                                "foreignField": "_id",
+                                "as": "featureCatalog"
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$featureCatalog",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                offerName:1,
+                                offerDescription:1,
+                                aplicableForAll:1,
+                                discountTypePercentage:1,
+                                discountTypeFlat:1,
+                                storesInfo:{
+                                    storeName:1,
+                                    storeLogo:1,
+                                    storeBanner:1,
+                                    avgRating:1,
+                                    address:1,                                
+                                },
+                                featureCatalog:{
+                                    catalogUrl:1,
+                                    catalogDescription:1
+                                },
+                                catalogsInfo:{
+                                    catalogUrl:1,
+                                    catalogDescription:1
+                                }
+                            }
+                        },
+                        function(err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!mylist) {
-                                reject(new NotFoundError("Mylist not found"));
+                                reject(new NotFoundError("mylist not found"));
                             } else {
                                 resolve(mylist);
                             }
@@ -453,25 +549,92 @@ class MylistHandler extends BaseAutoBindedClass {
     getAllMylists(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            MylistModel.find().populate({ path: 'stores', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store'  }).exec(function(err, mylist) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        if (!mylist) {
-                            reject(new NotFoundError("Mylist not found"));
-                        } else {
-                            resolve(mylist);
+            MylistModel.aggregate(
+                {
+                    $unwind: {
+                        path: "$stores",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": 'stores',
+                        "localField": "stores",
+                        "foreignField": "_id",
+                        "as": "storesInfo"
+                    }
+                }, 
+                {
+                    "$lookup": {
+                        "from": 'catalogs',
+                        "localField": "stores",
+                        "foreignField": "storeId",
+                        "as": "catalogsInfo"
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": 'catalogs',
+                        "localField": "storesInfo.featureCatalog",
+                        "foreignField": "_id",
+                        "as": "featureCatalog"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$storesInfo",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$featureCatalog",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        offerName:1,
+                        offerDescription:1,
+                        aplicableForAll:1,
+                        discountTypePercentage:1,
+                        discountTypeFlat:1,
+                        storesInfo:{
+                            storeName:1,
+                            storeLogo:1,
+                            storeBanner:1,
+                            avgRating:1,
+                            address:1,                                
+                        },
+                        featureCatalog:{
+                            catalogUrl:1,
+                            catalogDescription:1
+                        },
+                        catalogsInfo:{
+                            catalogUrl:1,
+                            catalogDescription:1
                         }
                     }
-                })
-
-            })
-            .then((mylist) => {
-                callback.onSuccess(mylist);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                },
+                function(err, mylist) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!mylist) {
+                        reject(new NotFoundError("mylist not found"));
+                    } else {
+                        resolve(mylist);
+                    }
+                }
             });
+        })
+        .then((mylist) => {
+            callback.onSuccess(mylist);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 }
 
