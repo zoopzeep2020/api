@@ -380,7 +380,7 @@ class MylistHandler extends BaseAutoBindedClass {
                             "from": 'stores',
                             "localField": "stores",
                             "foreignField": "_id",
-                            "as": "storeInfo"
+                            "as": "storesInfo"
                         }
                     }, 
                     {
@@ -400,36 +400,33 @@ class MylistHandler extends BaseAutoBindedClass {
                         }
                     },
                     {
-                        $unwind: {
-                            path: "$storeInfo",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
                         $project: {
                             _id: 1,
-                            userId: 1,
                             listName: 1,
-                            dateCreated: 1,
-                            dateModified: 1,
-                            storeInfo:{
+                            userId: 1,
+                            storesInfo:{
                                 _id: 1,
                                 storeName:1,
                                 storeLogo:1,
                                 storeBanner:1,
                                 avgRating:1,
-                                address:1, 
-                                featureCatalog:1
-                            },  
-                            catalogsInfo:{
-                                catalogUrl:1,
-                                catalogDescription:1
+                                address:1,      
+                                catalogsInfo: {
+                                    $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
+                                },  
+                                featureCatalog: {
+                                    $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
+                                },                 
                             },
-                            featureCatalog:{
-                                catalogUrl:1,
-                                catalogDescription:1
-                            },                  
                         }
+                    },
+                    {
+                        $group: {
+                            _id : "$_id",
+                            avgRating : { $first : "$listName"},
+                            userId : { $first : "$userId"},
+                            storesInfo:{ $addToSet: '$storesInfo' },
+                        },
                     },
                     ]).exec(function(err, results){
                         resolve(results);
@@ -489,52 +486,44 @@ class MylistHandler extends BaseAutoBindedClass {
                             }
                         },
                         {
-                            $unwind: {
-                                path: "$storesInfo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$featureCatalog",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
                             $project: {
                                 _id: 1,
-                                offerName:1,
-                                offerDescription:1,
-                                aplicableForAll:1,
-                                discountTypePercentage:1,
-                                discountTypeFlat:1,
+                                listName: 1,
+                                userId: 1,
                                 storesInfo:{
+                                     _id: 1,
                                     storeName:1,
                                     storeLogo:1,
                                     storeBanner:1,
                                     avgRating:1,
-                                    address:1,                                
+                                    address:1,      
+                                    catalogsInfo: {
+                                        $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
+                                    },  
+                                    featureCatalog: {
+                                        $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
+                                    },                 
                                 },
-                                featureCatalog:{
-                                    catalogUrl:1,
-                                    catalogDescription:1
-                                },
-                                catalogsInfo:{
-                                    catalogUrl:1,
-                                    catalogDescription:1
-                                }
                             }
                         },
+                        {
+                            $group: {
+                                _id : "$_id",
+                                avgRating : { $first : "$listName"},
+                                userId : { $first : "$userId"},
+                                storesInfo:{ $addToSet: '$storesInfo' },
+                            },
+                        },
                         function(err, mylist) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!mylist) {
-                                reject(new NotFoundError("mylist not found"));
+                            if (err !== null) {
+                                reject(err);
                             } else {
-                                resolve(mylist);
+                                if (!mylist) {
+                                    reject(new NotFoundError("mylist not found"));
+                                } else {
+                                    resolve(mylist);
+                                }
                             }
-                        }
                     })
                 });
             })
@@ -581,41 +570,33 @@ class MylistHandler extends BaseAutoBindedClass {
                     }
                 },
                 {
-                    $unwind: {
-                        path: "$storesInfo",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$featureCatalog",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
                     $project: {
                         _id: 1,
-                        offerName:1,
-                        offerDescription:1,
-                        aplicableForAll:1,
-                        discountTypePercentage:1,
-                        discountTypeFlat:1,
+                        listName: 1,
+                        userId: 1,
                         storesInfo:{
+                            _id: 1,
                             storeName:1,
                             storeLogo:1,
                             storeBanner:1,
                             avgRating:1,
-                            address:1,                                
+                            address:1,      
+                            catalogsInfo: {
+                                $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
+                            },  
+                            featureCatalog: {
+                                $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
+                            },                 
                         },
-                        featureCatalog:{
-                            catalogUrl:1,
-                            catalogDescription:1
-                        },
-                        catalogsInfo:{
-                            catalogUrl:1,
-                            catalogDescription:1
-                        }
                     }
+                },
+                {
+                    $group: {
+                        _id : "$_id",
+                        avgRating : { $first : "$listName"},
+                        userId : { $first : "$userId"},
+                        storesInfo:{ $addToSet: '$storesInfo' },
+                    },
                 },
                 function(err, mylist) {
                 if (err !== null) {

@@ -42,7 +42,6 @@ let StoreSchema = new Schema({
         type: [Number],  // [<longitude>, <latitude>]
         index: '2dsphere'      // create the geospatial index
     },
-   
     avgRating: Number,
     isActive: { type: Boolean, default: false },
     dateCreated: { type: Date, default: Date.now },

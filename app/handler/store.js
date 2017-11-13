@@ -924,17 +924,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     ]).exec(function(err, results){
                         resolve(results);
                     })
-                    //    StoreModel.findOne({ _id: req.params.id }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).populate({ path: 'keyword', select: ['title'] }).populate({ path: 'storeCatalogs', select: ['catalogUrl', 'catalogDescription'] }).populate('Catalog').exec(function(err, store) {
-                    //     if (err !== null) {
-                    //         reject(err);
-                    //     } else {
-                    //         if (!store) {           
-                    //             reject(new NotFoundError("Store not found"));
-                    //         } else {
-                    //             resolve(store);
-                    //         }
-                    //     }
-                    // })
                 });
             })
             .then((result) => {   
