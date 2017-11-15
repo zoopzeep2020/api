@@ -2,10 +2,10 @@
  * Created by crosp on 5/13/17.
  */
 const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
+const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
-const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const mongoose = require('mongoose');
 class KeywordHandler extends BaseAutoBindedClass {
     constructor() {
@@ -385,10 +385,12 @@ class KeywordHandler extends BaseAutoBindedClass {
                                 storeLogo:'$storeLogo',
                                 storeBanner:'$storeBanner',
                                 title:'$keywordInfo.title',
+                                _id:'$keywordInfo._id',
                             }
                         },
                         { "$unwind" : "$title" },
                     ]).exec(function(err, results){
+                        
                         resolve(results);
                     })
                 });
@@ -400,7 +402,38 @@ class KeywordHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
+    getSearchResultByWord(req, callback) {
+        let data = req.body;      
+        req.getValidationResult()
+            .then(function(result) {                
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) { 
+                    KeywordModel.aggregate(
+                        {"$match":{"title" : {$regex : req.query.search}}},
+                        {
+                            $project: {
+                                _id:'$_id',
+                                title:'$title'
+                            }
+                        }
+                    )
+                    .exec(function(err, keywords){
+                        resolve(keywords);
+                    })
+                });
+            })
+            .then((keywords) => {
+                callback.onSuccess(keywords);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     getAllKeywords(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -423,6 +456,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
 }
 
 module.exports = KeywordHandler;

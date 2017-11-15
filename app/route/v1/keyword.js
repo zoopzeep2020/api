@@ -7,6 +7,7 @@ let keywordController = new KeywordController();
 
 router.get('/', keywordController.getAll);
 router.get('/search', keywordController.getSearchResult);
+router.get('/searchbyword', keywordController.getSearchResultByWord);
 router.get('/:id', keywordController.get);
 router.post('/', keywordController.create);
 router.delete('/:id', keywordController.remove);

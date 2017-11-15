@@ -612,6 +612,7 @@ class OfferHandler extends BaseAutoBindedClass {
                         $project: {
                             _id: 1,
                             offerName:1,
+                            offerPicture:1,
                             offerDescription:1,
                             aplicableForAll:1,
                             discountTypePercentage:1,
@@ -697,6 +698,7 @@ class OfferHandler extends BaseAutoBindedClass {
                         $project: {
                             _id: 1,
                             offerName:1,
+                            offerPicture:1,
                             offerDescription:1,
                             aplicableForAll:1,
                             discountTypePercentage:1,
@@ -790,6 +792,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     $project: {
                         _id: 1,
                         offerName:1,
+                        offerPicture:1,
                         offerDescription:1,
                         aplicableForAll:1,
                         discountTypePercentage:1,

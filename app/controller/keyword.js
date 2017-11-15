@@ -22,6 +22,12 @@ class KeywordController extends BaseController {
         });
     }
 
+    getSearchResultByWord(req, res, next) {
+        this.basicAuthenticate(req, res, () => {
+            this._keywordHandler.getSearchResultByWord(req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
@@ -39,7 +45,6 @@ class KeywordController extends BaseController {
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        
             } 
-            
         });
     }
 

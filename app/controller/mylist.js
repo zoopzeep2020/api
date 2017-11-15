@@ -25,10 +25,11 @@ class MylistController extends BaseController {
             })));
         });
     }
+
     getUserMylist(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isUser && user.id == req.params.id)){
+            if(user.isAdmin || (user.isUser && (user.id == req.params.id))){
                 this._mylistHandler.getUserMylist(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                     responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
@@ -38,9 +39,10 @@ class MylistController extends BaseController {
             }
         });
     }
+    
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+            if(user.isAdmin || (user.isUser && (user.id == req.body.userId))){
                 this._mylistHandler.createNewMylist(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        
