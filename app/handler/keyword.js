@@ -390,7 +390,6 @@ class KeywordHandler extends BaseAutoBindedClass {
                         },
                         { "$unwind" : "$title" },
                     ]).exec(function(err, results){
-                        
                         resolve(results);
                     })
                 });

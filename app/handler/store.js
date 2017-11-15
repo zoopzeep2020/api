@@ -230,7 +230,7 @@ class StoreHandler extends BaseAutoBindedClass {
  */
 /**
  * @swagger
- * /stores/trendingStore?{lng}&{lat}:
+ * /stores/trendingStore?{lng}&{lat}&{keyword}&{buisnessOnline}&{buisnessOffline}:
  *   get:
  *     tags:
  *       - Store
@@ -254,13 +254,25 @@ class StoreHandler extends BaseAutoBindedClass {
  *         in: query
  *         required: true
  *         type: number
+ *       - name: keyword
+ *         description: keywordId
+ *         in: query
+ *         type: string
+ *       - name: buisnessOnline
+ *         description: buisnessOnline
+ *         in: query
+ *         type: boolean
+ *       - name: buisnessOffline
+ *         description: buisnessOffline
+ *         in: query
+ *         type: boolean
  *     responses:
  *       200:
  *         description: object of activity".     
  */
 /**
  * @swagger
- * /stores/search?{search}:
+ * /stores/search?{search}&{keywordId}&{buisnessOnline}&{buisnessOffline}&{lng}&{lat}:
  *   get:
  *     tags:
  *       - Store
@@ -275,10 +287,34 @@ class StoreHandler extends BaseAutoBindedClass {
  *         type: string
  *         default: maximumvsminimumsecurity
  *       - name: search
- *         description: search
+ *         description: search(this word will compare with kewordTitle storeName and storeDescription and give u related store)
  *         in: query
  *         required: true
  *         type: string
+ *       - name: keywordId
+ *         description: keywordId(optional)
+ *         in: query
+ *         type: string
+ *       - name: buisnessOnline
+ *         description: buisnessOnline
+ *         in: query
+ *         required: true
+ *         type: boolean
+ *       - name: buisnessOffline
+ *         description: buisnessOffline
+ *         in: query
+ *         required: true
+ *         type: boolean
+ *       - name: lng
+ *         description: longitude of location
+ *         in: query
+ *         required: true
+ *         type: number
+ *       - name: lat
+ *         description: lattitude of location
+ *         in: query
+ *         required: true
+ *         type: number
  *     responses:
  *       200:
  *         description: object of activity".     
@@ -951,6 +987,16 @@ class StoreHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkQuery('lng', 'Invalid urlparam').notEmpty()
         req.checkQuery('lat', 'Invalid urlparam').notEmpty()
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        for (var param in req.query) {
+            if(param!=="lng" && param!="lat"){
+                qString = {};
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+                matchQuery.push(qString);
+            }             
+        }
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -960,7 +1006,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 new Promise(function(resolve, reject) {
-                    StoreModel.aggregate([
+                    StoreModel.aggregate([                        
                         {
                             "$geoNear": {
                                 "near": {
@@ -971,6 +1017,9 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "spherical": true,
                                 "maxDistance": 0
                             }
+                        },
+                        {
+                            "$match" : { $and : matchQuery }
                         },
                         {
                             $project: {
@@ -999,6 +1048,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 storeBanner:'$storesInfo.storeBanner',
                                 storeDiscription:'$storesInfo.storeDiscription',
                                 storeLogo:'$storesInfo.storeLogo',
+                                keywords:'$storesInfo.keywords',
                                 finalTotal:'$finalTotal',
                                 distance:'$distance',
                             }
@@ -1050,14 +1100,16 @@ class StoreHandler extends BaseAutoBindedClass {
 
     getStoreBySearch(req, callback) {
         let data = req.body;   
-        // var matchQuery = [];
-        // var ObjectID = require('mongodb').ObjectID;
-        // var qString = {};
-        // for (var param in req.query) {
-        //     qString = {};
-        //     qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
-        //     matchQuery.push(qString);             
-        // }  
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        for (var param in req.query) {
+            qString = {};
+            if(param == "buisnessOnline" || param == "buisnessOffline"){
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
+                matchQuery.push(qString);
+            }             
+        }  
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -1066,9 +1118,10 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
+
                 return new Promise(function(resolve, reject) { 
                     KeywordModel.aggregate(
-                        {"$match":{"title" : {$regex : req.query.search}}},
+                        {"$match":{ title: { '$regex': req.query.search }}},
                         {
                             $project:{
                                 _id:1,
@@ -1079,19 +1132,38 @@ class StoreHandler extends BaseAutoBindedClass {
                         resolve(results);
                     })
                 });
-            }).then((keywords) => {
+            }).then((keywords) => {                
                 let objectAray = [];
                 for(var i=0;i<keywords.length;i++){
                     objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
                 }
                 return new Promise(function(resolve, reject) { 
-                    StoreModel.find(
+                    StoreModel.aggregate(
                     {
-                        $or:[
-                            {"storeName" : {$regex : req.query.search}},
-                            {"storeDescription" : {$regex : req.query.search}},
-                            {"keyword": { "$in": objectAray }}
-                        ]
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 0
+                        }
+                    },
+                    {$sort:{maxDistance:-1}},
+                    {
+                        $match:{
+                            $and:[
+                                {$or:[
+                                    {"storeName" : {$regex : req.query.search}},
+                                    {"storeDescription" : {$regex : req.query.search}},
+                                    {"keyword": { "$in": objectAray }},
+                                    {"keyword":{ "$in": [mongoose.Types.ObjectId(req.query.keywordId)]}},
+                                    
+                                ]},
+                                {$and:matchQuery}
+                            ]
+                        }
                     }).exec(function(err, results){
                         resolve(results);
                     })

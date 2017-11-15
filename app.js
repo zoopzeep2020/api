@@ -30,8 +30,8 @@ var swaggerJSDoc = require('swagger-jsdoc');
 //swagger swaggerDefinition
 var swaggerDefinition = {
     info: {
-        title: 'Welcome to ZeepZoop API Doc',
-        version: '1.0.0',
+        title: 'Welcome to Zeepzoop API Doc',
+        version: '1.1.0',
         description: 'Using this doc you may understand the functionality and test the MangoBilling RESTful APIs. We developed Some webservices so far and it is growing.',
     },
     host: 'localhost:3000',//'52.39.142.240:3000',

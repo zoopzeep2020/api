@@ -245,6 +245,9 @@ class MylistHandler extends BaseAutoBindedClass {
         let validator = this._validator;
         req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
         req.checkBody('stores', 'minimum one list is required').notEmpty();
+        req.checkBody('userId', 'userId is required').notEmpty();
+        req.checkBody('userId', 'Invalid userId provided').isMongoId();
+        
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -256,7 +259,7 @@ class MylistHandler extends BaseAutoBindedClass {
                 return new MylistModel(data);
             })
             .then((mylist) => {
-                mylist.save();
+                mylist.save();  
                 return mylist;
             })
             .then((saved) => {
