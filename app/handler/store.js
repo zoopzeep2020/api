@@ -1050,14 +1050,14 @@ class StoreHandler extends BaseAutoBindedClass {
 
     getStoreBySearch(req, callback) {
         let data = req.body;   
-        var matchQuery = [];
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        for (var param in req.query) {
-            qString = {};
-            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
-            matchQuery.push(qString);             
-        }  
+        // var matchQuery = [];
+        // var ObjectID = require('mongodb').ObjectID;
+        // var qString = {};
+        // for (var param in req.query) {
+        //     qString = {};
+        //     qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+        //     matchQuery.push(qString);             
+        // }  
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {

@@ -423,7 +423,7 @@ class MylistHandler extends BaseAutoBindedClass {
                     {
                         $group: {
                             _id : "$_id",
-                            avgRating : { $first : "$listName"},
+                            listName : { $first : "$listName"},
                             userId : { $first : "$userId"},
                             storesInfo:{ $addToSet: '$storesInfo' },
                         },
@@ -509,7 +509,7 @@ class MylistHandler extends BaseAutoBindedClass {
                         {
                             $group: {
                                 _id : "$_id",
-                                avgRating : { $first : "$listName"},
+                                listName : { $first : "$listName"},
                                 userId : { $first : "$userId"},
                                 storesInfo:{ $addToSet: '$storesInfo' },
                             },
@@ -593,7 +593,7 @@ class MylistHandler extends BaseAutoBindedClass {
                 {
                     $group: {
                         _id : "$_id",
-                        avgRating : { $first : "$listName"},
+                        listName : { $first : "$listName"},
                         userId : { $first : "$userId"},
                         storesInfo:{ $addToSet: '$storesInfo' },
                     },
