@@ -453,6 +453,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     getSearchResultByWord(req, callback) {
         let data = req.body;      
         req.getValidationResult()
@@ -505,6 +506,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     getAllKeywords(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -527,6 +529,7 @@ class KeywordHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }
+
     getAllTrending(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {

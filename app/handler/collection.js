@@ -604,7 +604,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                 matchQuery.push(qString);
             }             
         }
-        console.log(matchQuery)
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
