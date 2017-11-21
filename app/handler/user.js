@@ -73,6 +73,46 @@ const mongoose = require('mongoose');
  */
 /**
  * @swagger
+ * /users/claimoffer/{offerId}:
+ *   put:
+ *     tags:
+ *       - User
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *       - name: Content-Type
+ *         description: content-type
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: application/json
+ *       - name: offerId
+ *         description: offerId
+ *         in: path
+ *         required: true
+ *         type: string
+ *       - name: offerCode
+ *         description: offerCode(that you have to generate while creating offer )
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: userId
+ *         description: userId
+ *         in: body
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
  * /users/{userId}:
  *   get:
  *     tags:

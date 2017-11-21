@@ -65,7 +65,9 @@ class UserController extends BaseController {
             } 
         });
     }  
+    
     claimOffer(req, res, next) {
+        console.log("claimOffer")
         this.userAuthenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isUser && (user.id == req.body.userId))){
                 this._authHandler.claimOffer(req, this._responseManager.getDefaultResponseHandler(res));

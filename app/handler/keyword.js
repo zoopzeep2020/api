@@ -158,6 +158,28 @@ class KeywordHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".     
  */
+
+ /**
+ * @swagger
+ * /keywords/trendingkeyword:
+ *   get:
+ *     tags:
+ *       - Keyword
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity  
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+
    /**
  * @swagger
  * /keywords/search?{keyword}:
@@ -508,7 +530,7 @@ class KeywordHandler extends BaseAutoBindedClass {
     getAllTrending(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            KeywordModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:2}], function(err, keyword) {
+            KeywordModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:5}], function(err, keyword) {
                 if (err !== null) {
                     reject(err);
                 } else {
