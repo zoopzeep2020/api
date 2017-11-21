@@ -195,8 +195,8 @@ class BookmarkHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         req.checkBody('userId', 'Invalid userId provided').isMongoId();
-        req.checkBody('userId', 'userId is required').isEmpty();
-        req.checkBody('storeId', 'storeId is required').isEmpty();
+        req.checkBody('userId', 'userId is required').notEmpty();
+        req.checkBody('storeId', 'storeId is required').notEmpty();
         req.checkBody('storeId', 'Invalid storeId provided').isMongoId();
         
         req.getValidationResult()
@@ -347,8 +347,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                BookmarkModel.find({ userId: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store' }).exec(function(err, bookmark) {
-                    
+                BookmarkModel.find({ userId: req.params.id }).populate({ path: 'storeId', select: ['_id','storeName', 'storeLogo', 'storeBanner','address','featureCatalog','avgRating','storeDiscription'],  model: 'Store' }).exec(function(err, bookmark) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -372,7 +371,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
     getAllBookmarks(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            BookmarkModel.find({}, function(err, bookmark) {
+            BookmarkModel.find({}).populate({ path: 'storeId', select: ['_id','storeName', 'storeLogo', 'storeBanner','address','featureCatalog','avgRating','storeDiscription'],  model: 'Store' }).exec(function(err, bookmark) {
                 if (err !== null) {
                     reject(err);
                 } else {

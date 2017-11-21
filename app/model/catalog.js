@@ -11,6 +11,7 @@ let CatalogSchema = new Schema({
     },
     catalogUrl: String,
     catalogDescription: String,
+    viewCount: Number,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });

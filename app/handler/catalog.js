@@ -8,6 +8,7 @@ const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
+const mongoose = require('mongoose');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const fs = require('fs');
 var async = require('async');
@@ -504,7 +505,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 },
                                 "distanceField": "distance",
                                 "spherical": true,
-                                "maxDistance": 155000
+                                "maxDistance": 0
                             }
                         },
                         {
@@ -658,7 +659,21 @@ class CatalogHandler extends BaseAutoBindedClass {
     }
 
     getCatalogBySearch(req, callback) {
-        let data = req.body;      
+        let data = req.body;   
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        for (var param in req.query) {
+            qString = {};
+            if(param == "buisnessOnline" || param == "buisnessOffline"){
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
+                matchQuery.push(qString);
+            }             
+        }  
+        var arrayLoc = [];
+        for(var i in req.query.lng){
+             arrayLoc = [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+        }
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -668,14 +683,40 @@ class CatalogHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) { 
-                    CatalogModel.find({"catalogDescription" : {$regex : req.query.search}})
-                    .exec(function(err, results){
+                StoreModel.aggregate(
+                {
+                    "$geoNear": {
+                        "near": {
+                            "type": "Point",
+                            "coordinates": arrayLoc
+                        },
+                        "distanceField": "distance",
+                        "spherical": true,
+                        "maxDistance": 0
+                    }
+                },
+                {$sort:{maxDistance:-1}},
+                {
+                    $match:{$and:matchQuery}
+                }
+                ).exec(function(err, results){
                         resolve(results);
                     })
                 });
             })
-            .then((catalog) => {
-                callback.onSuccess(catalog);
+            .then((store) => {
+                let objectAray = [];
+                for(var i=0;i<store.length;i++){
+                    objectAray[i] = mongoose.Types.ObjectId(store[i]._id);
+                }
+                return new Promise(function(resolve, reject) { 
+                    CatalogModel.aggregate({$match:{"storeId": { "$in": objectAray }}}).exec(function(err, results){
+                        resolve(results);
+                    })
+                })
+            }) 
+            .then((results) => {
+                callback.onSuccess(results);
             })
             .catch((error) => {
                 callback.onError(error);

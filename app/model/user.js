@@ -26,6 +26,7 @@ let UserSchema = new Schema({
         type: String,
         required: true
     },
+    
     dateCreated: { type: Date, default: Date.now },
     email: String,
     resetPasswordToken: String,

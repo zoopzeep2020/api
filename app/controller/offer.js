@@ -10,9 +10,15 @@ class OfferController extends BaseController {
         this._passport = require('passport');
     }
  
-    getAll(req, res, next) {
+    getAll(req, res, next) {        
         this.authenticate(req, res, next, (token, user) => {
             this._offerHandler.getAllOffers(req, this._responseManager.getDefaultResponseHandler(res));    
+        });
+    }
+
+    getAllWithFilter(req, res, next) {        
+        this.authenticate(req, res, next, (token, user) => {
+            this._offerHandler.getAllOffersWithFilter(req, this._responseManager.getDefaultResponseHandler(res));    
         });
     }
 

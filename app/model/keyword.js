@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 let KeywordSchema = new Schema({
     title: String,
+    viewCount: Number,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now }
 });

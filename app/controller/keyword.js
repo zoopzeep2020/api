@@ -15,7 +15,11 @@ class KeywordController extends BaseController {
             this._keywordHandler.getAllKeywords(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
-    
+    getAllTrending(req, res, next) {
+        this.basicAuthenticate(req, res,() => {
+            this._keywordHandler.getAllTrending(req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
     getSearchResult(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             this._keywordHandler.getSearchResult(req, this._responseManager.getDefaultResponseHandler(res));

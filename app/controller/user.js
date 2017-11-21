@@ -8,7 +8,7 @@ const util = require("util");
 class UserController extends BaseController {
     constructor() {
         super();
-        this._authHandler = new UserHandler();
+        this._authHandler = new UserHandler();   
         this._passport = require('passport');
     }
 
@@ -65,7 +65,15 @@ class UserController extends BaseController {
             } 
         });
     }  
-   
+    claimOffer(req, res, next) {
+        this.userAuthenticate(req, res, next, (token, user) => {
+            if(user.isAdmin || (user.isUser && (user.id == req.body.userId))){
+                this._authHandler.claimOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
+        });
+    }
     userAuthenticate(req, res, next, callback) {
         let responseManager = this._responseManager;
         this._passport.authenticate('jwt-rs-auth', {

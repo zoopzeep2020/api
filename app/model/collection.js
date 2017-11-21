@@ -17,6 +17,12 @@ let CollectionSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Offer'
     }],
+    location: {
+        type: [Number],  // [<longitude>, <latitude>]
+        index: '2dsphere'      // create the geospatial index
+    },
+    buisnessOnline: Boolean,
+    buisnessOffline: Boolean,
     collectionName: String,
     collectionType: String,
     collectionPicture: String,

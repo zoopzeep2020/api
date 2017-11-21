@@ -50,6 +50,11 @@ class FeedbackHandler extends BaseAutoBindedClass {
  *         in: body
  *         required: true
  *         type: string
+ *       - name: userId
+ *         description: userId of login
+ *         in: body
+ *         required: true
+ *         type: string
  *       - name: feedbackImage
  *         in: formData
  *         description: The uploaded file of feedbackImage
@@ -233,7 +238,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 req.checkBody(FeedbackHandler.FEEDBACK_VALIDATION_SCHEME);
                 if(req.body.feedbackImage != undefined){
                     req.checkBody('feedbackImage', 'feedbackImage is required').isImage(req.body.feedbackImage);
-                }else{
                     req.checkBody('feedbackImage', 'feedbackImage is required').notEmpty();
                 }
 

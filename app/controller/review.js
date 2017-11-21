@@ -45,7 +45,7 @@ class ReviewController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+            if(user.isAdmin || (user.isUser && (user.id == req.body.userId))){
                 this._reviewHandler.createNewReview(req, this._responseManager.getDefaultResponseHandler(res));            
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        

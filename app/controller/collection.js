@@ -25,6 +25,16 @@ class CollectionController extends BaseController {
             })));
         });     
     }
+    
+    getTrendingCollection(req, res, next) {
+        let responseManager = this._responseManager;
+        this.basicAuthenticate(req, res, () => {
+            this._collectionHandler.getTrendingCollection(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });     
+    }
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {

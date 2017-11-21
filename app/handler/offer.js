@@ -360,6 +360,9 @@ class OfferHandler extends BaseAutoBindedClass {
                 }else{
                     req.checkBody('offerPicture', 'offerPicture is required').notEmpty();
                 }                
+
+                req.checkBody('offerOnline', 'Either offerOnline is true or offerOffline is true').isOneTrue(req.body.offerOnline, req.body.offerOffline);
+                req.checkBody('offerOffline', 'Either offerOffline is true or offerOnline is true').isOneTrue(req.body.offerOnline, req.body.offerOffline);
                 req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
                 req.checkBody('discountTypeFlat', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
                 if(req.body.discountTypePercentage){
@@ -368,6 +371,8 @@ class OfferHandler extends BaseAutoBindedClass {
                 if(req.body.discountTypeFlat){
                     req.checkBody('flatDiscount', 'flatDiscount should be number').isInt();
                 }
+                req.checkBody('offerCode', 'offerCode is required').notEmpty();
+                
                 req.checkBody('startDate', 'startDate must be in future and less than endDate').checkDateValidity(req.body.startDate, req.body.endDate);
                 req.checkBody('endDate', 'endDate must be in future and greater than startDate').checkDateValidity(req.body.startDate, req.body.endDate);                
                 req.checkBody('startDate', 'startDate must be in format of mm/dd/yyyy').isDate();
@@ -493,16 +498,20 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
             },
             function(data, done){
-                /*if(req.body.offerPicture != undefined){
-                    req.checkBody('offerPicture', 'offerPicture is required').isImage(req.body.offerPicture);
-                }else{
-                    req.checkBody('offerPicture', 'offerPicture is required').notEmpty();
-                }*/
+                if(req.body.offerCode != undefined){
+                    req.checkBody('offerCode', 'offerCode is required').notEmpty();
+                }
                 if(req.body.discountTypePercentage != undefined){
                     req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
                 }
                 if(req.body.discountTypeFlat != undefined){
                     req.checkBody('discountTypeFlat', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
+                }
+                if(req.body.offerOnline != undefined){
+                    req.checkBody('offerOnline', 'Either offerOnline is true or offerOffline is true').isOneTrue(req.body.offerOnline, req.body.offerOffline);
+                }                
+                if(req.body.offerOffline != undefined){
+                    req.checkBody('offerOffline', 'Either offerOffline is true or offerOnline is true').isOneTrue(req.body.offerOnline, req.body.offerOffline);
                 }
                 if(req.body.discountTypePercentage && (req.body.percentageDiscount != undefined)){
                     req.checkBody('percentageDiscount', 'Percentage should be between 1 to 100').checkNumberRange(req.body.percentageDiscount, 1, 100);
@@ -760,8 +769,88 @@ class OfferHandler extends BaseAutoBindedClass {
         });
     }
 
-    getAllOffers(req, callback) {
+    getAllOffersWithFilter(req, callback) {
         let data = req.body;
+        new Promise(function(resolve, reject) {
+            OfferModel.aggregate(
+                { "$match": 
+                    {
+                        $and:[ { "offerOnline": req.query.offerOnline=='true'},
+                            { "offerOffline": req.params.offerOffline=='false'} ]
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": 'catalogs',
+                        "localField": "storeId",
+                        "foreignField": "storeId",
+                        "as": "catalogsInfo"
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": 'stores',
+                        "localField": "storeId",
+                        "foreignField": "_id",
+                        "as": "storesInfo"
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": 'catalogs',
+                        "localField": "storesInfo.featureCatalog",
+                        "foreignField": "_id",
+                        "as": "featureCatalog"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        offerName:1,
+                        offerPicture:1,
+                        offerDescription:1,
+                        aplicableForAll:1,
+                        discountTypePercentage:1,
+                        discountTypeFlat:1,
+                        storesInfo:{
+                            storeName:1,
+                            storeLogo:1,
+                            storeBanner:1,
+                            avgRating:1,
+                            address:1,                                
+                        },
+                        featureCatalog:{
+                            catalogUrl:1,
+                            catalogDescription:1
+                        },
+                        catalogsInfo:{
+                            catalogUrl:1,
+                            catalogDescription:1
+                        }
+                    }
+                },
+                function(err, offer) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!offer) {
+                            reject(new NotFoundError("Offer not found"));
+                        } else {
+                            resolve(offer);
+                        }
+                    }
+                }
+            );
+        })
+        .then((posts) => {
+            callback.onSuccess(posts);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
+    getAllOffers(req, callback) {
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
                 {

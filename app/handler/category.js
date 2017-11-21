@@ -1,7 +1,4 @@
 /**
- * Created by crosp on 5/13/17.
- */
-/**
  * Created by crosp on 5/9/17.
  */
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
@@ -204,8 +201,6 @@ class CategoryHandler extends BaseAutoBindedClass {
         };
     }
 
-
-   
     createNewCategory(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
@@ -247,7 +242,6 @@ class CategoryHandler extends BaseAutoBindedClass {
                 }else{
                     req.checkBody('categoryImage', 'categoryImage is required').notEmpty();
                 }
-
                 if(req.body.categoryActiveImage != undefined){
                     req.checkBody('categoryActiveImage', 'categoryActiveImage is required').isImage(req.body.categoryActiveImage);
                 }else{
@@ -287,9 +281,7 @@ class CategoryHandler extends BaseAutoBindedClass {
                 if (err) return callback.onError(err);
                 else return data;
         });
-    }
-
-    
+    }    
 
     deleteCategory(req, callback) {
         let data = req.body;
@@ -475,6 +467,7 @@ class CategoryHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     objectify(array) {
         return array.reduce(function(p, c) {
              p[c['fieldname']] = c;

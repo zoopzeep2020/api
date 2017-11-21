@@ -2,6 +2,7 @@
  * Created by crosp on 5/13/17.
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const mongoose = require('mongoose');
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
@@ -418,6 +419,7 @@ class StoreHandler extends BaseAutoBindedClass {
         .then((store) => {
             store.viewCount = 1
             store.avgRating = 0
+            store.reviewCount = 0
             store.save();
             return store;
         })
@@ -591,6 +593,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     for (var key in data) {
                         store[key] = data[key];
                     }   
+                    
                     store.save();
                     return store;
                 })
@@ -991,7 +994,7 @@ class StoreHandler extends BaseAutoBindedClass {
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
         for (var param in req.query) {
-            if(param!=="lng" && param!="lat"){
+            if(param!=="lng" && param!=="lat"){
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);
@@ -1159,6 +1162,104 @@ class StoreHandler extends BaseAutoBindedClass {
                                     {"storeDescription" : {$regex : req.query.search}},
                                     {"keyword": { "$in": objectAray }},
                                     {"keyword":{ "$in": [mongoose.Types.ObjectId(req.query.keywordId)]}},
+                                    
+                                ]},
+                                {$and:matchQuery}
+                            ]
+                        }
+                    }).exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            })
+            .then((stores) => {
+                callback.onSuccess(stores);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    getStoreByKeywordCategory(req, callback) {
+        let data = req.body;   
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        var keywordsArray = [];
+        var categoriesArray = [];
+        
+        for (var param in req.query) {
+            qString = {};
+            if(param == "buisnessOnline" || param == "buisnessOffline"){
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
+                matchQuery.push(qString);
+            }             
+        }  
+        req.getValidationResult()
+            .then(function(result) {                
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+
+                return new Promise(function(resolve, reject) { 
+                    KeywordModel.aggregate(
+                        {"$match":{ title: { '$regex': req.query.search }}},
+                        {
+                            $project:{
+                                _id:1,
+                            }
+                        }
+                    )
+                    .exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            }).then((keywords) => {         
+                for(var i=0;i<keywords.length;i++){
+                    keywordsArray[i] = mongoose.Types.ObjectId(keywords[i]._id);
+                }
+                return new Promise(function(resolve, reject) { 
+                    CategoryModel.aggregate(
+                        {"$match":{ category: { '$regex': req.query.search }}},
+                        {
+                            $project:{
+                                _id:1,
+                            }
+                        }
+                    ).exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            }).then((categories) => {                
+                for(var i=0;i<categories.length;i++){
+                    categoriesArray[i] = mongoose.Types.ObjectId(categories[i]._id);
+                }
+                return new Promise(function(resolve, reject) { 
+                    StoreModel.aggregate(
+                    {
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 0
+                        }
+                    },
+                    {$sort:{maxDistance:-1}},
+                    {
+                        $match:{
+                            $and:[
+                                {$or:[
+                                    {"storeName" : {$regex : req.query.search}},
+                                    // {"storeDescription" : {$regex : req.query.search}},
+                                    {"keyword": { "$in": keywordsArray }},
+                                    {"categoriesIds": { "$in": categoriesArray }},
+                                    {"otherKeyword": {$regex : req.query.search}},
                                     
                                 ]},
                                 {$and:matchQuery}

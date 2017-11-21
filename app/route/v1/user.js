@@ -10,6 +10,7 @@ var upload = multer({ dest: 'uploads/' });
 
 router.get('/:id', userController.get);
 router.post('/', upload.any(), userController.create);
+router.put('/claimoffer/:id', userController.claimOffer);
 router.put('/:id', upload.any(), userController.update);
 router.post('/admin', userController.createAdmin);
 router.get('/admin/adminkey', userController.getAdminKey);

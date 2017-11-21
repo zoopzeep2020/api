@@ -38,10 +38,18 @@ class StoreController extends BaseController {
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
         });
-    }
+    }  
 
-    
-    
+    getStoreByKeywordCategory(req, res, next) {
+        let responseManager = this._responseManager;
+        this.basicAuthenticate(req, res, () => {
+            this._storeHandler.getStoreByKeywordCategory(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });
+    }   
+
     getTrendingStore(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
@@ -52,9 +60,9 @@ class StoreController extends BaseController {
         });
     }
 
-    update(req, res, next) {       
+    update(req, res, next) {      
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId && user.storeId == req.params.id)){  
+            if(user.isAdmin || (user.isStore && (user.storeId == req.body.storeId) && (user.storeId == req.params.id))){  
                 this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not allow");

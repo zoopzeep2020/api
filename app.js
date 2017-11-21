@@ -11,8 +11,8 @@ var logger = require('morgan');
 var app = express();
 
 //view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
 
 require('./middlewares/passport')(passport); // pass passport for configuration
 

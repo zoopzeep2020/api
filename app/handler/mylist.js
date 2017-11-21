@@ -339,7 +339,6 @@ class MylistHandler extends BaseAutoBindedClass {
                         }
                     })
                 });
-
             })
             .then((mylist) => {
                 for (var key in data) {

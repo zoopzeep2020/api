@@ -15,6 +15,7 @@ let ReviewSchema = new Schema({
     },
     ratingScale: Number,
     description: String,
+    timeDifference: String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
@@ -30,7 +31,6 @@ ReviewSchema.methods.toJSON = function() {
     let obj = this.toObject();
     delete obj.__v;
     delete obj.dateModified;
-    delete obj.dateCreated;
     return obj
 };
 module.exports.ReviewModel = mongoose.model('Review', ReviewSchema);

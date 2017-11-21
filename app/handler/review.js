@@ -7,6 +7,7 @@ const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+// var ta = timeago();
 
 class ReviewHandler extends BaseAutoBindedClass {
     constructor() {
@@ -241,20 +242,12 @@ class ReviewHandler extends BaseAutoBindedClass {
  *         type: number
  *         required: true
  */
-    static get REVIEW_VALIDATION_SCHEME() {
-        return {
-            'ratingScale': {
-                notEmpty: false,
-                errorMessage: 'rating Scale required'
-            },
-        };
-    }
-
+   
     createNewReview(req, callback) {
         let data = req.body;
         let validator = this._validator;
         let ModelData = {};
-        req.checkBody(ReviewHandler.REVIEW_VALIDATION_SCHEME);
+        req.checkBody('ratingScale', 'rating Scale required').notEmpty();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -267,12 +260,13 @@ class ReviewHandler extends BaseAutoBindedClass {
                     if (data.hasOwnProperty(key)) {
                         ModelData[key] = data[key];
                     }
+                    ModelData.timeDifference = "";
                 } 
                 return new ReviewModel(ModelData);
             })
-            .then((review) => {
-                review.save();
-                return review;
+            .then((ModelData) => {
+                ModelData.save();
+                return ModelData;
             })
             .then((saved) => {
                 StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
@@ -282,13 +276,13 @@ class ReviewHandler extends BaseAutoBindedClass {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
-                            store.avgRating = (store.avgRating*store.reviewCount + parseInt(ModelData.ratingScale))/(store.reviewCount+1);
+                            store.avgRating = (store.avgRating*store.reviewCount + parseInt(ModelData.ratingScale))/(parseInt(store.reviewCount)+1);
                             store.reviewCount = store.reviewCount + 1;
                             store.save();
                         }
                     }
                 }) 
-                callback.onSuccess(saved);
+                callback.onSuccess(ModelData);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -495,20 +489,26 @@ class ReviewHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    ReviewModel.find({ userId: req.params.id }, function(err, category) {
+                    ReviewModel.find({ userId: req.params.id })
+                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
+                    {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
+                            if (!review) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                resolve(category);
+                                resolve(review);
                             }
                         }
                     })
                 });
             })
             .then((review) => {
+                var currdatetime = new Date();
+                var datecreated = review[0].dateCreated;
+                review[0].timeDifference = this.timeago(datecreated)
+                review[0].save();
                 callback.onSuccess(review);
             })
             .catch((error) => {
@@ -538,6 +538,39 @@ class ReviewHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
+    timeago(nd, s) {
+        var o = {
+            second: 1000,
+            minute: 60 * 1000,
+            hour: 60 * 1000 * 60,
+            day: 24 * 60 * 1000 * 60,
+            week: 7 * 24 * 60 * 1000 * 60,
+            month: 30 * 24 * 60 * 1000 * 60,
+            year: 365 * 24 * 60 * 1000 * 60
+        };
+        var obj = {};
+        
+        var r = Math.round,
+        dir = ' ago',
+        pl = function(v, n) {
+            return (s === undefined) ? n + ' ' + v + (n > 1 ? 's' : '') + dir : n + v.substring(0, 1)
+        },
+        ts = Date.now() - new Date(nd).getTime(),
+        ii;
+        if( ts < 0 )
+        {
+            ts *= -1;
+            dir = ' from now';
+        }
+        for (var i in o) {
+            if (r(ts) < o[i]) return pl(ii || 'm', r(ts / (o[ii] || 1)))
+            ii = i;
+        }
+        return pl(i, r(ts / o[i])); 
+    }
+    
 }
 
+    
 module.exports = ReviewHandler;

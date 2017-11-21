@@ -220,6 +220,8 @@ class KeywordHandler extends BaseAutoBindedClass {
                 return new KeywordModel(data);
             })
             .then((keyword) => {
+                keyword.viewCount = 0
+                store.save();
                 keyword.save();
                 return keyword;
             })
@@ -326,20 +328,22 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, category) {
+                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!category) {
+                            if (!keyword) {
                                 reject(new NotFoundError("Keyword not found"));
                             } else {
-                                resolve(category);
+                                resolve(keyword);
                             }
                         }
                     })
                 });
             })
             .then((keyword) => {
+                keyword.viewCount = keyword.viewCount + 1;
+                keyword.save();
                 callback.onSuccess(keyword);
             })
             .catch((error) => {
@@ -350,6 +354,7 @@ class KeywordHandler extends BaseAutoBindedClass {
     getSearchResult(req, callback) {
         let data = req.body;
         var matchQuery = [];
+        var objectArray = [];
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
         for (var param in req.query) {
@@ -386,13 +391,38 @@ class KeywordHandler extends BaseAutoBindedClass {
                                 storeBanner:'$storeBanner',
                                 title:'$keywordInfo.title',
                                 _id:'$keywordInfo._id',
+                                viewCount:'$keywordInfo.viewCount',
                             }
                         },
                         { "$unwind" : "$title" },
+                        { "$unwind" : "$viewCount" },
+                        { "$unwind" : "$_id" },
                     ]).exec(function(err, results){
+                        for(var i=0;i<results.length;i++){
+                            objectArray[i]=mongoose.Types.ObjectId(results[i]._id)
+                        }
                         resolve(results);
                     })
                 });
+            })
+            .then((keywords) => {
+                return new Promise(function(resolve, reject) { 
+                    KeywordModel.find({"_id" : { $in:  objectArray }}, function(err, keywords) {
+                        if (err !== null) {
+                            reject(new NotFoundError("keyword not found"));
+                        } else {
+                            if (!keywords) {
+                                reject(new NotFoundError("keyword not found"));
+                            } else {
+                                for(var i=0;i<keywords.length;i++){
+                                    keywords[i].viewCount = keywords[i].viewCount + 1;
+                                    keywords[i].save();
+                                }
+                                resolve(keywords)
+                            }
+                        }
+                    }) 
+                }) 
             })
             .then((keyword) => {
                 callback.onSuccess(keyword);
@@ -417,7 +447,8 @@ class KeywordHandler extends BaseAutoBindedClass {
                         {
                             $project: {
                                 _id:'$_id',
-                                title:'$title'
+                                title:'$title',
+                                viewCount:'$viewCount'
                             }
                         }
                     )
@@ -427,7 +458,26 @@ class KeywordHandler extends BaseAutoBindedClass {
                 });
             })
             .then((keywords) => {
+                return new Promise(function(resolve, reject) { 
+                    KeywordModel.find({"title" : {$regex : req.query.search} }, function(err, keywords) {
+                        if (err !== null) {
+                            reject(new NotFoundError("keyword not found"));
+                        } else {
+                            if (!keywords) {
+                                reject(new NotFoundError("keyword not found"));
+                            } else {
+                                for(var i=0;i<keywords.length;i++){
+                                    keywords[i].viewCount = keywords[i].viewCount + 1;
+                                    keywords[i].save();
+                                }
+                                resolve(keywords)
+                            }
+                        }
+                    }) 
+                }) 
+            }).then((keywords)=>{
                 callback.onSuccess(keywords);
+                
             })
             .catch((error) => {
                 callback.onError(error);
@@ -436,26 +486,47 @@ class KeywordHandler extends BaseAutoBindedClass {
     getAllKeywords(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                KeywordModel.find({}, function(err, category) {
-                    if (err !== null) {
-                        reject(err);
+            KeywordModel.find({}, function(err, keyword) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!keyword) {
+                        reject(new NotFoundError("Keyword not found"));
                     } else {
-                        if (!category) {
-                            reject(new NotFoundError("Keyword not found"));
-                        } else {
-                            resolve(category);
-                        }
+                        resolve(keyword);
                     }
-                })
+                }
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        })
+        .then((keyword) => {
+            callback.onSuccess(keyword);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
-    
+    getAllTrending(req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+            KeywordModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:2}], function(err, keyword) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!keyword) {
+                        reject(new NotFoundError("Keyword not found"));
+                    } else {
+                        resolve(keyword);
+                    }
+                }
+            })
+        })
+        .then((keyword) => {
+            callback.onSuccess(keyword);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
 }
 
 module.exports = KeywordHandler;

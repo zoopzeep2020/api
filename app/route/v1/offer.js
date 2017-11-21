@@ -9,6 +9,7 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/', offerController.getAll);
+router.get('/withfilter', offerController.getAllWithFilter);
 router.get('/search', offerController.getOfferBySearch);
 router.get('/:id', offerController.get);
 router.get('/store/:id', offerController.getStoreOffer);

@@ -2,6 +2,7 @@
  * Created by crosp on 5/9/17.
  */
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
+const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const AdminModel = require(APP_MODEL_PATH + 'admin').AdminModel;
 const StoreHandler = require(APP_HANDLER_PATH + 'store');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -13,6 +14,8 @@ const async = require('async');
 const mkdirp = require('mkdirp');
 let crypto = require('crypto');
 var path = require('path');
+const mongoose = require('mongoose');
+
 /**
  * @swagger
  * /users/{userId}:
@@ -257,6 +260,7 @@ class UserHandler {
             }
         };
     }   
+
     createNewUser(req, callback) {
         let data = req.body;
         let validator = this._validator;
@@ -280,7 +284,6 @@ class UserHandler {
                 return new Promise(function(resolve, reject) {
                     UserModel.findOne({ email: user.email }, function(err, docs) {
                         user.userImage = "";
-                        
                         // for result found or not 
                         if (docs != null) {                    
                             // check user already exists
@@ -444,6 +447,42 @@ class UserHandler {
             .catch((error) => {
                 callback.onError(error);
             });
+    }
+
+    claimOffer(req, callback) {
+        let data = req.body;
+        let validator = this._validator;
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+        req.getValidationResult()
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+
+            return new Promise(function(resolve, reject) {
+                OfferModel.findOneAndUpdate({$and:[{'_id': req.params.id},{'offerCode': req.body.offerCode},{'claimedOfferBy':{ "$ne":  mongoose.Types.ObjectId(req.body.userId)}}]},
+                {
+                    '$addToSet': { 'claimedOfferBy': mongoose.Types.ObjectId(req.body.userId) },
+                },
+                {'new': true, 'multi':true},
+                function(err, offer){
+                    if(offer == null){   
+                        reject(new NotFoundError("Offercode is not valid or you have already claimed offer"));                
+                    }else{
+                        resolve(offer);
+                    }
+                })
+            });
+        })
+        .then((saved) => {
+            callback.onSuccess(saved);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     updateUser(req, callback) {
@@ -616,6 +655,7 @@ class UserHandler {
             };
         }
     }
+
     _provideTokenOptions() {
         let config = global.config;
         return {
@@ -625,6 +665,7 @@ class UserHandler {
             algorithm: config.jwtOptions.algorithm
         };
     }
+
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {
