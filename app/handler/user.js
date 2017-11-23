@@ -501,7 +501,7 @@ class UserHandler {
                 });
                 throw new ValidationError(errorMessages);
             }
-
+            
             return new Promise(function(resolve, reject) {
                 OfferModel.findOneAndUpdate({$and:[{'_id': req.params.id},{'offerCode': req.body.offerCode},{'claimedOfferBy':{ "$ne":  mongoose.Types.ObjectId(req.body.userId)}}]},
                 {

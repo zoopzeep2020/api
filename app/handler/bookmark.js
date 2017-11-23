@@ -2,6 +2,7 @@
  * Created by crosp on 5/13/17.
  */
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
+const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -214,6 +215,19 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 return bookmark;
             })
             .then((saved) => {
+                StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
+                    if (err !== null) {
+                        new NotFoundError("store not found");
+                    } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            console.log(store)
+                            store.bookmarkCount = store.bookmarkCount + 1;
+                            store.save();
+                        }
+                    }
+                }) 
                 callback.onSuccess(saved);
             })
             .catch((error) => {
@@ -251,6 +265,18 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 return bookmark;
             })
             .then((saved) => {
+                StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
+                    if (err !== null) {
+                        new NotFoundError("store not found");
+                    } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            store.bookmarkCount = store.bookmarkCount - 1;
+                            store.save();
+                        }
+                    }
+                }) 
                 callback.onSuccess({}, "Bookmark id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {

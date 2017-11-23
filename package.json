@@ -37,6 +37,8 @@
     "passport-jwt": "^2.2.1",
     "passport-local": "latest",
     "passport-strategy": "latest",
+    "passport-facebook" : "^2.1.1",
+    "bcrypt-nodejs" : "latest",
     "should": "^11.2.1",
     "swagger-jsdoc": "^1.9.7",
     "utf8": "^2.1.2",

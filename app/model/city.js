@@ -4,27 +4,29 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
-let CategorySchema = new Schema({
-    category: String,
-    categoryImage: String,
-    viewCount: Number,
-    categoryActiveImage: String,
+let CitySchema = new Schema({
+    cityName: String,
+    cityState: String,
+    location: {
+        type: [Number],  // [<longitude>, <latitude>]
+        index: '2dsphere'      // create the geospatial index
+    },
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-CategorySchema.pre('update', function(next, done) {
+CitySchema.pre('update', function(next, done) {
     this.dateModified = Date.now();
     next();
 });
-CategorySchema.pre('save', function(next, done) {
+CitySchema.pre('save', function(next, done) {
     this.dateModified = Date.now();
     next();
 });
-CategorySchema.methods.toJSON = function() {
+CitySchema.methods.toJSON = function() {
     let obj = this.toObject();
     delete obj.__v;
     delete obj.dateModified;
     delete obj.dateCreated;
     return obj
 };
-module.exports.CategoryModel = mongoose.model('Category', CategorySchema);
+module.exports.CityModel = mongoose.model('City', CitySchema);

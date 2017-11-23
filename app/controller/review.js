@@ -12,7 +12,7 @@ class ReviewController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin){         
+            if(user.isAdmin || user.isUser){         
                 this._reviewHandler.getAllReviews(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        

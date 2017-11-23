@@ -420,6 +420,7 @@ class StoreHandler extends BaseAutoBindedClass {
             store.viewCount = 1
             store.avgRating = 0
             store.reviewCount = 0
+            store.bookmarkCount = 0
             store.save();
             return store;
         })
@@ -651,6 +652,14 @@ class StoreHandler extends BaseAutoBindedClass {
                         },
                         {
                             "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "featureCatalog",
+                                "foreignField": "_id",
+                                "as": "featureCatalog"
+                            }
+                        },
+                        {
+                            "$lookup": {
                                 "from": 'keywords',
                                 "localField": "keyword",
                                 "foreignField": "_id",
@@ -680,6 +689,12 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "foreignField": "storeId",
                                 "as": "reviews",
                             },
+                        },
+                        {
+                            $unwind: {
+                                path: "$featureCatalog",
+                                preserveNullAndEmptyArrays: true
+                              }
                         },
                         {
                             $unwind: {
@@ -722,7 +737,8 @@ class StoreHandler extends BaseAutoBindedClass {
                                 keywords: { $addToSet: '$keywords' },
                                 categoriesIds: { $addToSet: '$categoriesIds' },
                                 storeOffers: { $addToSet: '$storeOffers' },
-                                storeCatalogs: { $addToSet: '$storeCatalogs' }
+                                storeCatalogs: { $addToSet: '$storeCatalogs' },
+                                featureCatalog: { $addToSet: '$featureCatalog' }
                             },
                         },
                         {
@@ -748,6 +764,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 'viewCount':  "$storesInfo.viewCount",
                                 'freeShiping': '$storesInfo.freeShiping',
                                 'returnandreplace': '$storesInfo.returnandreplace',
+                                'bookmarkCount': '$storesInfo.bookmarkCount',
                                 'avgRating': {$divide:[{$subtract:[{$multiply:['$avgRating',10]}, { $mod: [{ $multiply: [ "$avgRating", 10 ] }, 1 ] },]},10]},
                                 reviews: {
                                     $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },                            
@@ -763,6 +780,9 @@ class StoreHandler extends BaseAutoBindedClass {
                                 },
                                 storeCatalogs: {
                                     $filter: { input: "$storeCatalogs", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                                featureCatalog: {
+                                    $filter: { input: "$featureCatalog", as: "c", cond: { $ifNull: ["$$c._id", false] } },
                                 },
                             },
                         },
@@ -916,6 +936,12 @@ class StoreHandler extends BaseAutoBindedClass {
                                 preserveNullAndEmptyArrays: true
                             }
                         },  
+                            {
+                            $unwind: {
+                                path: "$bookmarkCount",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
                         { 
                             $project : { 
                                 dateModified: 0,

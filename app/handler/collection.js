@@ -268,6 +268,7 @@ class CollectionHandler extends BaseAutoBindedClass {
                 })
                 .then((collection) => {
                     collection.save();
+                    console.log(collection)
                     return collection;
                 })
                 .then((saved) => {
@@ -591,19 +592,26 @@ class CollectionHandler extends BaseAutoBindedClass {
 
     getTrendingCollection(req, callback) {
         let data = req.body;
-        req.checkQuery('lng', 'Invalid urlparam').notEmpty()
-        req.checkQuery('lat', 'Invalid urlparam').notEmpty()
+        // req.checkQuery('lng', 'Invalid urlparam').notEmpty()
+        // req.checkQuery('lat', 'Invalid urlparam').notEmpty()
         var matchQuery = [];
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
         for (var param in req.query) {
-            if(param!=="lng" && param!=="lat"){
+            console.log(param)
+            if(param!=="cityName"){
                 qString = {};
-
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);
-            }             
+            }   
+            var i=0;
+            if(param=="cityName"){
+                qString[param] = { $regex: req.query[param][i]} 
+                matchQuery.push(qString);
+                i++;
+            }          
         }
+        console.log(matchQuery)
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -614,15 +622,21 @@ class CollectionHandler extends BaseAutoBindedClass {
             }
             return new Promise(function(resolve, reject) {
                 CollectionModel.aggregate([
+                    // {
+                    //     "$geoNear": {
+                    //         "near": {
+                    //             "type": "Point",
+                    //             "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                    //         },
+                    //         "distanceField": "distance",
+                    //         "spherical": true,
+                    //         "maxDistance": 0
+                    //     }
+                    // },
                     {
-                        "$geoNear": {
-                            "near": {
-                                "type": "Point",
-                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-                            },
-                            "distanceField": "distance",
-                            "spherical": true,
-                            "maxDistance": 0
+                        $unwind: {
+                            path: "$cityName",
+                            preserveNullAndEmptyArrays: true
                         }
                     },
                     {
@@ -727,13 +741,13 @@ class CollectionHandler extends BaseAutoBindedClass {
             }).exec(function(err, results){
                 resolve(results);
             })
-            })
-            .then((posts) => {
-                callback.onSuccess(posts);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        })
+        .then((posts) => {
+            callback.onSuccess(posts);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     objectify(array) {

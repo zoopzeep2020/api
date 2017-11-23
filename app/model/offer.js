@@ -22,7 +22,8 @@ let OfferSchema = new Schema({
     flatDiscount:Number,
     startDate:{ type: Date },
     endDate:{ type: Date },
-    offerPicture:String,   
+    offerPicture:String, 
+    cityName:[],  
     claimedOfferBy: [{
         type: mongoose.Schema.Types.ObjectId,
     }], 

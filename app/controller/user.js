@@ -75,6 +75,7 @@ class UserController extends BaseController {
             } 
         });
     }
+    
     userAuthenticate(req, res, next, callback) {
         let responseManager = this._responseManager;
         this._passport.authenticate('jwt-rs-auth', {

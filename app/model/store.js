@@ -38,6 +38,7 @@ let StoreSchema = new Schema({
     returnandreplace: String,
     viewCount: Number,
     reviewCount: Number,
+    bookmarkCount: Number,
     location: {
         type: [Number],  // [<longitude>, <latitude>]
         index: '2dsphere'      // create the geospatial index

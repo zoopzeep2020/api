@@ -30,7 +30,14 @@ class AuthController extends BaseController {
         }); 
 
     }
+    // createWithFacebook(req, res, next) {
+    //     let responseManager = this._responseManager;
+    //     let that = this;
+    //     this.facebookAuthenticate(req, res, next, (user) => {
+    //         that._authHandler.issueNewToken(req, user, responseManager.getDefaultResponseHandler(res));
+    //     }); 
 
+    // }
     // forget password 
     forgot(req, res, next) {
         let responseManager = this._responseManager;
@@ -70,7 +77,20 @@ class AuthController extends BaseController {
             }
         })(req, res, next);
     }
-
+    /* passport.authenticate('facebook', {
+            successRedirect : '/profile',
+            failureRedirect : '/'
+        }));*/
+    facebookAuthenticate(req, res, next, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('facebook', function (err, user) {
+            if (err) {
+                responseManager.respondWithError(res, err.status || 401, err.message || "");
+            } else {
+                callback(user);
+            }
+        })(req, res, next);
+    }
     basicAuthenticate(req, res, callback) {
         let responseManager = this._responseManager;
         this._passport.authenticate('secret-key-auth', {

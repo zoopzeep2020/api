@@ -73,6 +73,9 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+app.get('/auth/facebook', passport.authenticate('facebook', { 
+  scope : ['public_profile', 'email']
+}));
 // error handlers
 
 // development error handler

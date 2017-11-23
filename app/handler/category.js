@@ -258,6 +258,7 @@ class CategoryHandler extends BaseAutoBindedClass {
                     return new CategoryModel(data);
                 })
                 .then((category) => {
+                    category.viewCount = 0
                     category.save();
                     return category;
                 })
@@ -442,6 +443,8 @@ class CategoryHandler extends BaseAutoBindedClass {
                 });
             })
             .then((category) => {
+                category.viewCount = category.viewCount + 1;
+                category.save();
                 callback.onSuccess(category);
             })
             .catch((error) => {
@@ -467,7 +470,30 @@ class CategoryHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
+    getTrendingCategory(req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+            CategoryModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:5}], function(err, category) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!category) {
+                        reject(new NotFoundError("category not found"));
+                    } else {
+                        resolve(category);
+                    }
+                }
+            })
+        })
+        .then((category) => {
+            callback.onSuccess(category);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
     objectify(array) {
         return array.reduce(function(p, c) {
              p[c['fieldname']] = c;

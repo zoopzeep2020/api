@@ -1,23 +1,23 @@
 /**
  * Created by crosp on 5/13/17.
  */
-const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
+const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const mongoose = require('mongoose');
-class KeywordHandler extends BaseAutoBindedClass {
+class CityHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
     /**
  * @swagger
- * /keywords:
+ * /cities:
  *   get:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -34,10 +34,10 @@ class KeywordHandler extends BaseAutoBindedClass {
  */
     /**
  * @swagger
- * /keywords:
+ * /cities:
  *   post:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -66,10 +66,10 @@ class KeywordHandler extends BaseAutoBindedClass {
  */
     /**
  * @swagger
- * /keywords/{keywordId}:
+ * /cities/{cityId}:
  *   put:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -85,8 +85,8 @@ class KeywordHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: application/json
- *       - name: keywordId
- *         description: keywordId
+ *       - name: cityId
+ *         description: cityId
  *         in: path
  *         required: true
  *         type: string
@@ -103,10 +103,10 @@ class KeywordHandler extends BaseAutoBindedClass {
  */
  /**
  * @swagger
- * /keywords/{keywordId}:
+ * /cities/{cityId}:
  *   delete:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -122,8 +122,8 @@ class KeywordHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: application/json
- *       - name: keywordId
- *         description: keywordId
+ *       - name: cityId
+ *         description: cityId
  *         in: path
  *         required: true
  *         type: string
@@ -135,10 +135,10 @@ class KeywordHandler extends BaseAutoBindedClass {
  */
    /**
  * @swagger
- * /keywords/{keywordId}:
+ * /cities/{cityId}:
  *   get:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -149,8 +149,8 @@ class KeywordHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: maximumvsminimumsecurity  
- *       - name: keywordId
- *         description: keywordId
+ *       - name: cityId
+ *         description: cityId
  *         in: path
  *         required: true
  *         type: string
@@ -161,10 +161,10 @@ class KeywordHandler extends BaseAutoBindedClass {
 
  /**
  * @swagger
- * /keywords/trendingkeyword:
+ * /cities/trendingcity:
  *   get:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -182,10 +182,10 @@ class KeywordHandler extends BaseAutoBindedClass {
 
    /**
  * @swagger
- * /keywords/search?{keyword}:
+ * /cities/search?{city}:
  *   get:
  *     tags:
- *       - Keyword
+ *       - City
  *     description: activity object
  *     produces:
  *       - application/json
@@ -196,8 +196,8 @@ class KeywordHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: maximumvsminimumsecurity  
- *       - name: keyword
- *         description: keyword id
+ *       - name: city
+ *         description: city id
  *         in: path
  *         required: true
  *         type: string
@@ -216,21 +216,21 @@ class KeywordHandler extends BaseAutoBindedClass {
  */
     static get KEYWORD_VALIDATION_SCHEME() {
         return {
-            'title': {
+            'cityName': {
                 isLength: {
                     options: [{ min: 2  }],
-                    errorMessage: 'Keyword title must be 2 characters long'
+                    errorMessage: 'City title must be 2 characters long'
                 },
                 notEmpty: false,
-                errorMessage: 'Keyword title required'
+                errorMessage: 'City title required'
             },
         };
     }
 
-    createNewKeyword(req, callback) {
+    createNewCity(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
+        // req.checkBody(CityHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -239,12 +239,12 @@ class KeywordHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new KeywordModel(data);
+                return new CityModel(data);
             })
-            .then((keyword) => {
-                keyword.viewCount = 0
-                keyword.save();
-                return keyword;
+            .then((city) => {
+                console.log(city)
+                city.save();
+                return city;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -254,7 +254,7 @@ class KeywordHandler extends BaseAutoBindedClass {
             });
     }
 
-    deleteKeyword(req, callback) {
+    deleteCity(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -266,36 +266,36 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    CityModel.findOne({ _id: req.params.id }, function(err, city) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!city) {
+                                reject(new NotFoundError("City not found"));
                             } else {
-                                resolve(keyword);
+                                resolve(city);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
-                keyword.remove();
-                return keyword;
+            .then((city) => {
+                city.remove();
+                return city;
             })
             .then((saved) => {
-                callback.onSuccess({}, "Keyword id " + saved.id + " deleted successfully ");
+                callback.onSuccess({}, "City id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
 
-    updateKeyword(req, callback) {
+    updateCity(req, callback) {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
+        req.checkBody(CityHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -306,28 +306,28 @@ class KeywordHandler extends BaseAutoBindedClass {
                 }
 
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    CityModel.findOne({ _id: req.params.id }, function(err, city) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!city) {
+                                reject(new NotFoundError("City not found"));
                             } else {
 
-                                resolve(keyword);
+                                resolve(city);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
+            .then((city) => {
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
-                        keyword[key] = data[key];
+                        city[key] = data[key];
                     }
                 }  
-                keyword.save();
-                return keyword;
+                city.save();
+                return city;
             })
             .then((saved) => {
                 callback.onSuccess(saved);
@@ -337,7 +337,7 @@ class KeywordHandler extends BaseAutoBindedClass {
             });
     }
 
-    getSingleKeyword(req, callback) {
+    getSingleCity(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -349,23 +349,23 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                    CityModel.findOne({ _id: req.params.id }, function(err, city) {
                         if (err !== null) {
                             reject(err);
                         } else {
-                            if (!keyword) {
-                                reject(new NotFoundError("Keyword not found"));
+                            if (!city) {
+                                reject(new NotFoundError("City not found"));
                             } else {
-                                resolve(keyword);
+                                resolve(city);
                             }
                         }
                     })
                 });
             })
-            .then((keyword) => {
-                keyword.viewCount = keyword.viewCount + 1;
-                keyword.save();
-                callback.onSuccess(keyword);
+            .then((city) => {
+                city.viewCount = city.viewCount + 1;
+                city.save();
+                callback.onSuccess(city);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -383,7 +383,7 @@ class KeywordHandler extends BaseAutoBindedClass {
             qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
             matchQuery.push(qString);             
         }
-        req.checkQuery('keyword', 'Invalid urlparam').notEmpty()
+        req.checkQuery('city', 'Invalid urlparam').notEmpty()
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -394,14 +394,14 @@ class KeywordHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) { 
                     StoreModel.aggregate([
-                        { "$unwind" : "$keyword" },
+                        { "$unwind" : "$city" },
                         { $match: { $and:  matchQuery } }  ,                    
                         {
                             "$lookup": {
-                                "from": 'keywords',
-                                "localField": "keyword",
+                                "from": 'cities',
+                                "localField": "city",
                                 "foreignField": "_id",
-                                "as": "keywordInfo"
+                                "as": "cityInfo"
                             }
                         },
                         {
@@ -410,9 +410,9 @@ class KeywordHandler extends BaseAutoBindedClass {
                                 avgRating:'$avgRating',
                                 storeLogo:'$storeLogo',
                                 storeBanner:'$storeBanner',
-                                title:'$keywordInfo.title',
-                                _id:'$keywordInfo._id',
-                                viewCount:'$keywordInfo.viewCount',
+                                title:'$cityInfo.title',
+                                _id:'$cityInfo._id',
+                                viewCount:'$cityInfo.viewCount',
                             }
                         },
                         { "$unwind" : "$title" },
@@ -426,27 +426,27 @@ class KeywordHandler extends BaseAutoBindedClass {
                     })
                 });
             })
-            .then((keywords) => {
+            .then((cities) => {
                 return new Promise(function(resolve, reject) { 
-                    KeywordModel.find({"_id" : { $in:  objectArray }}, function(err, keywords) {
+                    CityModel.find({"_id" : { $in:  objectArray }}, function(err, cities) {
                         if (err !== null) {
-                            reject(new NotFoundError("keyword not found"));
+                            reject(new NotFoundError("city not found"));
                         } else {
-                            if (!keywords) {
-                                reject(new NotFoundError("keyword not found"));
+                            if (!cities) {
+                                reject(new NotFoundError("city not found"));
                             } else {
-                                for(var i=0;i<keywords.length;i++){
-                                    keywords[i].viewCount = keywords[i].viewCount + 1;
-                                    keywords[i].save();
+                                for(var i=0;i<cities.length;i++){
+                                    cities[i].viewCount = cities[i].viewCount + 1;
+                                    cities[i].save();
                                 }
-                                resolve(keywords)
+                                resolve(cities)
                             }
                         }
                     }) 
                 }) 
             })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
+            .then((city) => {
+                callback.onSuccess(city);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -464,7 +464,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) { 
-                    KeywordModel.aggregate(
+                    CityModel.aggregate(
                         {"$match":{"title" : {$regex : req.query.search}}},
                         {
                             $project: {
@@ -474,31 +474,31 @@ class KeywordHandler extends BaseAutoBindedClass {
                             }
                         }
                     )
-                    .exec(function(err, keywords){
-                        resolve(keywords);
+                    .exec(function(err, cities){
+                        resolve(cities);
                     })
                 });
             })
-            .then((keywords) => {
+            .then((cities) => {
                 return new Promise(function(resolve, reject) { 
-                    KeywordModel.find({"title" : {$regex : req.query.search} }, function(err, keywords) {
+                    CityModel.find({"title" : {$regex : req.query.search} }, function(err, cities) {
                         if (err !== null) {
-                            reject(new NotFoundError("keyword not found"));
+                            reject(new NotFoundError("city not found"));
                         } else {
-                            if (!keywords) {
-                                reject(new NotFoundError("keyword not found"));
+                            if (!cities) {
+                                reject(new NotFoundError("city not found"));
                             } else {
-                                for(var i=0;i<keywords.length;i++){
-                                    keywords[i].viewCount = keywords[i].viewCount + 1;
-                                    keywords[i].save();
+                                for(var i=0;i<cities.length;i++){
+                                    cities[i].viewCount = cities[i].viewCount + 1;
+                                    cities[i].save();
                                 }
-                                resolve(keywords)
+                                resolve(cities)
                             }
                         }
                     }) 
                 }) 
-            }).then((keywords)=>{
-                callback.onSuccess(keywords);
+            }).then((cities)=>{
+                callback.onSuccess(cities);
                 
             })
             .catch((error) => {
@@ -506,23 +506,23 @@ class KeywordHandler extends BaseAutoBindedClass {
             });
     }
 
-    getAllKeywords(req, callback) {
+    getAllCitys(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            KeywordModel.find({}, function(err, keyword) {
+            CityModel.find({}, function(err, city) {
                 if (err !== null) {
                     reject(err);
                 } else {
-                    if (!keyword) {
-                        reject(new NotFoundError("Keyword not found"));
+                    if (!city) {
+                        reject(new NotFoundError("City not found"));
                     } else {
-                        resolve(keyword);
+                        resolve(city);
                     }
                 }
             })
         })
-        .then((keyword) => {
-            callback.onSuccess(keyword);
+        .then((city) => {
+            callback.onSuccess(city);
         })
         .catch((error) => {
             callback.onError(error);
@@ -532,20 +532,20 @@ class KeywordHandler extends BaseAutoBindedClass {
     getAllTrending(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            KeywordModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:5}], function(err, keyword) {
+            CityModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:5}], function(err, city) {
                 if (err !== null) {
                     reject(err);
                 } else {
-                    if (!keyword) {
-                        reject(new NotFoundError("Keyword not found"));
+                    if (!city) {
+                        reject(new NotFoundError("City not found"));
                     } else {
-                        resolve(keyword);
+                        resolve(city);
                     }
                 }
             })
         })
-        .then((keyword) => {
-            callback.onSuccess(keyword);
+        .then((city) => {
+            callback.onSuccess(city);
         })
         .catch((error) => {
             callback.onError(error);
@@ -553,4 +553,4 @@ class KeywordHandler extends BaseAutoBindedClass {
     }
 }
 
-module.exports = KeywordHandler;
+module.exports = CityHandler;

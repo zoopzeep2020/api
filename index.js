@@ -30,7 +30,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 1
 app.use(authManager.providePassport().initialize());
 // Set Up validation middleware
 app.use(validationManager.provideDefaultValidator());
-
+this._passport = require('passport');
 ////-------------------swagger-------------------//
 var swaggerJSDoc = require('swagger-jsdoc');
 if(global.config.server.PORT === 3000){
@@ -124,7 +124,11 @@ app.get('/swagger', function (req, res) {
     res.setHeader('Content-Type', 'text/html');
     res.sendFile(path.join(__dirname+ '/swagger/api-docs/index.html'));
 });
-
+    app.get('/auth/facebook', this._passport.authenticate('facebook', { 
+        
+        scope : ['public_profile', 'email']
+    }));
+    console.log("facebook");
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);

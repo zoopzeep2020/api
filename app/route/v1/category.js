@@ -9,6 +9,7 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/', categoryController.getAll);
+router.get('/trendingcategory', categoryController.getTrendingCategory);
 router.get('/:id', categoryController.get);
 router.post('/', upload.any(), categoryController.create);
 router.delete('/:id', categoryController.remove);

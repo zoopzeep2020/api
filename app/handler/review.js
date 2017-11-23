@@ -265,7 +265,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                 return new ReviewModel(ModelData);
             })
             .then((ModelData) => {
-                ModelData.save();
                 return ModelData;
             })
             .then((saved) => {
@@ -276,13 +275,15 @@ class ReviewHandler extends BaseAutoBindedClass {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
+                            saved.ratingScale = parseFloat(saved.ratingScale).toFixed(1)
                             store.avgRating = (store.avgRating*store.reviewCount + parseInt(ModelData.ratingScale))/(parseInt(store.reviewCount)+1);
                             store.reviewCount = store.reviewCount + 1;
                             store.save();
                         }
                     }
                 }) 
-                callback.onSuccess(ModelData);
+                saved.save();
+                callback.onSuccess(saved);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -326,7 +327,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
-                            store.avgRating = (store.avgRating*store.reviewCount - review.ratingScale)/(store.reviewCount-1);
+                            store.avgRating = (store.avgRating*store.reviewCount - parseFloat(review.ratingScale))/(store.reviewCount-1);
                             store.reviewCount = store.reviewCount - 1;
                             store.save();
                         }
@@ -382,7 +383,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                             if (!store) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                store.avgRating = (store.avgRating*store.reviewCount - review.ratingScale + req.body.ratingScale)/(store.reviewCount); 
+                                store.avgRating = (store.avgRating*store.reviewCount - parseFloat(review.ratingScale) + parseFloat(req.body.ratingScale))/(store.reviewCount); 
                                 store.save();
                                 resolve(review)
                             }
@@ -418,9 +419,11 @@ class ReviewHandler extends BaseAutoBindedClass {
                         return errorMessages[elem.param] = elem.msg;
                     });
                     throw new ValidationError(errorMessages);
-                }                
+                }     
                 return new Promise(function(resolve, reject) {
-                    ReviewModel.findOne({ _id: req.params.id }, function(err, review) {
+                    ReviewModel.findOne({ _id: req.params.id })
+                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
+                    {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -429,13 +432,16 @@ class ReviewHandler extends BaseAutoBindedClass {
                             } else {
                                 resolve(review);
                             }
-                            resolve(review);
                         }
-                        resolve(review);
                     })
-                });
+                });           
             })
             .then((review) => {
+                var currdatetime = new Date();
+                var datecreated;
+                datecreated = review.dateCreated;
+                review.timeDifference = this.timeago(datecreated)
+                review.save();
                 callback.onSuccess(review);
             })
             .catch((error) => {
@@ -455,7 +461,9 @@ class ReviewHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) {
-                    ReviewModel.find({ storeId: req.params.id }, function(err, review) {
+                    ReviewModel.find({ storeId: req.params.id })
+                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
+                    {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -469,6 +477,13 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
+                var currdatetime = new Date();
+                var datecreated;
+                for(var i=0;i<review.length;i++){
+                    datecreated = review[i].dateCreated;
+                    review[i].timeDifference = this.timeago(datecreated)
+                    review[i].save();
+                }
                 callback.onSuccess(review);
             })
             .catch((error) => {
@@ -506,9 +521,12 @@ class ReviewHandler extends BaseAutoBindedClass {
             })
             .then((review) => {
                 var currdatetime = new Date();
-                var datecreated = review[0].dateCreated;
-                review[0].timeDifference = this.timeago(datecreated)
-                review[0].save();
+                var datecreated;
+                for(var i=0;i<review.length;i++){
+                    datecreated = review[i].dateCreated;
+                    review[i].timeDifference = this.timeago(datecreated)
+                    review[i].save();
+                }
                 callback.onSuccess(review);
             })
             .catch((error) => {
@@ -518,20 +536,29 @@ class ReviewHandler extends BaseAutoBindedClass {
 
     getAllReviews(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-                ReviewModel.find({}, function(err, category) {
+            return new Promise(function(resolve, reject) {
+                ReviewModel.find({ })
+                .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
+                {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!category) {
+                        if (!review) {
                             reject(new NotFoundError("Review not found"));
                         } else {
-                            resolve(category);
+                            resolve(review);
                         }
                     }
                 })
             })
             .then((review) => {
+                var currdatetime = new Date();
+                var datecreated;
+                for(var i=0;i<review.length;i++){
+                    datecreated = review[i].dateCreated;
+                    review[i].timeDifference = this.timeago(datecreated)
+                    review[i].save();
+                }
                 callback.onSuccess(review);
             })
             .catch((error) => {

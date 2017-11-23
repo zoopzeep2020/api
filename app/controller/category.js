@@ -16,6 +16,12 @@ class CategoryController extends BaseController {
         });
     }
 
+    getTrendingCategory(req, res, next) {
+        this.basicAuthenticate(req, res,() => {
+            this._categoryHandler.getTrendingCategory(req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {

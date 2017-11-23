@@ -52,6 +52,7 @@ class OfferHandler extends BaseAutoBindedClass {
  *       - name: storeId
  *         in: body
  *         description: storeId
+ *         required: true
  *         type: string
  *       - name: aplicableForAll
  *         description: aplicableForAll
@@ -359,8 +360,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     req.checkBody('offerPicture', 'offerPicture is required').isImage(req.body.offerPicture);
                 }else{
                     req.checkBody('offerPicture', 'offerPicture is required').notEmpty();
-                }                
-
+                }  
                 req.checkBody('offerOnline', 'Either offerOnline is true or offerOffline is true').isOneTrue(req.body.offerOnline, req.body.offerOffline);
                 req.checkBody('offerOffline', 'Either offerOffline is true or offerOnline is true').isOneTrue(req.body.offerOnline, req.body.offerOffline);
                 req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage, req.body.discountTypeFlat);
@@ -372,7 +372,6 @@ class OfferHandler extends BaseAutoBindedClass {
                     req.checkBody('flatDiscount', 'flatDiscount should be number').isInt();
                 }
                 req.checkBody('offerCode', 'offerCode is required').notEmpty();
-                
                 req.checkBody('startDate', 'startDate must be in future and less than endDate').checkDateValidity(req.body.startDate, req.body.endDate);
                 req.checkBody('endDate', 'endDate must be in future and greater than startDate').checkDateValidity(req.body.startDate, req.body.endDate);                
                 req.checkBody('startDate', 'startDate must be in format of mm/dd/yyyy').isDate();
