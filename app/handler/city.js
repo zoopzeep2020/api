@@ -34,6 +34,66 @@ class CityHandler extends BaseAutoBindedClass {
  */
     /**
  * @swagger
+ * /cities/searchByWord?{search}:
+ *   get:
+ *     tags:
+ *       - City
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: search
+ *         description: search
+ *         in: query
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+ /**
+ * @swagger
+ * /cities/searchByLongLat?{lng}&{lat}:
+ *   get:
+ *     tags:
+ *       - City
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: search
+ *         description: name of city which you want to search 
+ *         in: query
+ *         required: true
+ *         type: string
+ *       - name: lng
+ *         description: longitude of city
+ *         in: query
+ *         required: true
+ *         type: number
+ *       - name: lat
+ *         description: latitude of city
+ *         in: query
+ *         required: true
+ *         type: number
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+    /**
+ * @swagger
  * /cities:
  *   post:
  *     tags:
@@ -242,7 +302,6 @@ class CityHandler extends BaseAutoBindedClass {
                 return new CityModel(data);
             })
             .then((city) => {
-                console.log(city)
                 city.save();
                 return city;
             })
@@ -372,18 +431,8 @@ class CityHandler extends BaseAutoBindedClass {
             });
     }
 
-    getSearchResult(req, callback) {
-        let data = req.body;
-        var matchQuery = [];
-        var objectArray = [];
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        for (var param in req.query) {
-            qString = {};
-            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
-            matchQuery.push(qString);             
-        }
-        req.checkQuery('city', 'Invalid urlparam').notEmpty()
+    getSearchByWord(req, callback) {
+        let data = req.body;      
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -393,67 +442,22 @@ class CityHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) { 
-                    StoreModel.aggregate([
-                        { "$unwind" : "$city" },
-                        { $match: { $and:  matchQuery } }  ,                    
-                        {
-                            "$lookup": {
-                                "from": 'cities',
-                                "localField": "city",
-                                "foreignField": "_id",
-                                "as": "cityInfo"
-                            }
-                        },
-                        {
-                            $project: {
-                                storeName:'$storeName',
-                                avgRating:'$avgRating',
-                                storeLogo:'$storeLogo',
-                                storeBanner:'$storeBanner',
-                                title:'$cityInfo.title',
-                                _id:'$cityInfo._id',
-                                viewCount:'$cityInfo.viewCount',
-                            }
-                        },
-                        { "$unwind" : "$title" },
-                        { "$unwind" : "$viewCount" },
-                        { "$unwind" : "$_id" },
-                    ]).exec(function(err, results){
-                        for(var i=0;i<results.length;i++){
-                            objectArray[i]=mongoose.Types.ObjectId(results[i]._id)
-                        }
-                        resolve(results);
+                    CityModel.find({cityName : {$regex : req.query.search.toLowerCase()}},
+                    )
+                    .exec(function(err, cities){
+                        console.log(cities)
+                        resolve(cities);
                     })
                 });
-            })
-            .then((cities) => {
-                return new Promise(function(resolve, reject) { 
-                    CityModel.find({"_id" : { $in:  objectArray }}, function(err, cities) {
-                        if (err !== null) {
-                            reject(new NotFoundError("city not found"));
-                        } else {
-                            if (!cities) {
-                                reject(new NotFoundError("city not found"));
-                            } else {
-                                for(var i=0;i<cities.length;i++){
-                                    cities[i].viewCount = cities[i].viewCount + 1;
-                                    cities[i].save();
-                                }
-                                resolve(cities)
-                            }
-                        }
-                    }) 
-                }) 
-            })
-            .then((city) => {
-                callback.onSuccess(city);
+            }).then((cities)=>{
+                callback.onSuccess(cities);
+                
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
-
-    getSearchResultByWord(req, callback) {
+    getSearchByLongLat(req, callback) {
         let data = req.body;      
         req.getValidationResult()
             .then(function(result) {                
@@ -465,38 +469,22 @@ class CityHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) { 
                     CityModel.aggregate(
-                        {"$match":{"title" : {$regex : req.query.search}}},
-                        {
-                            $project: {
-                                _id:'$_id',
-                                title:'$title',
-                                viewCount:'$viewCount'
-                            }
+                    {
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 0
                         }
+                    }
                     )
                     .exec(function(err, cities){
                         resolve(cities);
                     })
                 });
-            })
-            .then((cities) => {
-                return new Promise(function(resolve, reject) { 
-                    CityModel.find({"title" : {$regex : req.query.search} }, function(err, cities) {
-                        if (err !== null) {
-                            reject(new NotFoundError("city not found"));
-                        } else {
-                            if (!cities) {
-                                reject(new NotFoundError("city not found"));
-                            } else {
-                                for(var i=0;i<cities.length;i++){
-                                    cities[i].viewCount = cities[i].viewCount + 1;
-                                    cities[i].save();
-                                }
-                                resolve(cities)
-                            }
-                        }
-                    }) 
-                }) 
             }).then((cities)=>{
                 callback.onSuccess(cities);
                 
@@ -505,7 +493,18 @@ class CityHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
+/*StoreModel.aggregate([
+                        {
+                            "$geoNear": {
+                                "near": {
+                                    "type": "Point",
+                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                },
+                                "distanceField": "distance",
+                                "spherical": true,
+                                "maxDistance": 0
+                            }
+                        }, */
     getAllCitys(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -529,28 +528,6 @@ class CityHandler extends BaseAutoBindedClass {
         });
     }
 
-    getAllTrending(req, callback) {
-        let data = req.body;
-        new Promise(function(resolve, reject) {
-            CityModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:5}], function(err, city) {
-                if (err !== null) {
-                    reject(err);
-                } else {
-                    if (!city) {
-                        reject(new NotFoundError("City not found"));
-                    } else {
-                        resolve(city);
-                    }
-                }
-            })
-        })
-        .then((city) => {
-            callback.onSuccess(city);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
-    }
 }
 
 module.exports = CityHandler;

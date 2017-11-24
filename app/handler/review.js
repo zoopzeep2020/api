@@ -422,7 +422,8 @@ class ReviewHandler extends BaseAutoBindedClass {
                 }     
                 return new Promise(function(resolve, reject) {
                     ReviewModel.findOne({ _id: req.params.id })
-                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
+                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' })
+                    .exec(function(err, review)
                     {
                         if (err !== null) {
                             reject(err);

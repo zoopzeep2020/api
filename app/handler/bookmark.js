@@ -222,7 +222,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
-                            console.log(store)
                             store.bookmarkCount = store.bookmarkCount + 1;
                             store.save();
                         }

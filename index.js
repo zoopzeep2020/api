@@ -128,7 +128,6 @@ app.get('/swagger', function (req, res) {
         
         scope : ['public_profile', 'email']
     }));
-    console.log("facebook");
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);

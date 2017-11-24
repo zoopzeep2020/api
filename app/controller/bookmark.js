@@ -29,7 +29,7 @@ class BookmarkController extends BaseController {
     getUserBookmark(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){                
+            if(user.isAdmin || (user.isUser && user.id == req.params.id)){                
                 this._bookmarkHandler.getUserBookmark(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                     responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);

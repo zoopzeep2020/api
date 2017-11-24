@@ -7,6 +7,7 @@ const ObjectId = Schema.ObjectId;
 let ServiceSchema = new Schema({    
     title: String,
     content:String,
+    type:String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });

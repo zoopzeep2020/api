@@ -335,7 +335,9 @@ class UserHandler {
                                 }
                             }else{
                                 if(user.isStore){
-                                    if(!docs.isStore){
+                                    if(user.isStore && docs.isUser && !docs.isStore && !(req.query.continuewithexistinguser=="true")){
+                                        reject(new AlreadyExistsError("user already exists with this email. Would you like to continue?"));
+                                    }else if(!docs.isStore){
                                         storeHandler.createNewStore(request, {
                                             onSuccess: function(data) {
                                                 docs.isStore = true;
@@ -349,8 +351,10 @@ class UserHandler {
                                     }else{
                                         reject(new AlreadyExistsError("Store already exists"));
                                     }
-                                }else{
-                                    if(!docs.isUser){
+                                }else{ 
+                                    if(user.isUser && docs.isStore && !docs.isUser && !(req.query.continuewithexistingstore=="true")){
+                                        reject(new AlreadyExistsError("store already exists with this email. Would you like to continue?"));
+                                    }else  if(!docs.isUser){
                                         docs.isUser = true;
                                         resolve(docs);
                                     }else{

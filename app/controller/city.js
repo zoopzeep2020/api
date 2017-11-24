@@ -23,16 +23,32 @@ class CityController extends BaseController {
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
+            this._cityHandler.getSingleCity(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+            
+        });
+    }
 
-            if(user.isAdmin || (user.isUser && user.id == req.body.userId) || (user.isStore && (user.id == req.body.storeId))){
+    getSearchByWord(req, res, next) {
+        let responseManager = this._responseManager;
+        this.basicAuthenticate(req, res, () => {
+            this._cityHandler.getSearchByWord(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+            
+        });
+    }
 
-                this._cityHandler.getSingleCity(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-                })));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+    getSearchByLongLat(req, res, next) {
+        let responseManager = this._responseManager;
+        this.basicAuthenticate(req, res, () => {
+        this._cityHandler.getSearchByLongLat(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+            let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+            responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+        })));
         });
     }
 
@@ -74,6 +90,16 @@ class CityController extends BaseController {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
+    }
+
+    basicAuthenticate(req, res, callback) {
+        let responseManager = this._responseManager;
+        this._passport.authenticate('secret-key-auth', {
+            onVerified: callback,
+            onFailure: function (error) {
+                responseManager.respondWithError(res, error.status || 401, error.message);
+            }
+        })(req, res);
     }
 }
 

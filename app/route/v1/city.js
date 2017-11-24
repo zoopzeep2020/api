@@ -9,6 +9,8 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/', cityController.getAll);
+router.get('/searchByWord', cityController.getSearchByWord);
+router.get('/searchByLongLat', cityController.getSearchByLongLat);
 router.get('/:id', cityController.get);
 router.post('/', upload.any(), cityController.create);
 router.delete('/:id', cityController.remove);

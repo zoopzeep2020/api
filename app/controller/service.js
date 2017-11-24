@@ -26,6 +26,16 @@ class ServiceController extends BaseController {
         });
     }
 
+    getStaticByType(req, res, next) {
+        let responseManager = this._responseManager;
+        this.authenticate(req, res, next, (token, user) => {
+                this._serviceHandler.getStaticByType(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                }))); 
+        });
+    }
+
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin){

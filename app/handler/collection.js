@@ -172,11 +172,10 @@ class CollectionHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".     
  */
-
-  /**
+/**
  * @swagger
  * /colections/{collectionId}:
- *   delete:
+ *   get:
  *     tags:
  *       - Collection
  *     description: activity object
@@ -184,14 +183,50 @@ class CollectionHandler extends BaseAutoBindedClass {
  *       - application/json
  *     parameters:
  *       - name: Authorization
- *         description: token authorization
+ *         description: basic authorization
  *         in: header
  *         required: true
  *         type: string
+ *         default: maximumvsminimumsecurity
  *       - name: collectionId
  *         description: collectionId
  *         in: path
  *         type: string
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+  /**
+ * @swagger
+ * /colections/searchByQuery?{cityName}&{buisnessOnline}&{buisnessOffline}:
+ *   get:
+ *     tags:
+ *       - Collection
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: cityName
+ *         description: array of cityName
+ *         in: query
+ *         type: array
+ *         items:
+ *          type: string
+ *         collectionFormat: multi
+ *       - name: buisnessOnline
+ *         description: buisnessOnline
+ *         in: query
+ *         type: boolean
+ *       - name: buisnessOffline
+ *         description: buisnessOffline
+ *         in: query
+ *         type: boolean
  *     responses:
  *       200:
  *         description: object of activity".     
@@ -268,7 +303,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                 })
                 .then((collection) => {
                     collection.save();
-                    console.log(collection)
                     return collection;
                 })
                 .then((saved) => {
@@ -590,28 +624,27 @@ class CollectionHandler extends BaseAutoBindedClass {
         });
     }
 
-    getTrendingCollection(req, callback) {
+    getSearchByQuery(req, callback) {
         let data = req.body;
         // req.checkQuery('lng', 'Invalid urlparam').notEmpty()
         // req.checkQuery('lat', 'Invalid urlparam').notEmpty()
         var matchQuery = [];
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
+        var i = 0;
+        
         for (var param in req.query) {
-            console.log(param)
-            if(param!=="cityName"){
+            if(param !== "cityName"){
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);
             }   
-            var i=0;
-            if(param=="cityName"){
+            if(param == "cityName"){
                 qString[param] = { $regex: req.query[param][i]} 
                 matchQuery.push(qString);
                 i++;
             }          
         }
-        console.log(matchQuery)
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {

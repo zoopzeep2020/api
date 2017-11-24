@@ -20,7 +20,6 @@ router.use('/collections', require(ROUTE_V1_PATH + 'collection'));
 router.use('/reports', require(ROUTE_V1_PATH + 'report'));
 router.use('/feedbacks', require(ROUTE_V1_PATH + 'feedback'));
 router.use('/services', require(ROUTE_V1_PATH + 'service'));
-router.use('/policies', require(ROUTE_V1_PATH + 'policy'));
 router.use('/cities', require(ROUTE_V1_PATH + 'city'));
 
 module.exports = router;

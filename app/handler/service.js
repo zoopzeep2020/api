@@ -331,6 +331,39 @@ class ServiceHandler extends BaseAutoBindedClass {
         });
     }
 
+    getStaticByType(req, callback) {
+        let data = req.body;
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+        req.getValidationResult()
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                ServiceModel.find({ type: req.params.type }, function(err, service) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!service) {
+                            reject(new NotFoundError(req.params.type + " not found"));
+                        } else {
+                            resolve(service);
+                        }
+                    }
+                })
+            });
+        })
+        .then((service) => {
+            callback.onSuccess(service);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
     getAllServices(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
