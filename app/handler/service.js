@@ -105,7 +105,7 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  */
 /**
  * @swagger
- * /services/{serviceId}:
+ * /services/static/{type}:
  *   get:
  *     tags:
  *       - Service
@@ -114,12 +114,12 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  *       - application/json
  *     parameters:
  *       - name: Authorization
- *         description: token authorization
+ *         description: basic authorization
  *         in: header
  *         required: true
  *         type: string
- *       - name: serviceId
- *         description: serviceId
+ *       - name: type
+ *         description: type ("service" or "privacy")
  *         in: path
  *         required: true
  *         type: string

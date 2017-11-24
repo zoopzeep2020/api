@@ -51,6 +51,37 @@ class AuthHandler extends BaseAutoBindedClass {
         }
     }
 
+    issueNewTokenWithFacebook(req, user, callback) {
+        let that = this;
+        if (user) {                         
+            for (var key in req.body) {
+                if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
+                    user[key] = req.body[key];
+                }
+            } 
+            user.save();
+            let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
+            let data = {
+                _id:user._id,
+                token:userToken.token,
+                name:user.name,
+                email:user.email,  
+                phone:user.phone,
+                deviceToken:user.deviceToken,
+                userLat:user.userLat,
+                userLong:user.userLong,
+                storeId:user.storeId,
+                isStore:user.isStore,
+                isUser:user.isUser,
+                userImage:user.userImage,  
+                deviceType:user.deviceType,
+                isAdmin:user.isAdmin
+            };
+            callback.onSuccess(data);
+        } else {
+            callback.onError(new NotFoundError("User not found"));
+        }
+    }
     forgotRequest(req, callback) {
 
         // req.getValidationResult()

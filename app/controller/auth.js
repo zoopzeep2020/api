@@ -30,6 +30,15 @@ class AuthController extends BaseController {
         }); 
 
     }
+    createWithFacebook(req, res, next) {
+        let responseManager = this._responseManager;
+        let that = this;
+        console.log(req.body)
+        this._passport.authenticate('facebook', { 
+            scope : ['public_profile', 'email']
+          })
+
+    }
     // createWithFacebook(req, res, next) {
     //     let responseManager = this._responseManager;
     //     let that = this;
@@ -83,10 +92,11 @@ class AuthController extends BaseController {
         }));*/
     facebookAuthenticate(req, res, next, callback) {
         let responseManager = this._responseManager;
-        this._passport.authenticate('facebook', function (err, user) {
+        this._passport.authenticate('facebook', { scope : ['public_profile', 'email']}, function (err, user) {
             if (err) {
                 responseManager.respondWithError(res, err.status || 401, err.message || "");
             } else {
+                console.log(user)
                 callback(user);
             }
         })(req, res, next);

@@ -7,7 +7,7 @@ global.APP_ROOT_PATH = __dirname + '/app/';
 require('./config/global-paths');
 // Set config variables
 global.config = require('./config');
-
+var passport = require('passport');
 // Create an Express App
 const express = require('express');
 expressValidator = require('express-validator');
@@ -131,7 +131,8 @@ app.get('/swagger', function (req, res) {
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
-
+require('./config/passport.js')(passport)
+// require('./app/routes.js')(app, passport);
 var server = app.listen(global.config.server.PORT, function() {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);
