@@ -113,11 +113,21 @@ class CityHandler extends BaseAutoBindedClass {
  *         required: true
  *         type: string
  *         default: application/json
- *       - name: title
- *         description: title
+ *       - name: cityName
+ *         description: cityName
  *         in: body
  *         required: true
  *         type: string
+ *       - name: cityState
+ *         description: cityState
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: location
+ *         description: location
+ *         in: body
+ *         required: true
+ *         type: array
  *         schema:
  *          $ref: '#/definitions/UpdateActivitiesObj'
  *     responses:
@@ -150,11 +160,21 @@ class CityHandler extends BaseAutoBindedClass {
  *         in: path
  *         required: true
  *         type: string
- *       - name: title
- *         description: title
+ *       - name: cityName
+ *         description: cityName
  *         in: body
  *         required: true
  *         type: string
+ *       - name: cityState
+ *         description: cityState
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: location
+ *         description: location
+ *         in: body
+ *         required: true
+ *         type: array
  *         schema:
  *          $ref: '#/definitions/UpdateActivitiesObj'
  *     responses:
@@ -218,60 +238,20 @@ class CityHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".     
  */
-
- /**
- * @swagger
- * /cities/trendingcity:
- *   get:
- *     tags:
- *       - City
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity  
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-
-   /**
- * @swagger
- * /cities/search?{city}:
- *   get:
- *     tags:
- *       - City
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity  
- *       - name: city
- *         description: city id
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+ 
 /**
  * @swagger
  * definition: 
  *   UpdateActivitiesObj:
  *     properties:
- *       title:
+ *       cityName:
  *         type: string
+ *         required: true
+ *       cityState:
+ *         type: string
+ *         required: true
+ *       location:
+ *         type: array
  *         required: true
  */
     static get KEYWORD_VALIDATION_SCHEME() {
@@ -445,7 +425,6 @@ class CityHandler extends BaseAutoBindedClass {
                     CityModel.find({cityName : {$regex : req.query.search.toLowerCase()}},
                     )
                     .exec(function(err, cities){
-                        console.log(cities)
                         resolve(cities);
                     })
                 });
@@ -457,6 +436,7 @@ class CityHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     getSearchByLongLat(req, callback) {
         let data = req.body;      
         req.getValidationResult()
@@ -493,18 +473,7 @@ class CityHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-/*StoreModel.aggregate([
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-                                },
-                                "distanceField": "distance",
-                                "spherical": true,
-                                "maxDistance": 0
-                            }
-                        }, */
+
     getAllCitys(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {

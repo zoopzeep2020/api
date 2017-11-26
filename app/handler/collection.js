@@ -59,6 +59,18 @@ class CollectionHandler extends BaseAutoBindedClass {
  *         description: offerId
  *         in: body
  *         type: array
+ *       - name: buisnessOnline
+ *         description: buisnessOnline or buisnessOffline must be true
+ *         in: body
+ *         type: boolean
+ *       - name: buisnessOffline
+ *         description: buisnessOnline or buisnessOffline must be true
+ *         in: body
+ *         type: boolean
+ *       - name: cityName
+ *         description: cityName is array of cities
+ *         in: body
+ *         type: array
  *       - name: storeId
  *         description: storeId
  *         in: body
@@ -119,6 +131,18 @@ class CollectionHandler extends BaseAutoBindedClass {
  *         type: array
  *       - name: storeId
  *         description: storeId
+ *         in: body
+ *         type: array 
+ *       - name: buisnessOnline
+ *         description: buisnessOnline or buisnessOffline must be true
+ *         in: body
+ *         type: boolean
+ *       - name: buisnessOffline
+ *         description: buisnessOnline or buisnessOffline must be true
+ *         in: body
+ *         type: boolean
+ *       - name: cityName
+ *         description: cityName is array of cities
  *         in: body
  *         type: array
  *         schema:

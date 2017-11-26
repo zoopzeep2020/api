@@ -41,7 +41,6 @@ module.exports = function(passport) {
 
     // facebook will send back the token and profile
     function(token, refreshToken, profile, done) {
-        console.log(profile)
         // asynchronous
         process.nextTick(function() {
             // find the user in the database based on their facebook id

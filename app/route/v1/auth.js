@@ -6,7 +6,6 @@ const AuthController = require(APP_CONTROLLER_PATH + 'auth');
 
 let authController = new AuthController();
 
-router.post('/withfacebook', authController.createWithFacebook);
 router.post('/', authController.create);
 router.post('/forgot', authController.forgot);    
 router.post('/reset/:token', authController.reset);              

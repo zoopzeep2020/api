@@ -10,17 +10,7 @@ class AuthController extends BaseController {
         this._authHandler = new AuthHandler();
         this._passport = require('passport');
     }
-
-     /**
-   * @swagger
-   * /:
-   *   get:
-   *     description: Returns the homepage
-   *     responses:
-   *       200:
-   *         description: hello world
-   */
-  
+    
     // Request token by credentials
     create(req, res, next) {
         let responseManager = this._responseManager;
@@ -30,24 +20,7 @@ class AuthController extends BaseController {
         }); 
 
     }
-    createWithFacebook(req, res, next) {
-        let responseManager = this._responseManager;
-        let that = this;
-        console.log(req.body)
-        this._passport.authenticate('facebook', { 
-            scope : ['public_profile', 'email']
-          })
-
-    }
-    // createWithFacebook(req, res, next) {
-    //     let responseManager = this._responseManager;
-    //     let that = this;
-    //     this.facebookAuthenticate(req, res, next, (user) => {
-    //         that._authHandler.issueNewToken(req, user, responseManager.getDefaultResponseHandler(res));
-    //     }); 
-
-    // }
-    // forget password 
+  
     forgot(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
@@ -86,21 +59,7 @@ class AuthController extends BaseController {
             }
         })(req, res, next);
     }
-    /* passport.authenticate('facebook', {
-            successRedirect : '/profile',
-            failureRedirect : '/'
-        }));*/
-    facebookAuthenticate(req, res, next, callback) {
-        let responseManager = this._responseManager;
-        this._passport.authenticate('facebook', { scope : ['public_profile', 'email']}, function (err, user) {
-            if (err) {
-                responseManager.respondWithError(res, err.status || 401, err.message || "");
-            } else {
-                console.log(user)
-                callback(user);
-            }
-        })(req, res, next);
-    }
+    
     basicAuthenticate(req, res, callback) {
         let responseManager = this._responseManager;
         this._passport.authenticate('secret-key-auth', {

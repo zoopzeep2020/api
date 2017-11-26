@@ -131,7 +131,7 @@ app.get('/swagger', function (req, res) {
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
-require('./config/passport.js')(passport)
+// require('./config/passport.js')(passport)
 // require('./app/routes.js')(app, passport);
 var server = app.listen(global.config.server.PORT, function() {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);

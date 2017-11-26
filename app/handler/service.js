@@ -33,6 +33,11 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  *         in: body
  *         required: true
  *         type: string
+ *       - name: type
+ *         description: type ("service" or "privacy")
+ *         in: body
+ *         required: true
+ *         type: string
  *         schema:
  *          $ref: '#/definitions/UpdateActivitiesObj'
  *     responses:
@@ -154,6 +159,8 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  *       title:
  *         type: string
  *       content:
+ *         type: string
+ *       type:
  *         type: string
  */
 class ServiceHandler extends BaseAutoBindedClass {
