@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;

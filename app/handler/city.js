@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
@@ -19,7 +19,7 @@ class CityHandler extends BaseAutoBindedClass {
  *     tags:
  *       - City
  *     description: activity object
- *     produces:
+ *     produces:    
  *       - application/json
  *     parameters:
  *       - name: Authorization

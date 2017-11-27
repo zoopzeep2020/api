@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/8/17.
+ * Created by WebrexStudio on 5/8/17.
  */
 class JwtToken {
     constructor(token) {

@@ -1,13 +1,11 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
-// const ReportModel = require(APP_MODEL_PATH + 'report').ReportModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
-// var ta = timeago();
 
 class ReviewHandler extends BaseAutoBindedClass {
     constructor() {
@@ -463,7 +461,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) {
                     ReviewModel.find({ storeId: req.params.id })
-                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
+                    .populate({ path: 'userId', select: ['name', 'userImage', 'phone','email'],  model: 'User' }).exec(function(err, review)
                     {
                         if (err !== null) {
                             reject(err);

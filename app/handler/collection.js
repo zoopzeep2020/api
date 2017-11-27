@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const CollectionModel = require(APP_MODEL_PATH + 'collection').CollectionModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
@@ -786,6 +786,144 @@ class CollectionHandler extends BaseAutoBindedClass {
         });
     }
 
+    getLatestCollections(req, callback) {
+        let data = req.body;
+        // req.checkQuery('lng', 'Invalid urlparam').notEmpty()
+        // req.checkQuery('lat', 'Invalid urlparam').notEmpty()
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        var i = 0;
+        
+        for (var param in req.query) {
+            if(param !== "cityName"){
+                qString = {};
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+                matchQuery.push(qString);
+            }   
+            if(param == "cityName"){
+                qString[param] = { $regex: req.query[param][i]} 
+                matchQuery.push(qString);
+                i++;
+            }          
+        }
+        req.getValidationResult()
+        .then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function(resolve, reject) {
+                CollectionModel.aggregate([
+                    // {
+                    //     "$geoNear": {
+                    //         "near": {
+                    //             "type": "Point",
+                    //             "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                    //         },
+                    //         "distanceField": "distance",
+                    //         "spherical": true,
+                    //         "maxDistance": 0
+                    //     }
+                    // },
+                    // {
+                    //     $unwind: {
+                    //         path: "$cityName",
+                    //         preserveNullAndEmptyArrays: true
+                    //     }
+                    // },
+                    // {
+                    //     "$match" : { $and : matchQuery }
+                    // },
+                    {
+                        $unwind: {
+                            path: "$offerId",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$catalogId",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "storeId",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'offers',
+                            "localField": "offerId",
+                            "foreignField": "_id",
+                            "as": "offerInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "catalogId",
+                            "foreignField": "_id",
+                            "as": "catalogInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storesInfo.featureCatalog",
+                            "foreignField": "_id",
+                            "as": "featureCatalogInfo"
+                        }
+                    },
+                    { 
+                        $project : { 
+                            collectionName:1,                    
+                            collectionType:1,                    
+                            collectionPicture:1,   
+                            storesInfo:{
+                                _id: 1,
+                                storeName: 1,
+                                storeLogo: 1,
+                                storeBanner: 1,
+                                avgRating:1,
+                            }, 
+                            offerInfo:{
+                                _id: 1,
+                                offerName: 1,
+                                offerPicture: 1,
+                                offerDescription: 1,
+                            },  
+                            catalogInfo:{
+                                _id: 1,
+                                catalogUrl: 1,
+                                catalogDescription: 1,
+                            },   
+                            featureCatalogInfo:{
+                                _id: 1,
+                                catalogUrl: 1,
+                                catalogDescription: 1,
+                            },                               
+                        } 
+                    },
+                    // { $sort :  1  }
+                ]).exec(function(err, results){
+                    resolve(results);
+                })
+            });
+        })
+        .then((collection) => {
+            callback.onSuccess(collection);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
     getAllCollections(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {

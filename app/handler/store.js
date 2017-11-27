@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
@@ -13,6 +13,7 @@ const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 var path = require('path');
+var request = require('request'); 
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -248,12 +249,10 @@ class StoreHandler extends BaseAutoBindedClass {
  *       - name: lng
  *         description: lng
  *         in: query
- *         required: true
  *         type: number
  *       - name: lat
  *         description: lat
  *         in: query
- *         required: true
  *         type: number
  *       - name: keyword
  *         description: keywordId
@@ -309,12 +308,10 @@ class StoreHandler extends BaseAutoBindedClass {
  *       - name: lng
  *         description: longitude of location
  *         in: query
- *         required: true
  *         type: number
  *       - name: lat
  *         description: lattitude of location
  *         in: query
- *         required: true
  *         type: number
  *     responses:
  *       200:
@@ -594,7 +591,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     for (var key in data) {
                         store[key] = data[key];
                     }   
-                    
                     store.save();
                     return store;
                 })
@@ -1014,11 +1010,11 @@ class StoreHandler extends BaseAutoBindedClass {
    
     getTrendingStore(req, callback) {
         let data = req.body;
-        req.checkQuery('lng', 'Invalid urlparam').notEmpty()
-        req.checkQuery('lat', 'Invalid urlparam').notEmpty()
         var matchQuery = [];
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
+        var longitude = this.noNaN(parseFloat(req.query.lng));
+        var lattitude = this.noNaN(parseFloat(req.query.lat));
         for (var param in req.query) {
             if(param!=="lng" && param!=="lat"){
                 qString = {};
@@ -1040,7 +1036,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             "$geoNear": {
                                 "near": {
                                     "type": "Point",
-                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                    "coordinates": [longitude, lattitude]
                                 },
                                 "distanceField": "distance",
                                 "spherical": true,
@@ -1070,6 +1066,20 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "as": "storesInfo"
                             }
                         },  
+                        // {
+                        //     $unwind: {
+                        //         path: "$storesInfo",
+                        //         preserveNullAndEmptyArrays: true
+                        //       }
+                        // },
+                        // {
+                        //     "$lookup": {
+                        //         "from": 'catalogs',
+                        //         "localField": "storeInfo.featureCatalog",
+                        //         "foreignField": "_id",
+                        //         "as": "featureCatalogInfo"
+                        //     }
+                        // },  
                         {
                             $project: {
                                 storeName:'$storesInfo.storeName',
@@ -1078,10 +1088,15 @@ class StoreHandler extends BaseAutoBindedClass {
                                 storeDiscription:'$storesInfo.storeDiscription',
                                 storeLogo:'$storesInfo.storeLogo',
                                 keywords:'$storesInfo.keywords',
+                                featureCatalog:'$storesInfo.featureCatalog',
                                 finalTotal:'$finalTotal',
+                                // featureCatalogInfo:{
+                                //     catalogUrl:'$catalogUrl'
+                                // },
                                 distance:'$distance',
                             }
                         },
+                        
                         {
                             $unwind: {
                                 path: "$storeName",
@@ -1112,6 +1127,27 @@ class StoreHandler extends BaseAutoBindedClass {
                                 preserveNullAndEmptyArrays: true
                               }
                         },
+                        {
+                            $unwind: {
+                                path: "$featureCatalog",
+                                preserveNullAndEmptyArrays: true
+                              }
+                        },
+                        // {
+                        //     "$lookup": {
+                        //         "from": 'catalogs',
+                        //         "localField": "featureCatalog",
+                        //         "foreignField": "_id",
+                        //         "as": "featureCatalogInfo"
+                        //     }
+                        // }, 
+                        // {
+                        //     $group: {
+                        //         _id : "$_id",
+                        //         featureCatalogInfo:{ $addToSet: '$featureCatalogInfo' },
+                        //         // storesInfo:{ $addToSet: '$storesInfo' },
+                        //     },
+                        // },
                         {$sort:{finalTotal:-1}},
                         {$limit:5},
                     ])
@@ -1166,13 +1202,15 @@ class StoreHandler extends BaseAutoBindedClass {
                 for(var i=0;i<keywords.length;i++){
                     objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
                 }
+                var longitude = this.noNaN(parseFloat(req.query.lng));
+                var lattitude = this.noNaN(parseFloat(req.query.lat));
                 return new Promise(function(resolve, reject) { 
                     StoreModel.aggregate(
                     {
                         "$geoNear": {
                             "near": {
                                 "type": "Point",
-                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                "coordinates": [longitude, lattitude]
                             },
                             "distanceField": "distance",
                             "spherical": true,
@@ -1213,7 +1251,8 @@ class StoreHandler extends BaseAutoBindedClass {
         var qString = {};
         var keywordsArray = [];
         var categoriesArray = [];
-        
+        var longitude = this.noNaN(parseFloat(req.query.lng));
+        var lattitude = this.noNaN(parseFloat(req.query.lat));
         for (var param in req.query) {
             qString = {};
             if(param == "buisnessOnline" || param == "buisnessOffline"){
@@ -1269,7 +1308,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         "$geoNear": {
                             "near": {
                                 "type": "Point",
-                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                "coordinates": [longitude, lattitude]
                             },
                             "distanceField": "distance",
                             "spherical": true,
@@ -1331,5 +1370,6 @@ class StoreHandler extends BaseAutoBindedClass {
             }, {});
         }
     }
+    noNaN( n ) { return isNaN( n ) ? 0 : n; }
 }
 module.exports = StoreHandler;

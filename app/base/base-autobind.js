@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const autoBind = require('auto-bind');
 

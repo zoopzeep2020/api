@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const ReportModel = require(APP_MODEL_PATH + 'report').ReportModel;
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;

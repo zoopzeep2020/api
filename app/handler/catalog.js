@@ -1,8 +1,8 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
@@ -486,7 +486,6 @@ class CatalogHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkQuery('lng', 'Invalid urlparam').notEmpty()
         req.checkQuery('lat', 'Invalid urlparam').notEmpty()
-        // req.checkParams(req.query.lat, 'Invalid urlparam').notEmpty();
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {

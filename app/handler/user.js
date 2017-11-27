@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
@@ -222,6 +222,113 @@ const mongoose = require('mongoose');
  *       - name: isStore
  *         description: isStore
  *         in: body
+ *         type: boolean
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+
+ /**
+ * @swagger
+ * /users/?{continuewithexistingstore}:
+ *   post:
+ *     tags:
+ *       - User
+ *     description: create user for email which is already exist as a store
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: name
+ *         description: name
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: phone
+ *         description: phone
+ *         in: body
+ *         required: true
+ *         type: number
+ *       - name: email
+ *         description: email
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: password
+ *         description: password
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: isUser
+ *         description: isUser
+ *         in: body
+ *         type: boolean
+ *       - name: isStore
+ *         description: isStore
+ *         in: body
+ *         type: boolean
+ *       - name: continuewithexistingstore
+ *         description: true if you want to continue and false if not
+ *         in: body
+ *         required: true
+ *         type: boolean
+ *     responses:
+ *       200:
+ *         description: object of activity".
+ */
+/**
+ * @swagger
+ * /users/?{continuewithexistinguser}:
+ *   post:
+ *     tags:
+ *       - User
+ *     description: create user for email which is already exist as a store
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: name
+ *         description: name
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: phone
+ *         description: phone
+ *         in: body
+ *         required: true
+ *         type: number
+ *       - name: email
+ *         description: email
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: password
+ *         description: password
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: isUser
+ *         description: isUser
+ *         in: body
+ *         type: boolean
+ *       - name: isStore
+ *         description: isStore
+ *         in: body
+ *         type: boolean
+ *       - name: continuewithexistinguser
+ *         description:  true if you want to continue and false if not
+ *         in: body
+ *         required: true
  *         type: boolean
  *     responses:
  *       200:

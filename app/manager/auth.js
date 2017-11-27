@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/12/17.
+ * Created by WebrexStudio on 5/12/17.
  */
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const JwtRsStrategy = require(APP_AUTH_STRATEGY + 'jwt-rs');

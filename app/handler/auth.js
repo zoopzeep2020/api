@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const RevokedToken = require(APP_MODEL_PATH + 'auth/revoked-token').RevokedTokenModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
@@ -104,7 +104,6 @@ class AuthHandler extends BaseAutoBindedClass {
                     if (!user) {
                         return done(new NotFoundError("User is not found"));
                     }
-
                     user.resetPasswordToken = token;
                     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
                     user.save(function(err) {

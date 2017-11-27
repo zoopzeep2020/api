@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/8/17.
+ * Created by WebrexStudio on 5/8/17.
  */
 const router = require('express').Router();
 const ReviewController = require(APP_CONTROLLER_PATH + 'review');
@@ -12,6 +12,5 @@ router.delete('/:id', reviewController.remove);
 router.put('/:id', reviewController.update);
 router.get('/store/:id', reviewController.getStoreReviews);
 router.get('/user/:id', reviewController.getUserReviews);
-// router.post('/report/', reviewController.createReportReview);
 
 module.exports = router;

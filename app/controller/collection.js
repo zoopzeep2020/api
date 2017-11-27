@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const BaseController = require(APP_CONTROLLER_PATH + 'base');
 const CollectionHandler = require(APP_HANDLER_PATH + 'collection');
@@ -30,6 +30,16 @@ class CollectionController extends BaseController {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
             this._collectionHandler.getSearchByQuery(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });     
+    }
+    
+    getLatestCollections(req, res, next) {
+        let responseManager = this._responseManager;
+        this.basicAuthenticate(req, res, () => {
+            this._collectionHandler.getLatestCollections(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));

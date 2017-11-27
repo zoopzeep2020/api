@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');

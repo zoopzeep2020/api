@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/8/17.
+ * Created by WebrexStudio on 5/8/17.
  */
 const router = require('express').Router();
 const CollectionController = require(APP_CONTROLLER_PATH + 'collection');
@@ -10,6 +10,7 @@ var upload = multer({ dest: 'uploads/' });
 
 router.get('/', collectionController.getAll);
 router.get('/searchByQuery', collectionController.getSearchByQuery);
+router.get('/latestcollections', collectionController.getLatestCollections);
 router.get('/:id', collectionController.get);
 router.post('/', upload.any(), collectionController.create);
 router.delete('/:id', collectionController.remove);

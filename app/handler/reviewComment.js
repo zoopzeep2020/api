@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const ReviewCommentModel = require(APP_MODEL_PATH + 'reviewComment').ReviewCommentModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');

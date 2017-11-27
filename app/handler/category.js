@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');

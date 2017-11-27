@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/13/17.
+ * Created by WebrexStudio on 5/13/17.
  */
 const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;

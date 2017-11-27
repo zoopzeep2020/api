@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/8/17.
+ * Created by WebrexStudio on 5/8/17.
  */
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -23,6 +23,10 @@ let CollectionSchema = new Schema({
     collectionName: String,
     collectionType: String,
     collectionPicture: String,
+    collectionPicture: String,
+
+    dateCreated: { type: Date, default: Date.now },
+    dateModified: { type: Date, default: Date.now },
 });
 CollectionSchema.pre('update', function(next, done) {
     this.dateModified = Date.now();

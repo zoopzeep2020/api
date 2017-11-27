@@ -1,5 +1,5 @@
 /**
- * Created by crosp on 5/9/17.
+ * Created by WebrexStudio on 5/9/17.
  */
 const BaseController = require(APP_CONTROLLER_PATH + 'base');
 const CategoryHandler = require(APP_HANDLER_PATH + 'category');
