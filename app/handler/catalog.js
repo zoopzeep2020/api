@@ -682,22 +682,22 @@ class CatalogHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function(resolve, reject) { 
-                StoreModel.aggregate(
-                {
-                    "$geoNear": {
-                        "near": {
-                            "type": "Point",
-                            "coordinates": arrayLoc
-                        },
-                        "distanceField": "distance",
-                        "spherical": true,
-                        "maxDistance": 0
+                    StoreModel.aggregate(
+                    {
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": arrayLoc
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 0
+                        }
+                    },
+                    {$sort:{maxDistance:-1}},
+                    {
+                        $match:{$and:matchQuery}
                     }
-                },
-                {$sort:{maxDistance:-1}},
-                {
-                    $match:{$and:matchQuery}
-                }
                 ).exec(function(err, results){
                         resolve(results);
                     })

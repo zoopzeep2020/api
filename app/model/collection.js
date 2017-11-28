@@ -24,7 +24,6 @@ let CollectionSchema = new Schema({
     collectionType: String,
     collectionPicture: String,
     collectionPicture: String,
-
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
@@ -40,7 +39,6 @@ CollectionSchema.methods.toJSON = function() {
     let obj = this.toObject();
     delete obj.__v;
     delete obj.dateModified;
-    delete obj.dateCreated;
     return obj
 };
 module.exports.CollectionModel = mongoose.model('Collection', CollectionSchema);

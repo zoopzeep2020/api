@@ -23,6 +23,9 @@ const path = require('path');
 
 // Connect to DB
 mongoose.Promise = global.Promise;
+global.navigator = {
+    userAgent: 'node.js'
+  };
 mongoose.connect(config.db.MONGO_CONNECT_URL);
 //se json formatter middleware
 app.use(bodyParser.json({ limit: '50mb' }));

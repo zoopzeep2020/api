@@ -2,6 +2,7 @@
  * Created by WebrexStudio on 5/9/17.
  */
 const CollectionModel = require(APP_MODEL_PATH + 'collection').CollectionModel;
+// const CityModel = require(APP_MODEL_PATH + 'cities').CityModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -696,9 +697,9 @@ class CollectionHandler extends BaseAutoBindedClass {
                             preserveNullAndEmptyArrays: true
                         }
                     },
-                    {
-                        "$match" : { $and : matchQuery }
-                    },
+                    // {
+                    //     "$match" : { $and : matchQuery }
+                    // },
                     {
                         $unwind: {
                             path: "$offerId",
@@ -886,6 +887,7 @@ class CollectionHandler extends BaseAutoBindedClass {
                             collectionName:1,                    
                             collectionType:1,                    
                             collectionPicture:1,   
+                            dateCreated:1,   
                             storesInfo:{
                                 _id: 1,
                                 storeName: 1,
@@ -911,7 +913,9 @@ class CollectionHandler extends BaseAutoBindedClass {
                             },                               
                         } 
                     },
-                    // { $sort :  1  }
+                    {'$sort': {'dateCreated': -1}},
+                    
+                    {$limit:5},
                 ]).exec(function(err, results){
                     resolve(results);
                 })

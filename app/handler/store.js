@@ -1012,9 +1012,9 @@ class StoreHandler extends BaseAutoBindedClass {
         let data = req.body;
         var matchQuery = [];
         var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
         var longitude = this.noNaN(parseFloat(req.query.lng));
         var lattitude = this.noNaN(parseFloat(req.query.lat));
+        var qString = {};
         for (var param in req.query) {
             if(param!=="lng" && param!=="lat"){
                 qString = {};
@@ -1153,11 +1153,11 @@ class StoreHandler extends BaseAutoBindedClass {
                     ])
                     .exec(function(err, results){
                         resolve(results);
-                    }).then((results) => {   
+                    }) .then((results) => {   
                         callback.onSuccess(results);
-                    })
+                    })   
                 });
-             })           
+             })   
             .catch((error) => {
                 callback.onError(error);
             });
@@ -1369,6 +1369,15 @@ class StoreHandler extends BaseAutoBindedClass {
                 return p;
             }, {});
         }
+    }
+    extend(target) {
+        var sources = [].slice.call(arguments, 1);
+        sources.forEach(function (source) {
+            for (var prop in source) {
+                target[prop] = source[prop];
+            }
+        });
+        return target;
     }
     noNaN( n ) { return isNaN( n ) ? 0 : n; }
 }
