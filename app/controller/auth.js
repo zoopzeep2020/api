@@ -15,7 +15,10 @@ class AuthController extends BaseController {
     create(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
+        console.log(req.body)
+        
         this.authenticate(req, res, next, (user) => {
+        
             that._authHandler.issueNewToken(req, user, responseManager.getDefaultResponseHandler(res));
         }); 
 

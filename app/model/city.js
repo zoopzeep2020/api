@@ -11,6 +11,10 @@ let CitySchema = new Schema({
         type: [Number],  // [<longitude>, <latitude>]
         index: '2dsphere'      // create the geospatial index
     },
+    name: String,
+    state: String,
+    lon: Number,
+    lat: Number,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });

@@ -8,6 +8,7 @@ let StaticPageSchema = new Schema({
     title: String,
     content:String,
     type:String,
+    URL:String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });

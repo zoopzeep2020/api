@@ -489,6 +489,7 @@ class UserHandler {
                 });
             })
             .then((user) => {
+                user.email = user.email.toLowerCase();
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
@@ -496,7 +497,7 @@ class UserHandler {
                     _id:user._id,
                     name:user.name,
                     userId:user.name,
-                    email:user.email,  
+                    email:user.email.toLowerCase(),  
                     phone:user.phone,
                     latLong:user.latLong,
                     userImage:user.userImage,
@@ -544,7 +545,7 @@ class UserHandler {
                             if (!key) {
                                 reject(new NotFoundError("key not match"));
                             } else {
-                                UserModel.findOne({ email: req.body.email }, function(err, user) {
+                                UserModel.findOne({ email: req.body.email.toLowerCase() }, function(err, user) {
                                     if (err !== null) {
                                         reject(err);
                                     } else {
@@ -581,7 +582,7 @@ class UserHandler {
                 let data = {
                     token:userToken.token,
                     name:user.name,
-                    email:user.email,  
+                    email:user.email.toLowerCase(),  
                     phone:user.phone,
                     latLong:user.latLong,
                     deviceToken:user.deviceToken,
@@ -692,6 +693,7 @@ class UserHandler {
                     for (var key in data) {
                         user[key] = data[key];
                     }   
+                    user.email = user.email.toLowerCase();
                     user.save();
                     return user;
                 })

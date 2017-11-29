@@ -203,7 +203,6 @@ class StaticPageHandler extends BaseAutoBindedClass {
                 });
                 throw new ValidationError(errorMessages);
             }
-
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
                     ModelData[key] = data[key];
@@ -211,7 +210,7 @@ class StaticPageHandler extends BaseAutoBindedClass {
             }
             return new StaticPageModel(ModelData);
         })
-        .then((staticPage) => {      
+        .then((staticPage) => {  
             staticPage.save();
             return staticPage;
         })

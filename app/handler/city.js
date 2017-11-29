@@ -7,9 +7,6 @@ const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const mongoose = require('mongoose');
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
 class CityHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -478,8 +475,6 @@ class CityHandler extends BaseAutoBindedClass {
     }
 
     getAllCitys(req, callback) {
-        let data = req.body;
-        
         new Promise(function(resolve, reject) {
             CityModel.find({}, function(err, city) {
                 if (err !== null) {
