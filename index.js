@@ -71,7 +71,7 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept-Language, Authorization");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Content-Type', 'text/css');
+    res.setHeader('Content-Type', 'application/json');
     if ('OPTIONS' === req.method) {
         res.sendStatus(200);
     } else
