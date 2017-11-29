@@ -2,7 +2,7 @@
  * Created by WebrexStudio on 5/9/17.
  */
 const CollectionModel = require(APP_MODEL_PATH + 'collection').CollectionModel;
-// const CityModel = require(APP_MODEL_PATH + 'cities').CityModel;
+const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -657,19 +657,23 @@ class CollectionHandler extends BaseAutoBindedClass {
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
         var i = 0;
-        
+        var longitude = this.noNaN(parseFloat(req.query.lng));
+        var lattitude = this.noNaN(parseFloat(req.query.lat));
+        console.log(longitude)
+        console.log(lattitude)
         for (var param in req.query) {
-            if(param !== "cityName"){
+            if(param == "businessOnline" || param == "businessOffline"){
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);
             }   
-            if(param == "cityName"){
-                qString[param] = { $regex: req.query[param][i]} 
-                matchQuery.push(qString);
-                i++;
-            }          
+            // if(param == "cityName"){
+            //     qString[param] = { $regex: req.query[param][i]} 
+            //     matchQuery.push(qString);
+            //     i++;
+            // }          
         }
+        console.log(matchQuery)
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -679,27 +683,43 @@ class CollectionHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
+                CityModel.aggregate([
+                    {
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": [longitude, lattitude]
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 5000
+                        }
+                    },
+                ]).exec(function(err, results){
+                    console.log(results)
+                    resolve(results);
+                })
+            });
+        }).then((results)=>{
+            console.log(results)
+            var matchCity = [{ cityName: { '$regex': 'emptyarray' }}];
+            for(var i=0;i<results.length;i++){
+                qString = {};
+                qString['cityName'] = { $regex: results[i]['cityName']} 
+                matchCity.push(qString);
+            }
+            console.log(matchCity)
+            return new Promise(function(resolve, reject) {
                 CollectionModel.aggregate([
                     // {
-                    //     "$geoNear": {
-                    //         "near": {
-                    //             "type": "Point",
-                    //             "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-                    //         },
-                    //         "distanceField": "distance",
-                    //         "spherical": true,
-                    //         "maxDistance": 0
+                    //     $unwind: {
+                    //         path: "$cityName",
+                    //         preserveNullAndEmptyArrays: true
                     //     }
                     // },
                     {
-                        $unwind: {
-                            path: "$cityName",
-                            preserveNullAndEmptyArrays: true
-                        }
+                        "$match" : { $and :[ {$and:matchQuery },{$or:matchCity}]}
                     },
-                    // {
-                    //     "$match" : { $and : matchQuery }
-                    // },
                     {
                         $unwind: {
                             path: "$offerId",
@@ -749,6 +769,7 @@ class CollectionHandler extends BaseAutoBindedClass {
                             collectionName:1,                    
                             collectionType:1,                    
                             collectionPicture:1,   
+                            cityName:1,   
                             storesInfo:{
                                 _id: 1,
                                 storeName: 1,
@@ -774,6 +795,7 @@ class CollectionHandler extends BaseAutoBindedClass {
                             },                               
                         } 
                     },
+                    
                 ]).exec(function(err, results){
                     resolve(results);
                 })
@@ -955,6 +977,8 @@ class CollectionHandler extends BaseAutoBindedClass {
              return p;
         }, {});
     }
+    noNaN( n ) { return isNaN( n ) ? 0 : n; }
+    
 }
 
 module.exports = CollectionHandler;

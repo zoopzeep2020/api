@@ -1,5 +1,7 @@
+
 {
-	"undefined": "localhost/ZeepZoop",
+	"undefined": "localhost/devDBZeepZoop",
 	"dev": "localhost/ZeepZoop",
-	"prod": "localhost/ZeepZoop"
+	"prod": "localhost/ZeepZoop",
+	"server": "localhost/devDBZeepZoop"
 }

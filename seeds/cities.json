@@ -17,4 +17,9 @@
     "cityName": "Vadodara",
     "cityState":"Gujarat",
     "location":[22.3,72.3]
+},
+{
+    "cityName": "Baroda",
+    "cityState":"Gujarat",
+    "location":[22.3,72.3]
 }]
