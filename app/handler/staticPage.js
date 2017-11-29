@@ -273,7 +273,6 @@ class StaticPageHandler extends BaseAutoBindedClass {
                 });
                 throw new ValidationError(errorMessages);
             }
-
             return new Promise(function(resolve, reject) {
                 StaticPageModel.findOne({ _id: req.params.id }, function(err, staticPage) {
                     if (err !== null) {
@@ -340,7 +339,6 @@ class StaticPageHandler extends BaseAutoBindedClass {
 
     getStaticByType(req, callback) {
         let data = req.body;
-        console.log("handler")
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -349,7 +347,6 @@ class StaticPageHandler extends BaseAutoBindedClass {
                 });
                 throw new ValidationError(errorMessages);
             }
-            console.log(req.params.type)
             return new Promise(function(resolve, reject) {
                 StaticPageModel.find({ type: req.params.type }, function(err, staticPage) {
                     if (err !== null) {

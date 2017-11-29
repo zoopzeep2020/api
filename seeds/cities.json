@@ -1,25 +1,1602 @@
-[{
-    "cityName": "Ahmedabad",
-    "cityState":"Gujarat",
-    "location":[23.033333,72.616667]
-},
-{
-    "cityName": "Surat",
-    "cityState":"Gujarat",
-    "location":[20.966667,72.9]
-},
-{
-    "cityName": "Rajkot",
-    "cityState":"Gujarat",
-    "location":[25.731111,75.5925]
-},
-{
-    "cityName": "Vadodara",
-    "cityState":"Gujarat",
-    "location":[22.3,72.3]
-},
-{
-    "cityName": "Baroda",
-    "cityState":"Gujarat",
-    "location":[22.3,72.3]
-}]
+ [
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        },
+        {
+            "cityName": "mumbai",
+            "cityState": "maharashtra",
+            "location": [
+                72.825833,
+                18.975
+            ]
+        }
+    ]

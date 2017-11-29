@@ -1,6 +1,6 @@
 
 {
-	"undefined": "localhost/devDBZeepZoop",
+	"undefined": "localhost/ZeepZoop",
 	"dev": "localhost/ZeepZoop",
 	"prod": "localhost/ZeepZoop",
 	"server": "localhost/devDBZeepZoop"

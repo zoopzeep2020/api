@@ -32,7 +32,26 @@ const path = require('path');
  *       200:
  *         description: object of activity".     
  */
-
+/**
+ * @swagger
+ * /blogs/trendingBlog:
+ *   get:
+ *     tags:
+ *       - Blog
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: Basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
  /**
  * @swagger
  * /blogs:

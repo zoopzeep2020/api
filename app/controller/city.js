@@ -12,7 +12,7 @@ class CityController extends BaseController {
 
     getAll(req, res, next){
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin){
+            if(user.isAdmin || user.isStore){
             this._cityHandler.getAllCitys(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        
@@ -33,7 +33,6 @@ class CityController extends BaseController {
 
     getSearchByWord(req, res, next) {
         let responseManager = this._responseManager;
-        console.log(req.headers)
         this.basicAuthenticate(req, res, () => {
             this._cityHandler.getSearchByWord(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];

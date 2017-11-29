@@ -692,7 +692,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((results)=>{
-            console.log(results)
             var matchCity = [{ cityName: { '$regex': 'emptyarray' }}];
             for(var i=0;i<results.length;i++){
                 qString = {};
@@ -934,7 +933,7 @@ class CollectionHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }
-    
+
     getAllCollections(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {

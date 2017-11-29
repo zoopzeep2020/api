@@ -1133,14 +1133,14 @@ class StoreHandler extends BaseAutoBindedClass {
                                 preserveNullAndEmptyArrays: true
                               }
                         },
-                        // {
-                        //     "$lookup": {
-                        //         "from": 'catalogs',
-                        //         "localField": "featureCatalog",
-                        //         "foreignField": "_id",
-                        //         "as": "featureCatalogInfo"
-                        //     }
-                        // }, 
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "featureCatalog",
+                                "foreignField": "_id",
+                                "as": "featureCatalogInfo"
+                            }
+                        }, 
                         // {
                         //     $group: {
                         //         _id : "$_id",

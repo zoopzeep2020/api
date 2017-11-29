@@ -29,7 +29,6 @@ class StaticPageController extends BaseController {
     getStaticByType(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
-            console.log("controller")
                 this._staticPageHandler.getStaticByType(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                     responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);

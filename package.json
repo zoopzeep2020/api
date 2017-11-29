@@ -25,7 +25,7 @@
     "bcrypt-nodejs": "latest",
     "body-parser": "^1.17.1",
     "debug": "^2.6.6",
-    "express": "latest",
+    "express": "^4.16.2",
     "express-validator": "^3.2.1",
     "extend-error": "0.0.2",
     "fcm-push": "^1.1.2",

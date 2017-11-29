@@ -7,6 +7,9 @@ const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const mongoose = require('mongoose');
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 class CityHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -412,8 +415,7 @@ class CityHandler extends BaseAutoBindedClass {
     }
 
     getSearchByWord(req, callback) {
-        let data = req.body;      
-        console.log(req.query.search.toLowerCase())
+        let data = req.body;  
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -426,7 +428,6 @@ class CityHandler extends BaseAutoBindedClass {
                     CityModel.find({cityName : {$regex : req.query.search.toLowerCase()}},
                     )
                     .exec(function(err, cities){
-                        console.log(cities)
                         resolve(cities);
                     })
                 });
@@ -478,6 +479,7 @@ class CityHandler extends BaseAutoBindedClass {
 
     getAllCitys(req, callback) {
         let data = req.body;
+        
         new Promise(function(resolve, reject) {
             CityModel.find({}, function(err, city) {
                 if (err !== null) {
@@ -498,7 +500,7 @@ class CityHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }
-
+    
 }
 
 module.exports = CityHandler;
