@@ -413,6 +413,7 @@ class CityHandler extends BaseAutoBindedClass {
 
     getSearchByWord(req, callback) {
         let data = req.body;      
+        console.log(req.query.search.toLowerCase())
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -425,6 +426,7 @@ class CityHandler extends BaseAutoBindedClass {
                     CityModel.find({cityName : {$regex : req.query.search.toLowerCase()}},
                     )
                     .exec(function(err, cities){
+                        console.log(cities)
                         resolve(cities);
                     })
                 });

@@ -22,6 +22,12 @@ class BlogController extends BaseController {
         });
     }
 
+    getTrendingBlog(req, res, next){
+        this.basicAuthenticate(req, res, () => {
+            this._blogHandler.getTrendingBlog( req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {

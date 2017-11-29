@@ -1,13 +1,13 @@
-const ServiceModel = require(APP_MODEL_PATH + 'service').ServiceModel;
+const StaticPageModel = require(APP_MODEL_PATH + 'staticPage').StaticPageModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 /**
  * @swagger
- * /services:
+ * /staticPages:
  *   post:
  *     tags:
- *       - Service
+ *       - StaticPage
  *     description: activity object
  *     produces:
  *       - application/json
@@ -46,10 +46,10 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  */
 /**
  * @swagger
- * /services/{serviceId}:
+ * /staticPages/{staticPageId}:
  *   put:
  *     tags:
- *       - Service
+ *       - StaticPage
  *     description: activity object
  *     produces:
  *       - application/json
@@ -65,8 +65,8 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  *         required: true
  *         type: string
  *         default: application/json
- *       - name: serviceId
- *         description: serviceId
+ *       - name: staticPageId
+ *         description: staticPageId
  *         in: path
  *         required: true
  *         type: string
@@ -86,10 +86,10 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  */
 /**
  * @swagger
- * /services/{serviceId}:
+ * /staticPages/{staticPageId}:
  *   delete:
  *     tags:
- *       - Service
+ *       - StaticPage
  *     description: activity object
  *     produces:
  *       - application/json
@@ -99,8 +99,8 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  *         in: header
  *         required: true
  *         type: string
- *       - name: serviceId
- *         description: serviceId
+ *       - name: staticPageId
+ *         description: staticPageId
  *         in: path
  *         required: true
  *         type: string
@@ -110,10 +110,10 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  */
 /**
  * @swagger
- * /services/static/{type}:
+ * /staticPages/type/{type}:
  *   get:
  *     tags:
- *       - Service
+ *       - StaticPage
  *     description: activity object
  *     produces:
  *       - application/json
@@ -134,10 +134,10 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  */
 /**
  * @swagger
- * /services:
+ * /staticPages:
  *   get:
  *     tags:
- *       - Service
+ *       - StaticPage
  *     description: activity object
  *     produces:
  *       - application/json
@@ -163,7 +163,7 @@ const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
  *       type:
  *         type: string
  */
-class ServiceHandler extends BaseAutoBindedClass {
+class StaticPageHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
@@ -190,11 +190,11 @@ class ServiceHandler extends BaseAutoBindedClass {
         };
     }
 
-    createNewService(req, callback) {
+    createNewStaticPage(req, callback) {
         let data = req.body;
         let validator = this._validator;
         let ModelData = {};        
-        req.checkBody(ServiceHandler.SERVICE_VALIDATION_SCHEME);        
+        req.checkBody(StaticPageHandler.SERVICE_VALIDATION_SCHEME);        
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -209,11 +209,11 @@ class ServiceHandler extends BaseAutoBindedClass {
                     ModelData[key] = data[key];
                 }
             }
-            return new ServiceModel(ModelData);
+            return new StaticPageModel(ModelData);
         })
-        .then((service) => {      
-            service.save();
-            return service;
+        .then((staticPage) => {      
+            staticPage.save();
+            return staticPage;
         })
         .then((saved) => {
             callback.onSuccess(saved);      
@@ -223,7 +223,7 @@ class ServiceHandler extends BaseAutoBindedClass {
         });
     }
 
-    deleteService(req, callback) {
+    deleteStaticPage(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -235,35 +235,35 @@ class ServiceHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                ServiceModel.findOne({ _id: req.params.id }, function(err, service) {
+                StaticPageModel.findOne({ _id: req.params.id }, function(err, staticPage) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!service) {
-                            reject(new NotFoundError("service not found"));
+                        if (!staticPage) {
+                            reject(new NotFoundError("staticPage not found"));
                         } else {
-                            resolve(service);
+                            resolve(staticPage);
                         }
                     }
                 })
             });
         })
-        .then((service) => {
-            service.remove();
-            return service;
+        .then((staticPage) => {
+            staticPage.remove();
+            return staticPage;
         })
         .then((saved) => {
-            callback.onSuccess({}, "service id " + saved.id + " deleted successfully ");
+            callback.onSuccess({}, "staticPage id " + saved.id + " deleted successfully ");
         })
         .catch((error) => {
             callback.onError(error);
         });
     }
 
-    updateService(req, callback) {
+    updateStaticPage(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        req.checkBody(ServiceHandler.REVIEWCOMMENT_VALIDATION_SCHEME);
+        req.checkBody(StaticPageHandler.REVIEWCOMMENT_VALIDATION_SCHEME);
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
         .then(function(result) {
@@ -275,27 +275,27 @@ class ServiceHandler extends BaseAutoBindedClass {
             }
 
             return new Promise(function(resolve, reject) {
-                ServiceModel.findOne({ _id: req.params.id }, function(err, service) {
+                StaticPageModel.findOne({ _id: req.params.id }, function(err, staticPage) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!service) {
-                            reject(new NotFoundError("service not found"));
+                        if (!staticPage) {
+                            reject(new NotFoundError("staticPage not found"));
                         } else {
-                            resolve(service);
+                            resolve(staticPage);
                         }
                     }
                 })
             });
         })
-        .then((service) => {
+        .then((staticPage) => {
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
-                    service[key] = data[key];
+                    staticPage[key] = data[key];
                 }
             }       
-            service.save();
-            return service;
+            staticPage.save();
+            return staticPage;
         })
         .then((saved) => {
             callback.onSuccess(saved);
@@ -305,7 +305,7 @@ class ServiceHandler extends BaseAutoBindedClass {
         });
     }
 
-    getSingleService(req, callback) {
+    getSingleStaticPage(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -317,21 +317,21 @@ class ServiceHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                ServiceModel.findOne({ _id: req.params.id }, function(err, service) {
+                StaticPageModel.findOne({ _id: req.params.id }, function(err, staticPage) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!service) {
-                            reject(new NotFoundError("service not found"));
+                        if (!staticPage) {
+                            reject(new NotFoundError("staticPage not found"));
                         } else {
-                            resolve(service);
+                            resolve(staticPage);
                         }
                     }
                 })
             });
         })
-        .then((service) => {
-            callback.onSuccess(service);
+        .then((staticPage) => {
+            callback.onSuccess(staticPage);
         })
         .catch((error) => {
             callback.onError(error);
@@ -340,7 +340,7 @@ class ServiceHandler extends BaseAutoBindedClass {
 
     getStaticByType(req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid id provided').isMongoId();
+        console.log("handler")
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -349,37 +349,38 @@ class ServiceHandler extends BaseAutoBindedClass {
                 });
                 throw new ValidationError(errorMessages);
             }
+            console.log(req.params.type)
             return new Promise(function(resolve, reject) {
-                ServiceModel.find({ type: req.params.type }, function(err, service) {
+                StaticPageModel.find({ type: req.params.type }, function(err, staticPage) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!service) {
+                        if (!staticPage) {
                             reject(new NotFoundError(req.params.type + " not found"));
                         } else {
-                            resolve(service);
+                            resolve(staticPage);
                         }
                     }
                 })
             });
         })
-        .then((service) => {
-            callback.onSuccess(service);
+        .then((staticPage) => {
+            callback.onSuccess(staticPage);
         })
         .catch((error) => {
             callback.onError(error);
         });
     }
 
-    getAllServices(req, callback) {
+    getAllStaticPages(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-            ServiceModel.find({}, function(err, category) {
+            StaticPageModel.find({}, function(err, category) {
                 if (err !== null) {
                     reject(err);
                 } else {
                     if (!category) {
-                        reject(new NotFoundError("service not found"));
+                        reject(new NotFoundError("staticPage not found"));
                     } else {
                         resolve(category);
                     }
@@ -387,8 +388,8 @@ class ServiceHandler extends BaseAutoBindedClass {
             })
 
         })
-        .then((service) => {
-            callback.onSuccess(service);
+        .then((staticPage) => {
+            callback.onSuccess(staticPage);
         })
         .catch((error) => {
             callback.onError(error);
@@ -397,4 +398,4 @@ class ServiceHandler extends BaseAutoBindedClass {
 
 }
 
-module.exports = ServiceHandler;
+module.exports = StaticPageHandler;

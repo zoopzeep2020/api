@@ -10,6 +10,7 @@ var upload = multer({ dest: 'uploads/' });
 
 router.get('/', blogController.getAll);
 router.get('/withoutlogin', blogController.getAllWithoutLogin);
+router.get('/trendingBlog', blogController.getTrendingBlog);
 router.get('/:id', blogController.get);
 router.post('/',upload.any(), blogController.create);
 router.delete('/:id', blogController.remove);

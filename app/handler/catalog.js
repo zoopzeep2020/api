@@ -669,10 +669,8 @@ class CatalogHandler extends BaseAutoBindedClass {
                 matchQuery.push(qString);
             }             
         }  
-        var arrayLoc = [];
-        for(var i in req.query.lng){
-             arrayLoc = [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-        }
+        var longitude = this.noNaN(parseFloat(req.query.lng));
+        var lattitude = this.noNaN(parseFloat(req.query.lat));
         req.getValidationResult()
             .then(function(result) {                
                 if (!result.isEmpty()) {
@@ -687,7 +685,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                         "$geoNear": {
                             "near": {
                                 "type": "Point",
-                                "coordinates": arrayLoc
+                                "coordinates": [longitude,lattitude]
                             },
                             "distanceField": "distance",
                             "spherical": true,
@@ -728,5 +726,6 @@ class CatalogHandler extends BaseAutoBindedClass {
             return p;
         }, {});
     }
+    noNaN( n ) { return isNaN( n ) ? 0 : n; }
 }
 module.exports = CatalogHandler;

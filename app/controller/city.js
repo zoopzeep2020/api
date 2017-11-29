@@ -33,6 +33,7 @@ class CityController extends BaseController {
 
     getSearchByWord(req, res, next) {
         let responseManager = this._responseManager;
+        console.log(req.headers)
         this.basicAuthenticate(req, res, () => {
             this._cityHandler.getSearchByWord(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];

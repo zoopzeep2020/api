@@ -4,24 +4,24 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
-let ServiceSchema = new Schema({    
+let StaticPageSchema = new Schema({    
     title: String,
     content:String,
     type:String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-ServiceSchema.pre('update', function(next, done) {
+StaticPageSchema.pre('update', function(next, done) {
     this.dateModified = Date.now();
     next();
 });
-ServiceSchema.pre('save', function(next, done) {
+StaticPageSchema.pre('save', function(next, done) {
     this.dateModified = Date.now();
     next();
 });
-ServiceSchema.methods.toJSON = function() {
+StaticPageSchema.methods.toJSON = function() {
     let obj = this.toObject();
     delete obj.__v;
     return obj
 };
-module.exports.ServiceModel = mongoose.model('Service', ServiceSchema);
+module.exports.StaticPageModel = mongoose.model('StaticPage', StaticPageSchema);

@@ -289,7 +289,6 @@ class BlogHandler extends BaseAutoBindedClass {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         req.checkBody(BlogHandler.BLOG_VALIDATION_SCHEME);
-        
         async.waterfall([
             function(done, err) {
                 if(typeof files['blogPicture'] !== "undefined"){
@@ -814,6 +813,26 @@ class BlogHandler extends BaseAutoBindedClass {
             });
     }
 
+    getTrendingBlog( req, callback) {
+        let data = req.body;
+        new Promise(function(resolve, reject) {
+            BlogModel.aggregate(
+                { $sort : { likeCount : -1} },
+                 function(err, blogs) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        resolve(blogs);
+                    }
+                });
+            })
+            .then((blogs) => {
+                callback.onSuccess(blogs);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {

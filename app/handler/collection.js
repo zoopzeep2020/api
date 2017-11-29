@@ -659,21 +659,13 @@ class CollectionHandler extends BaseAutoBindedClass {
         var i = 0;
         var longitude = this.noNaN(parseFloat(req.query.lng));
         var lattitude = this.noNaN(parseFloat(req.query.lat));
-        console.log(longitude)
-        console.log(lattitude)
         for (var param in req.query) {
             if(param == "businessOnline" || param == "businessOffline"){
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);
-            }   
-            // if(param == "cityName"){
-            //     qString[param] = { $regex: req.query[param][i]} 
-            //     matchQuery.push(qString);
-            //     i++;
-            // }          
+            }    
         }
-        console.log(matchQuery)
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -696,7 +688,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                         }
                     },
                 ]).exec(function(err, results){
-                    console.log(results)
                     resolve(results);
                 })
             });
@@ -708,15 +699,8 @@ class CollectionHandler extends BaseAutoBindedClass {
                 qString['cityName'] = { $regex: results[i]['cityName']} 
                 matchCity.push(qString);
             }
-            console.log(matchCity)
             return new Promise(function(resolve, reject) {
                 CollectionModel.aggregate([
-                    // {
-                    //     $unwind: {
-                    //         path: "$cityName",
-                    //         preserveNullAndEmptyArrays: true
-                    //     }
-                    // },
                     {
                         "$match" : { $and :[ {$and:matchQuery },{$or:matchCity}]}
                     },
@@ -950,6 +934,7 @@ class CollectionHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }
+    
     getAllCollections(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -978,7 +963,6 @@ class CollectionHandler extends BaseAutoBindedClass {
         }, {});
     }
     noNaN( n ) { return isNaN( n ) ? 0 : n; }
-    
 }
 
 module.exports = CollectionHandler;

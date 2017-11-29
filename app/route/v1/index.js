@@ -20,7 +20,7 @@ router.use('/reviewComments', require(ROUTE_V1_PATH + 'reviewComment'));
 router.use('/collections', require(ROUTE_V1_PATH + 'collection'));
 router.use('/reports', require(ROUTE_V1_PATH + 'report'));
 router.use('/feedbacks', require(ROUTE_V1_PATH + 'feedback'));
-router.use('/services', require(ROUTE_V1_PATH + 'service'));
 router.use('/cities', require(ROUTE_V1_PATH + 'city'));
 router.use('/homes', require(ROUTE_V1_PATH + 'home'));
+router.use('/staticPages', require(ROUTE_V1_PATH + 'staticPage'));
 module.exports = router;
