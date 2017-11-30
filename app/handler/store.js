@@ -1485,7 +1485,9 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
+                if(req.bookma){}
                 new Promise(function(resolve, reject) {
+                    
                     StoreModel.aggregate([                        
                         // {
                         //     "$geoNear": {
@@ -1520,21 +1522,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "storesInfo"
                             }
-                        },  
-                        // {
-                        //     $unwind: {
-                        //         path: "$storesInfo",
-                        //         preserveNullAndEmptyArrays: true
-                        //       }
-                        // },
-                        // {
-                        //     "$lookup": {
-                        //         "from": 'catalogs',
-                        //         "localField": "storeInfo.featureCatalog",
-                        //         "foreignField": "_id",
-                        //         "as": "featureCatalogInfo"
-                        //     }
-                        // },  
+                        }, 
                         {
                             $project: {
                                 storeName:'$storesInfo.storeName',

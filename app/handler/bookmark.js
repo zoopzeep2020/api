@@ -6,6 +6,7 @@ const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+const mongoose = require('mongoose');
 
 class BookmarkHandler extends BaseAutoBindedClass {
     constructor() {
@@ -372,7 +373,63 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function(resolve, reject) {
-                BookmarkModel.find({ userId: req.params.id }).populate({ path: 'storeId', select: ['_id','storeName', 'storeLogo', 'storeBanner','address','featureCatalog','avgRating','storeDiscription'],  model: 'Store' }).exec(function(err, bookmark) {
+                BookmarkModel.aggregate(
+                    [{
+                        "$match" : { "userId": mongoose.Types.ObjectId(req.params.id) }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "storeId",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    }, 
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storeId",
+                            "foreignField": "storeId",
+                            "as": "catalogInfo"
+                        }
+                    }, 
+                    {
+                        $project: {
+                            '_id': '$_id',
+                            'storeName': '$storesInfo.storeName',
+                            'address': '$storesInfo.address',
+                            'storeLogo': '$storesInfo.storeLogo',
+                            'storeBanner': '$storesInfo.storeBanner',
+                            catalogInfo: {
+                                $filter: { input: "$catalogInfo", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                            },
+                        },
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeName",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$address",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeLogo",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeBanner",
+                            preserveNullAndEmptyArrays: true
+                          }
+                    },
+                    ]).exec(function(err, bookmark) {
                     if (err !== null) {
                         reject(err);
                     } else {
