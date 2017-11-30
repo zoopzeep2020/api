@@ -7,6 +7,7 @@ const ObjectId = Schema.ObjectId;
 let BlogSchema = new Schema({    
     title: String,
     blogPicture:String,
+    URL:String,
     description:String,
     authorImage:String,
     authorName:String,

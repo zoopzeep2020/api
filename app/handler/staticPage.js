@@ -211,6 +211,7 @@ class StaticPageHandler extends BaseAutoBindedClass {
             return new StaticPageModel(ModelData);
         })
         .then((staticPage) => {  
+            staticPage.URL = 'https://'+req.get('host')+'/staticPages/'+ req.body.title.replace(/\s+/g, '-').toLowerCase();
             staticPage.save();
             return staticPage;
         })

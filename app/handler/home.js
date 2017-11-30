@@ -103,7 +103,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 };
                 request(optionsCollection, function (error, response, body) {
                     mainObj['trendingCollections'] = JSON.parse(body)['data'];
-                    let data = mainObj       
+                    let data = mainObj  
                     callback.onSuccess(mainObj); 
                 })
             }

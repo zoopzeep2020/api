@@ -362,6 +362,7 @@ class BlogHandler extends BaseAutoBindedClass {
                     return new BlogModel(data);                    
                 })
                 .then((blog) => {
+                    blog.URL = 'https://'+req.get('host')+'/blogs/'+ req.body.title.replace(/\s+/g, '-').toLowerCase();
                     blog.save();
                     return blog;
                 })
@@ -852,6 +853,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {

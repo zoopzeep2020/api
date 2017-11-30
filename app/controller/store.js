@@ -29,7 +29,15 @@ class StoreController extends BaseController {
             })));
         });
     }
-
+    getStoreByCategoryId(req, res, next) {
+        let responseManager = this._responseManager;
+        this.basicAuthenticate(req, res, () => {
+            this._storeHandler.getStoreByCategoryId(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });
+    }
     getStoreBySearch(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
@@ -60,7 +68,7 @@ class StoreController extends BaseController {
         });
     }
 
-    update(req, res, next) {      
+    update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isStore && (user.storeId == req.body.storeId) && (user.storeId == req.params.id))){  
                 this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));

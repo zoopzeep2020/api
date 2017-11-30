@@ -101,6 +101,12 @@ customValidators: {
         }
         return false;
     },
+    isOneOfTwoTrue: function(value, bool1, bool2){
+        if((bool1 || bool2)){
+            return true;
+        }
+        return false;
+    },
     checkNumberRange: function(value, inputNumber , min , max){
         if((inputNumber >= min) && (inputNumber <= max)){
             return true;
@@ -134,8 +140,6 @@ app.get('/swagger', function (req, res) {
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
-// require('./config/passport.js')(passport)
-// require('./app/routes.js')(app, passport);
 var server = app.listen(global.config.server.PORT, function() {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);

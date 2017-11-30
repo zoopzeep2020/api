@@ -651,8 +651,6 @@ class CollectionHandler extends BaseAutoBindedClass {
 
     getSearchByQuery(req, callback) {
         let data = req.body;
-        // req.checkQuery('lng', 'Invalid urlparam').notEmpty()
-        // req.checkQuery('lat', 'Invalid urlparam').notEmpty()
         var matchQuery = [];
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
@@ -660,7 +658,7 @@ class CollectionHandler extends BaseAutoBindedClass {
         var longitude = this.noNaN(parseFloat(req.query.lng));
         var lattitude = this.noNaN(parseFloat(req.query.lat));
         for (var param in req.query) {
-            if(param == "businessOnline" || param == "businessOffline"){
+            if(param == "buisnessOnline" || param == "buisnessOffline"){
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);

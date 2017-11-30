@@ -11,6 +11,7 @@ var upload = multer({ dest: 'uploads/' });
 router.get('/', storeController.getAll);
 router.get('/trendingStore', storeController.getTrendingStore);
 router.get('/search', storeController.getStoreBySearch);
+router.get('/searchbyCategoryId/:id', storeController.getStoreByCategoryId);
 router.get('/searchbykeywordcategory', storeController.getStoreByKeywordCategory);
 router.get('/:id', storeController.get);
 router.delete('/:id', storeController.remove);

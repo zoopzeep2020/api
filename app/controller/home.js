@@ -11,10 +11,13 @@ class HomeController extends BaseController {
     }
     get(req, res, next) {
         let responseManager = this._responseManager;
-        this._homeHandler.getHome(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-            let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-            responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-        })));
+
+        this.basicAuthenticate(req, res, () => {
+            this._homeHandler.getHome(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
+        });
     }
 
     // create(req, res, next) {
