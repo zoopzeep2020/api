@@ -496,17 +496,17 @@ class CatalogHandler extends BaseAutoBindedClass {
                 }
                 new Promise(function(resolve, reject) {
                     StoreModel.aggregate([
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [longitude, lattitude]
-                                },
-                                "distanceField": "distance",
-                                "spherical": true,
-                                "maxDistance": 0
-                            }
-                        },
+                        // {
+                        //     "$geoNear": {
+                        //         "near": {
+                        //             "type": "Point",
+                        //             "coordinates": [longitude, lattitude]
+                        //         },
+                        //         "distanceField": "distance",
+                        //         "spherical": true,
+                        //         "maxDistance": 0
+                        //     }
+                        // },
                         {
                             $project: {
                                 finalTotal: {
