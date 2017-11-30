@@ -1487,17 +1487,17 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 new Promise(function(resolve, reject) {
                     StoreModel.aggregate([                        
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [longitude, lattitude]
-                                },
-                                "distanceField": "distance",
-                                "spherical": true,
-                                "maxDistance": 0
-                            }
-                        },
+                        // {
+                        //     "$geoNear": {
+                        //         "near": {
+                        //             "type": "Point",
+                        //             "coordinates": [longitude, lattitude]
+                        //         },
+                        //         "distanceField": "distance",
+                        //         "spherical": true,
+                        //         "maxDistance": 0
+                        //     }
+                        // },
                         {
                             "$match" : { $and : matchQuery }
                         },
@@ -1611,6 +1611,7 @@ class StoreHandler extends BaseAutoBindedClass {
     getStoreBySearch(req, callback) {
         let data = req.body;   
         var matchQuery = [];
+        // var matchQuery = [{ buinessOffline: { '$regex': 'emptyarray' }}]
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
         for (var param in req.query) {
@@ -1618,7 +1619,7 @@ class StoreHandler extends BaseAutoBindedClass {
             if(param == "buisnessOnline" || param == "buisnessOffline"){
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
                 matchQuery.push(qString);
-            }             
+            }          
         }  
         req.getValidationResult()
             .then(function(result) {                

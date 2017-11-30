@@ -64,7 +64,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 matchQuery.push(qString);
             }             
         }
-       
         var object1,object2,object2,mainObj={};        
         async.waterfall([
             function(done, err) {
