@@ -484,8 +484,8 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     getFeatureCatalog(req, callback) {
         let data = req.body;
-        req.checkQuery('lng', 'Invalid urlparam').notEmpty()
-        req.checkQuery('lat', 'Invalid urlparam').notEmpty()
+        var longitude = this.noNaN(parseFloat(req.query.lng));
+        var lattitude = this.noNaN(parseFloat(req.query.lat));
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -500,7 +500,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                             "$geoNear": {
                                 "near": {
                                     "type": "Point",
-                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                    "coordinates": [longitude, lattitude]
                                 },
                                 "distanceField": "distance",
                                 "spherical": true,
