@@ -1471,7 +1471,7 @@ class StoreHandler extends BaseAutoBindedClass {
         var lattitude = this.noNaN(parseFloat(req.query.lat));
         var qString = {};
         for (var param in req.query) {
-            if(param!=="lng" && param!=="lat"){
+            if((param!=="lng" && param!=="lat") && (param=="buisnessOnline" || param=="buisnessOffline")){
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
                 matchQuery.push(qString);
