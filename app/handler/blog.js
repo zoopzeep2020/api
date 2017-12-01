@@ -806,6 +806,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         authorName: 1,
                         authorImage: 1,
                         saveCount: 1,                        
+                        URL: 1,                        
                     }
                 },
                 {
@@ -820,6 +821,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         dateModified: {$first: '$dateModified'},
                         likeCount: {$first: '$likeCount'},
                         saveCount: {$first: '$saveCount'},
+                        URL: {$first: '$URL'},
                     }
                 },
                  function(err, blogs) {
