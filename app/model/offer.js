@@ -9,10 +9,15 @@ let OfferSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Store'
     },
+    savedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }],
     offerCode: String,
     offerName: String,
     offerDescription: String,
     aplicableForAll:{ type: Boolean },
+    isSave:{ type: Boolean },
     orderAbovePrice:Number,
     discountTypePercentage:{ type: Boolean },
     discountTypeFlat:{ type: Boolean },

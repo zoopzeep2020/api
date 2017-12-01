@@ -12,9 +12,11 @@ class OfferController extends BaseController {
  
     getAll(req, res, next) {        
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getAllOffers(req, this._responseManager.getDefaultResponseHandler(res));    
+            this._offerHandler.getAllOffers(user,req, this._responseManager.getDefaultResponseHandler(res));    
         });
     }
+
+   
 
     getAllWithFilter(req, res, next) {        
         this.authenticate(req, res, next, (token, user) => {
@@ -41,7 +43,15 @@ class OfferController extends BaseController {
             })));
         });
     }
-
+    saveOffer(req, res, next) {
+        this.authenticate(req, res, next, (token, user) => {
+            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+                this._offerHandler.saveOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not available")                        
+            } 
+        });
+    }
     getStoreOffer(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {

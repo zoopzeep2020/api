@@ -775,13 +775,13 @@ class BlogHandler extends BaseAutoBindedClass {
                 });
             })
             .then((blogs) => {
-                
                 callback.onSuccess(blogs);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
+
     getAllWithoutLogin( req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -873,8 +873,8 @@ class BlogHandler extends BaseAutoBindedClass {
             return array;
         }
     }
+
     noNaN( n ) { return isNaN( n ) ? 0 : n; }
-    
 }
 
 module.exports = BlogHandler;

@@ -768,6 +768,56 @@ class OfferHandler extends BaseAutoBindedClass {
         });
     }
 
+    saveOffer(req, callback) {
+        let data = req.body;
+        req.checkBody('offerId', 'Invalid urlparam').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    var save = req.body.save;
+                    if(save){
+                        OfferModel.findByIdAndUpdate({
+                            '_id': mongoose.Types.ObjectId(req.body.offerId),
+                            'savedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
+                        },
+                        {
+                            '$addToSet': { 'savedBy': mongoose.Types.ObjectId(req.body.userId) }
+                        }, {'new': true, 'multi':true}).exec(function(err, offer){
+                            offer.saveCount = offer.saveCount+1;
+                            offer.isSave = save;                            
+                            offer.save()                            
+                            resolve(offer);
+                        }) 
+                    }else if(!save){
+                        OfferModel.findByIdAndUpdate({
+                            '_id': mongoose.Types.ObjectId(req.body.offerId),
+                            'savedBy':  mongoose.Types.ObjectId(req.body.userId)
+                        },
+                        {
+                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        }, {'new': true, 'multi':true}).exec(function(err, offer){
+                            offer.saveCount = offer.saveCount-1;
+                            offer.isSave = save;                            
+                            offer.save()                            
+                            resolve(offer);
+                        })
+                    }
+                    
+                });
+            })
+            .then((offer) => {
+                callback.onSuccess(offer);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     getAllOffersWithFilter(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -778,54 +828,65 @@ class OfferHandler extends BaseAutoBindedClass {
                             { "offerOffline": req.params.offerOffline=='false'} ]
                     }
                 },
-                {
-                    "$lookup": {
-                        "from": 'catalogs',
-                        "localField": "storeId",
-                        "foreignField": "storeId",
-                        "as": "catalogsInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'stores',
-                        "localField": "storeId",
-                        "foreignField": "_id",
-                        "as": "storesInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'catalogs',
-                        "localField": "storesInfo.featureCatalog",
-                        "foreignField": "_id",
-                        "as": "featureCatalog"
-                    }
-                },
+                // {
+                //     "$lookup": {
+                //         "from": 'catalogs',
+                //         "localField": "storeId",
+                //         "foreignField": "storeId",
+                //         "as": "catalogsInfo"
+                //     }
+                // },
+                // {
+                //     "$lookup": {
+                //         "from": 'stores',
+                //         "localField": "storeId",
+                //         "foreignField": "_id",
+                //         "as": "storesInfo"
+                //     }
+                // },
+                // {
+                //     "$lookup": {
+                //         "from": 'catalogs',
+                //         "localField": "storesInfo.featureCatalog",
+                //         "foreignField": "_id",
+                //         "as": "featureCatalog"
+                //     }
+                // },
+                
+                
                 {
                     $project: {
                         _id: 1,
+                        // isSave: { 
+                        //     $cond: {
+                        //         if    : {$eq: ["$savedBy",mongoose.Types.ObjectId(user.id)]},
+                        //         then  : true,
+                        //         else  : false
+                        //     }
+                        // },
                         offerName:1,
                         offerPicture:1,
                         offerDescription:1,
                         aplicableForAll:1,
                         discountTypePercentage:1,
                         discountTypeFlat:1,
-                        storesInfo:{
-                            storeName:1,
-                            storeLogo:1,
-                            storeBanner:1,
-                            avgRating:1,
-                            address:1,                                
-                        },
-                        featureCatalog:{
-                            catalogUrl:1,
-                            catalogDescription:1
-                        },
-                        catalogsInfo:{
-                            catalogUrl:1,
-                            catalogDescription:1
-                        }
+                        storeId:1,
+                        // storesInfo:{
+                        //     id:1,
+                        //     storeName:1,
+                        //     storeLogo:1,
+                        //     storeBanner:1,
+                        //     avgRating:1,
+                        //     address:1,                                
+                        // },
+                        // featureCatalog:{
+                        //     catalogUrl:1,
+                        //     catalogDescription:1
+                        // },
+                        // catalogsInfo:{
+                        //     catalogUrl:1,
+                        //     catalogDescription:1
+                        // }
                     }
                 },
                 function(err, offer) {
@@ -849,59 +910,89 @@ class OfferHandler extends BaseAutoBindedClass {
         });
     }
 
-    getAllOffers(req, callback) {
+    getAllOffers(user,req, callback) {
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
+                // {
+                //     "$lookup": {
+                //         "from": 'catalogs',
+                //         "localField": "storeId",
+                //         "foreignField": "storeId",
+                //         "as": "catalogsInfo"
+                //     }
+                // },
+                // {
+                //     "$lookup": {
+                //         "from": 'stores',
+                //         "localField": "storeId",
+                //         "foreignField": "_id",
+                //         "as": "storesInfo"
+                //     }
+                // },
+                // {
+                //     "$lookup": {
+                //         "from": 'catalogs',
+                //         "localField": "storesInfo.featureCatalog",
+                //         "foreignField": "_id",
+                //         "as": "featureCatalog"
+                //     }
+                // },
                 {
-                    "$lookup": {
-                        "from": 'catalogs',
-                        "localField": "storeId",
-                        "foreignField": "storeId",
-                        "as": "catalogsInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'stores',
-                        "localField": "storeId",
-                        "foreignField": "_id",
-                        "as": "storesInfo"
-                    }
-                },
-                {
-                    "$lookup": {
-                        "from": 'catalogs',
-                        "localField": "storesInfo.featureCatalog",
-                        "foreignField": "_id",
-                        "as": "featureCatalog"
+                    $unwind: {
+                        path: "$savedBy",
+                        preserveNullAndEmptyArrays: true
                     }
                 },
                 {
                     $project: {
                         _id: 1,
+                        isSave: { 
+                            $cond: {
+                                if    : {$eq: ["$savedBy",mongoose.Types.ObjectId(user.id)]},
+                                then  : true,
+                                else  : false
+                            }
+                        },
                         offerName:1,
                         offerPicture:1,
                         offerDescription:1,
                         aplicableForAll:1,
                         discountTypePercentage:1,
                         discountTypeFlat:1,
-                        storesInfo:{
-                            storeName:1,
-                            storeLogo:1,
-                            storeBanner:1,
-                            avgRating:1,
-                            address:1,                                
-                        },
-                        featureCatalog:{
-                            catalogUrl:1,
-                            catalogDescription:1
-                        },
-                        catalogsInfo:{
-                            catalogUrl:1,
-                            catalogDescription:1
-                        }
+                        storeId:1,
+                        // storesInfo:{
+                        //     storeName:1,
+                        //     storeLogo:1,
+                        //     storeBanner:1,
+                        //     avgRating:1,
+                        //     address:1,                                
+                        // },
+                        // featureCatalog:{
+                        //     catalogUrl:1,
+                        //     catalogDescription:1
+                        // },
+                        // catalogsInfo:{
+                        //     catalogUrl:1,
+                        //     catalogDescription:1
+                        // }
                     }
                 },
+                // {
+                //     $group: {
+                //         _id: '$_id',
+                //         // title: {$first: '$title'},
+                //         // blogPicture: {$first: '$blogPicture'},
+                //         // description: {$first: '$description'},
+                //         // authorName: {$first: '$authorName'},
+                //         // authorImage: {$first: '$authorImage'},
+                //         // dateCreated: {$first: '$dateCreated'},
+                //         // dateModified: {$first: '$dateModified'},
+                //         // likeCount: {$first: '$likeCount'},
+                //         // saveCount: {$first: '$saveCount'},
+                //         // URL: {$first: '$URL'},
+                //         isSave: {$max: '$isSave'}
+                //     }
+                // },
                 function(err, offer) {
                     if (err !== null) {
                         reject(err);
