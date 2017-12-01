@@ -938,8 +938,6 @@ class OfferHandler extends BaseAutoBindedClass {
     }
 
     getAllOffers(user,req, callback) {
-        console.log(user.id)
-        console.log(user)
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
                 // {

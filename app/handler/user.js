@@ -477,7 +477,6 @@ class UserHandler {
                                         resolve(new UserModel(user));
                                     },
                                     onError: function(data) {
-                                        console.log("data",data)
                                         reject(new AlreadyExistsError("Somthing happend wrong"));
                                     },
                                 });
