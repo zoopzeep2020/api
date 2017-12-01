@@ -362,7 +362,7 @@ class BlogHandler extends BaseAutoBindedClass {
                     return new BlogModel(data);                    
                 })
                 .then((blog) => {
-                    blog.URL = 'https://'+req.get('host')+'/blogs/'+ req.body.title.replace(/\s+/g, '-').toLowerCase();
+                    blog.URL = 'https://www.zeepzoop.com/blogs/'+ req.body.title.replace(/\s+/g, '-').toLowerCase().Trim();
                     blog.save();
                     return blog;
                 })
@@ -532,6 +532,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         {'new': true, 'multi':true},
                         function(err, blog){
                             blog.likeCount = blog.likeCount+1;
+                            blog.isLike = like;
                             blog.save();
                             resolve(blog);
                         })
@@ -546,6 +547,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         {'new': true, 'multi':true},
                         function(err, blog){
                             blog.likeCount = blog.likeCount-1;
+                            blog.isLike = like;
                             blog.save();
                             resolve(blog);
                         })
@@ -581,6 +583,7 @@ class BlogHandler extends BaseAutoBindedClass {
                             '$addToSet': { 'savedBy': mongoose.Types.ObjectId(req.body.userId) }
                         }, {'new': true, 'multi':true}).exec(function(err, blog){
                             blog.saveCount = blog.saveCount+1;
+                            blog.isSave = save;                            
                             blog.save()                            
                             resolve(blog);
                         }) 
@@ -592,8 +595,8 @@ class BlogHandler extends BaseAutoBindedClass {
                         {
                             "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
                         }, {'new': true, 'multi':true}).exec(function(err, blog){
-
                             blog.saveCount = blog.saveCount-1;
+                            blog.isSave = save;                            
                             blog.save()                            
                             resolve(blog);
                         })
