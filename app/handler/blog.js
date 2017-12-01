@@ -362,7 +362,7 @@ class BlogHandler extends BaseAutoBindedClass {
                     return new BlogModel(data);                    
                 })
                 .then((blog) => {
-                    blog.URL = 'https://www.zeepzoop.com/blogs/'+ req.body.title.replace(/\s+/g, '-').toLowerCase().Trim();
+                    blog.URL = 'https://www.zeepzoop.com/blogs/'+ req.body.title.trim().replace(/\s+/g, '-').toLowerCase();
                     blog.save();
                     return blog;
                 })
