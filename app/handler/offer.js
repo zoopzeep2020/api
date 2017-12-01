@@ -231,7 +231,34 @@ class OfferHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".     
  */
-
+/**
+ * @swagger
+ * /offers/withfilter?{offerOnline}&{offerOffline}:
+ *   get:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *       - name: offerOnline
+ *         description: true or false
+ *         in: path
+ *         type: boolean
+ *       - name: offerOffline
+ *         description: true or false
+ *         in: path
+ *         type: boolean
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
 /**
  * @swagger
  * /offers/store/{storeId}:
@@ -256,7 +283,56 @@ class OfferHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".     
  */
-
+/**
+ * @swagger
+ * /offers/withoutlogin:
+ *   get:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: basic authorization
+ *         in: header
+ *         required: true
+ *         type: string
+ *         default: maximumvsminimumsecurity
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
+/**
+ * @swagger
+ * /offers/save:
+ *   put:
+ *     tags:
+ *       - Offer
+ *     description: activity object
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: Authorization
+ *         description: token authorization
+ *         in: header
+ *         type: string
+ *       - name: offerId
+ *         description: offerId
+ *         in: body
+ *         type: string
+ *       - name: userId
+ *         description: userId
+ *         in: body
+ *         type: string
+ *       - name: save
+ *         description: save
+ *         in: body
+ *         type: boolean
+ *     responses:
+ *       200:
+ *         description: object of activity".     
+ */
 /**
  * @swagger
  * /offers:
@@ -836,30 +912,6 @@ class OfferHandler extends BaseAutoBindedClass {
                 { 
                     "$match": { $and:matchQuery }
                 },
-                // {
-                //     "$lookup": {
-                //         "from": 'catalogs',
-                //         "localField": "storeId",
-                //         "foreignField": "storeId",
-                //         "as": "catalogsInfo"
-                //     }
-                // },
-                // {
-                //     "$lookup": {
-                //         "from": 'stores',
-                //         "localField": "storeId",
-                //         "foreignField": "_id",
-                //         "as": "storesInfo"
-                //     }
-                // },
-                // {
-                //     "$lookup": {
-                //         "from": 'catalogs',
-                //         "localField": "storesInfo.featureCatalog",
-                //         "foreignField": "_id",
-                //         "as": "featureCatalog"
-                //     }
-                // },
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -883,22 +935,6 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypePercentage:1,
                         discountTypeFlat:1,
                         storeId:1,
-                        // storesInfo:{
-                        //     id:1,
-                        //     storeName:1,
-                        //     storeLogo:1,
-                        //     storeBanner:1,
-                        //     avgRating:1,
-                        //     address:1,                                
-                        // },
-                        // featureCatalog:{
-                        //     catalogUrl:1,
-                        //     catalogDescription:1
-                        // },
-                        // catalogsInfo:{
-                        //     catalogUrl:1,
-                        //     catalogDescription:1
-                        // }
                     }
                 },
                 {
@@ -940,30 +976,6 @@ class OfferHandler extends BaseAutoBindedClass {
     getAllOffers(user,req, callback) {
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
-                // {
-                //     "$lookup": {
-                //         "from": 'catalogs',
-                //         "localField": "storeId",
-                //         "foreignField": "storeId",
-                //         "as": "catalogsInfo"
-                //     }
-                // },
-                // {
-                //     "$lookup": {
-                //         "from": 'stores',
-                //         "localField": "storeId",
-                //         "foreignField": "_id",
-                //         "as": "storesInfo"
-                //     }
-                // },
-                // {
-                //     "$lookup": {
-                //         "from": 'catalogs',
-                //         "localField": "storesInfo.featureCatalog",
-                //         "foreignField": "_id",
-                //         "as": "featureCatalog"
-                //     }
-                // },
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -1019,6 +1031,30 @@ class OfferHandler extends BaseAutoBindedClass {
         })
         .then((posts) => {
             callback.onSuccess(posts);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
+    getAllWithoutLogin(user,req, callback) {
+        new Promise(function(resolve, reject) {
+            OfferModel.find({},
+                function(err, offer) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!offer) {
+                            reject(new NotFoundError("Offer not found"));
+                        } else {
+                            resolve(offer);
+                        }
+                    }
+                }
+            );
+        })
+        .then((offer) => {
+            callback.onSuccess(offer);
         })
         .catch((error) => {
             callback.onError(error);

@@ -1621,7 +1621,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         }, 
                         {$sort:{finalTotal:-1}},
-                        {$limit:5},
+                        {$limit:10},
                     ]).exec(function(err, results){
                         resolve(results);
                     }) .then((results) => {   
@@ -1932,15 +1932,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 return p;
             }, {});
         }
-    }
-    extend(target) {
-        var sources = [].slice.call(arguments, 1);
-        sources.forEach(function (source) {
-            for (var prop in source) {
-                target[prop] = source[prop];
-            }
-        });
-        return target;
     }
 
     noNaN( n ) { return isNaN( n ) ? 0 : n; }

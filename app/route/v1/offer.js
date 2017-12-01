@@ -8,6 +8,7 @@ let offerController = new OfferController();
 var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
+router.get('/withoutlogin', offerController.getAllWithoutLogin);
 router.get('/', offerController.getAll);
 router.get('/withfilter', offerController.getAllWithFilter);
 router.get('/search', offerController.getOfferBySearch);

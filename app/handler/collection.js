@@ -916,9 +916,8 @@ class CollectionHandler extends BaseAutoBindedClass {
                             },                               
                         } 
                     },
-                    {'$sort': {'dateCreated': -1}},
-                    
-                    {$limit:5},
+                    {'$sort': {'dateCreated': -1}},  
+                    {$limit:10},
                 ]).exec(function(err, results){
                     resolve(results);
                 })

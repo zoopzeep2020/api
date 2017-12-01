@@ -181,7 +181,7 @@ const path = require('path');
  *         description: userId
  *         in: body
  *         type: string
- *       - name: like
+ *       - name: save
  *         description: save
  *         in: body
  *         type: boolean

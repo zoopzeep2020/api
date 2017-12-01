@@ -16,7 +16,11 @@ class OfferController extends BaseController {
         });
     }
 
-   
+    getAllWithoutLogin(req, res, next){
+        this.basicAuthenticate(req, res, () => {
+            this._offerHandler.getAllWithoutLogin( req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
 
     getAllWithFilter(req, res, next) {        
         this.authenticate(req, res, next, (token, user) => {
@@ -43,6 +47,7 @@ class OfferController extends BaseController {
             })));
         });
     }
+
     saveOffer(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
@@ -52,6 +57,7 @@ class OfferController extends BaseController {
             } 
         });
     }
+    
     getStoreOffer(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {

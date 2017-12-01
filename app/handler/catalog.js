@@ -557,7 +557,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                             }
                         },
                         {$sort:{finalTotal:-1}},
-                        {$limit:5},
+                        {$limit:10},
                     ])
                     .exec(function(err, results){
                         resolve(results);
