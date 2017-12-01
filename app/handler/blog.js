@@ -285,7 +285,7 @@ class BlogHandler extends BaseAutoBindedClass {
         return {
             'description': {
                 isLength: {
-                    options: [{ min: 500}],
+                    options: [{ min: 50}],
                     errorMessage: 'description must be 500 characters long'
                 },
                 notEmpty: true,
@@ -306,7 +306,7 @@ class BlogHandler extends BaseAutoBindedClass {
     createNewBlog(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-        let files = this.objectify(req.files);
+        let files = this.objectify(req.files);        
         req.checkBody(BlogHandler.BLOG_VALIDATION_SCHEME);
         async.waterfall([
             function(done, err) {
@@ -346,9 +346,9 @@ class BlogHandler extends BaseAutoBindedClass {
                     req.checkBody('blogPicture', 'blogPicture is required').notEmpty();
                 } 
                 if(req.body.authorImage != undefined){
-                    req.checkBody('authorImage', 'blogPicture is required').isImage(req.body.blogPicture);
+                    req.checkBody('authorImage', 'authorImage is required').isImage(req.body.blogPicture);
                 }else{
-                    req.checkBody('authorImage', 'blogPicture is required').notEmpty();
+                    req.checkBody('authorImage', 'authorImage is required').notEmpty();
                 }   
                 req.getValidationResult()
                 .then(function(result) {

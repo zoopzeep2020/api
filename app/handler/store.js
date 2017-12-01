@@ -3,6 +3,7 @@
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
+const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const mongoose = require('mongoose');
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
@@ -429,6 +430,8 @@ class StoreHandler extends BaseAutoBindedClass {
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        var longitude = this.noNaN(parseFloat(req.body.location[0]));
+        var lattitude = this.noNaN(parseFloat(req.body.location[1]));
         req.getValidationResult()
         .then(function(result) {
             if (!result.isEmpty()) {
@@ -444,8 +447,31 @@ class StoreHandler extends BaseAutoBindedClass {
             store.avgRating = 0
             store.reviewCount = 0
             store.bookmarkCount = 0
-            store.save();
-            return store;
+            return new Promise(function(resolve, reject) {
+                CityModel.aggregate(
+                    {
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": [longitude, lattitude]
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 0
+                        }
+                    },
+                    {$sort:{maxDistance:-1}},
+                    {$limit:1},
+                function(err, city) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        store.storeCity = city[0]['cityName']
+                        store.save();
+                        resolve(store);
+                    }
+                })
+            });
         })
         .then((saved) => {
             callback.onSuccess(saved);
@@ -656,6 +682,9 @@ class StoreHandler extends BaseAutoBindedClass {
                 return new Promise(function(resolve, reject) {
                     StoreModel.aggregate([
                         { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                        {
+                            "$match" : { "isActive": 1==1 }
+                        },
                         {
                             "$lookup": {
                                 "from": 'stores',
@@ -1033,6 +1062,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     getStoreByCategoryId(req, callback) {
         let data = req.body;
         var matchQuery = [];
@@ -1071,11 +1101,15 @@ class StoreHandler extends BaseAutoBindedClass {
                         },
                         {$sort:{maxDistance:-1}},
                         {
+                            "$match" : { "isActive": 1==1 }
+                        },
+                        {
                             $unwind: {
                                 path: "$categoriesIds",
                                 preserveNullAndEmptyArrays: true
                               }
                         },
+                       
                         {
                             $match:{
                                 $and:[
@@ -1463,6 +1497,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     getTrendingStore(req, callback) {
         let data = req.body;
         var matchQuery = [];
@@ -1485,21 +1520,24 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                if(req.bookma){}
                 new Promise(function(resolve, reject) {
-                    
-                    StoreModel.aggregate([                        
-                        // {
-                        //     "$geoNear": {
-                        //         "near": {
-                        //             "type": "Point",
-                        //             "coordinates": [longitude, lattitude]
-                        //         },
-                        //         "distanceField": "distance",
-                        //         "spherical": true,
-                        //         "maxDistance": 0
-                        //     }
-                        // },
+                    if(req.query.buisnessOffline=="true") 
+                    { 
+                        StoreModel.aggregate([  
+                        {
+                            "$geoNear": {
+                                "near": {
+                                    "type": "Point",
+                                    "coordinates": [longitude, lattitude]
+                                },
+                                "distanceField": "distance",
+                                "spherical": true,
+                                "maxDistance": 0
+                            }
+                        },
+                        {
+                            "$match" : { "isActive": 1==1 }
+                        },
                         {
                             "$match" : { $and : matchQuery }
                         },
@@ -1536,42 +1574,41 @@ class StoreHandler extends BaseAutoBindedClass {
                                 distance:'$distance',
                             }
                         },
-                        
                         {
                             $unwind: {
                                 path: "$storeName",
                                 preserveNullAndEmptyArrays: true
-                              }
+                                }
                         },
                         {
                             $unwind: {
                                 path: "$avgRating",
                                 preserveNullAndEmptyArrays: true
-                              }
+                                }
                         },
                         {
                             $unwind: {
                                 path: "$storeBanner",
                                 preserveNullAndEmptyArrays: true
-                              }
+                                }
                         },
                         {
                             $unwind: {
                                 path: "$storeDiscription",
                                 preserveNullAndEmptyArrays: true
-                              }
+                                }
                         },
                         {
                             $unwind: {
                                 path: "$storeLogo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                                }
                         },
                         {
                             $unwind: {
                                 path: "$featureCatalog",
                                 preserveNullAndEmptyArrays: true
-                              }
+                                }
                         },
                         {
                             "$lookup": {
@@ -1583,23 +1620,115 @@ class StoreHandler extends BaseAutoBindedClass {
                         }, 
                         {$sort:{finalTotal:-1}},
                         {$limit:5},
-                    ])
-                    .exec(function(err, results){
+                    ]).exec(function(err, results){
                         resolve(results);
                     }) .then((results) => {   
                         callback.onSuccess(results);
-                    })   
-                });
-             })   
-            .catch((error) => {
-                callback.onError(error);
+                    })  
+                }else{
+                    StoreModel.aggregate([  
+                    {
+                        "$match" : { "isActive": 1==1 }
+                    },
+                    {
+                        "$match" : { $and : matchQuery }
+                    },
+                    {
+                        $project: {
+                            finalTotal: {
+                                $let: {
+                                    vars: {
+                                    total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
+                                    },
+                                    in: { $add: [ "$avgRating", "$$total" ] }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "_id",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    }, 
+                    {
+                        $project: {
+                            storeName:'$storesInfo.storeName',
+                            avgRating:'$storesInfo.avgRating',
+                            storeBanner:'$storesInfo.storeBanner',
+                            storeDiscription:'$storesInfo.storeDiscription',
+                            storeLogo:'$storesInfo.storeLogo',
+                            keywords:'$storesInfo.keywords',
+                            featureCatalog:'$storesInfo.featureCatalog',
+                            finalTotal:'$finalTotal',
+                            distance:'$distance',
+                        }
+                    },
+                    
+                    {
+                        $unwind: {
+                            path: "$storeName",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$avgRating",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeBanner",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeDiscription",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$storeLogo",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$featureCatalog",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "featureCatalog",
+                            "foreignField": "_id",
+                            "as": "featureCatalogInfo"
+                        }
+                    }, 
+                    {$sort:{finalTotal:-1}},
+                    {$limit:5},
+                    ]).exec(function(err, results){
+                        resolve(results);
+                    }) .then((results) => {   
+                        callback.onSuccess(results);
+                    }) 
+                }     
             });
+        })   
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getStoreBySearch(req, callback) {
         let data = req.body;   
         var matchQuery = [];
-        // var matchQuery = [{ buinessOffline: { '$regex': 'emptyarray' }}]
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
         for (var param in req.query) {
@@ -1617,7 +1746,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                console.log(req.query.search)
                 return new Promise(function(resolve, reject) { 
                     KeywordModel.aggregate(
                         {"$match":{ title: { '$regex': req.query.search ,'$options' : 'i'}}},
@@ -1702,7 +1830,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-
                 return new Promise(function(resolve, reject) { 
                     KeywordModel.aggregate(
                         {"$match":{ title: { '$regex': req.query.search }}},
@@ -1722,15 +1849,15 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) { 
                     CategoryModel.aggregate(
-                    {"$match":{ category: { '$regex': req.query.search }}},
-                    {
-                        $project:{
-                            _id:1,
+                        {"$match":{ category: { '$regex': req.query.search }}},
+                        {
+                            $project:{
+                                _id:1,
+                            }
                         }
-                    }
-                    ).exec(function(err, results){
-                        resolve(results);
-                    })
+                        ).exec(function(err, results){
+                            resolve(results);
+                        })
                 });
             }).then((categories) => {                
                 for(var i=0;i<categories.length;i++){
@@ -1813,6 +1940,7 @@ class StoreHandler extends BaseAutoBindedClass {
         });
         return target;
     }
+
     noNaN( n ) { return isNaN( n ) ? 0 : n; }
 }
 module.exports = StoreHandler;

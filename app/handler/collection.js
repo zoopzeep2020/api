@@ -283,6 +283,7 @@ class CollectionHandler extends BaseAutoBindedClass {
  *         items:
  *          type: string
  */
+
     createNewCollection(req, callback) {
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
@@ -776,7 +777,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                             },                               
                         } 
                     },
-                    
                 ]).exec(function(err, results){
                     resolve(results);
                 })

@@ -19,7 +19,6 @@ class StoreController extends BaseController {
             } 
         });
     }
-
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {

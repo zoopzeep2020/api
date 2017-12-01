@@ -28,6 +28,8 @@ let StoreSchema = new Schema({
     },
     otherKeyword: [],
     webAddress: String,
+    storeName: String,
+    storeCity: String,
     countries: [],
     dispatchDayMin: Number,
     dispatchDayMax: Number,
