@@ -363,6 +363,8 @@ class BlogHandler extends BaseAutoBindedClass {
                 })
                 .then((blog) => {
                     blog.URL = 'https://www.zeepzoop.com/blogs/'+ req.body.title.trim().replace(/\s+/g, '-').toLowerCase();
+                    blog.likeCount = 0
+                    blog.saveCount = 0
                     blog.save();
                     return blog;
                 })
@@ -532,7 +534,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         {'new': true, 'multi':true},
                         function(err, blog){
                             blog.likeCount = blog.likeCount+1;
-                            blog.isLike = like;
+                            blog.isLike = true;
                             blog.save();
                             resolve(blog);
                         })
@@ -547,7 +549,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         {'new': true, 'multi':true},
                         function(err, blog){
                             blog.likeCount = blog.likeCount-1;
-                            blog.isLike = like;
+                            blog.isLike = false;
                             blog.save();
                             resolve(blog);
                         })
@@ -744,8 +746,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         authorName: 1,
                         authorImage: 1,
                         saveCount: 1,  
-                        URL: 1,                        
-                        
+                        URL: 1, 
                     }
                 },
                 {
@@ -781,7 +782,6 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
     getAllWithoutLogin( req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
@@ -873,6 +873,8 @@ class BlogHandler extends BaseAutoBindedClass {
             return array;
         }
     }
+    noNaN( n ) { return isNaN( n ) ? 0 : n; }
+    
 }
 
 module.exports = BlogHandler;

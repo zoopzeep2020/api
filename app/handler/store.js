@@ -447,31 +447,33 @@ class StoreHandler extends BaseAutoBindedClass {
             store.avgRating = 0
             store.reviewCount = 0
             store.bookmarkCount = 0
-            return new Promise(function(resolve, reject) {
-                CityModel.aggregate(
-                    {
-                        "$geoNear": {
-                            "near": {
-                                "type": "Point",
-                                "coordinates": [longitude, lattitude]
-                            },
-                            "distanceField": "distance",
-                            "spherical": true,
-                            "maxDistance": 0
-                        }
-                    },
-                    {$sort:{maxDistance:-1}},
-                    {$limit:1},
-                function(err, city) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        store.storeCity = city[0]['cityName']
-                        store.save();
-                        resolve(store);
-                    }
-                })
-            });
+            store.save();
+            return store;
+            //     return new Promise(function(resolve, reject) {
+            //         CityModel.aggregate(
+            //             {
+            //                 "$geoNear": {
+            //                     "near": {
+            //                         "type": "Point",
+            //                         "coordinates": [longitude, lattitude]
+            //                     },
+            //                     "distanceField": "distance",
+            //                     "spherical": true,
+            //                     "maxDistance": 0
+            //                 }
+            //             },
+            //             {$sort:{maxDistance:-1}},
+            //             {$limit:1},
+            //         function(err, city) {
+            //             if (err !== null) {
+            //                 reject(err);
+            //             } else {
+            //                 store.storeCity = city[0]['cityName']
+            //                 store.save();
+            //                 resolve(store);
+            //             }
+            //         })
+            //     });
         })
         .then((saved) => {
             callback.onSuccess(saved);

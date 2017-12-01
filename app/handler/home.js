@@ -51,7 +51,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
         // }
         let data = req.body;
         var queryString = url.parse(req.url,true).search;
-        
         var matchQuery = [];
         var ObjectID = require('mongodb').ObjectID;
         var qString,object1,object2,object3 = {};

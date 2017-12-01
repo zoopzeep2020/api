@@ -30,6 +30,10 @@ let StoreSchema = new Schema({
     webAddress: String,
     storeName: String,
     storeCity: String,
+    storeCityID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'city'
+    },
     countries: [],
     dispatchDayMin: Number,
     dispatchDayMax: Number,
