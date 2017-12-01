@@ -818,15 +818,23 @@ class OfferHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    getAllOffersWithFilter(req, callback) {
+
+    getAllOffersWithFilter(user, req, callback) {
         let data = req.body;
+        var ObjectID = require('mongodb').ObjectID;
+        var matchQuery = [];
+        var qString = {};
+        for (var param in req.query) {
+            qString = {};
+            if(param == "offerOnline" || param == "offerOffline"){
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
+                matchQuery.push(qString);
+            }             
+        }  
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
-                { "$match": 
-                    {
-                        $and:[ { "offerOnline": req.query.offerOnline=='true'},
-                            { "offerOffline": req.params.offerOffline=='false'} ]
-                    }
+                { 
+                    "$match": { $and:matchQuery }
                 },
                 // {
                 //     "$lookup": {
@@ -852,18 +860,22 @@ class OfferHandler extends BaseAutoBindedClass {
                 //         "as": "featureCatalog"
                 //     }
                 // },
-                
-                
+                {
+                    $unwind: {
+                        path: "$savedBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
                 {
                     $project: {
                         _id: 1,
-                        // isSave: { 
-                        //     $cond: {
-                        //         if    : {$eq: ["$savedBy",mongoose.Types.ObjectId(user.id)]},
-                        //         then  : true,
-                        //         else  : false
-                        //     }
-                        // },
+                        isSave: { 
+                            $cond: {
+                                if    : {$eq: ["$savedBy",mongoose.Types.ObjectId(user.id)]},
+                                then  : true,
+                                else  : false
+                            }
+                        },
                         offerName:1,
                         offerPicture:1,
                         offerDescription:1,
@@ -889,6 +901,21 @@ class OfferHandler extends BaseAutoBindedClass {
                         // }
                     }
                 },
+                {
+                    $group: {
+                        _id: '$_id',
+                        offerName: {$first: '$offerName'},
+                        offerPicture: {$first: '$offerPicture'},
+                        offerDescription: {$first: '$offerDescription'},
+                        offerCode: {$first: '$offerCode'},
+                        aplicableForAll: {$first: '$aplicableForAll'},
+                        discountTypePercentage: {$first: '$discountTypePercentage'},
+                        discountTypeFlat: {$first: '$discountTypeFlat'},
+                        dateModified: {$first: '$dateModified'},
+                        storeId: {$first: '$storeId'},
+                        isSave: {$max: '$isSave'}
+                    }
+                },
                 function(err, offer) {
                     if (err !== null) {
                         reject(err);
@@ -911,6 +938,8 @@ class OfferHandler extends BaseAutoBindedClass {
     }
 
     getAllOffers(user,req, callback) {
+        console.log(user.id)
+        console.log(user)
         new Promise(function(resolve, reject) {
             OfferModel.aggregate(
                 // {
@@ -960,39 +989,23 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypePercentage:1,
                         discountTypeFlat:1,
                         storeId:1,
-                        // storesInfo:{
-                        //     storeName:1,
-                        //     storeLogo:1,
-                        //     storeBanner:1,
-                        //     avgRating:1,
-                        //     address:1,                                
-                        // },
-                        // featureCatalog:{
-                        //     catalogUrl:1,
-                        //     catalogDescription:1
-                        // },
-                        // catalogsInfo:{
-                        //     catalogUrl:1,
-                        //     catalogDescription:1
-                        // }
                     }
                 },
-                // {
-                //     $group: {
-                //         _id: '$_id',
-                //         // title: {$first: '$title'},
-                //         // blogPicture: {$first: '$blogPicture'},
-                //         // description: {$first: '$description'},
-                //         // authorName: {$first: '$authorName'},
-                //         // authorImage: {$first: '$authorImage'},
-                //         // dateCreated: {$first: '$dateCreated'},
-                //         // dateModified: {$first: '$dateModified'},
-                //         // likeCount: {$first: '$likeCount'},
-                //         // saveCount: {$first: '$saveCount'},
-                //         // URL: {$first: '$URL'},
-                //         isSave: {$max: '$isSave'}
-                //     }
-                // },
+                {
+                    $group: {
+                        _id: '$_id',
+                        offerName: {$first: '$offerName'},
+                        offerPicture: {$first: '$offerPicture'},
+                        offerDescription: {$first: '$offerDescription'},
+                        offerCode: {$first: '$offerCode'},
+                        aplicableForAll: {$first: '$aplicableForAll'},
+                        discountTypePercentage: {$first: '$discountTypePercentage'},
+                        discountTypeFlat: {$first: '$discountTypeFlat'},
+                        dateModified: {$first: '$dateModified'},
+                        storeId: {$first: '$storeId'},
+                        isSave: {$max: '$isSave'}
+                    }
+                },
                 function(err, offer) {
                     if (err !== null) {
                         reject(err);

@@ -20,7 +20,7 @@ class OfferController extends BaseController {
 
     getAllWithFilter(req, res, next) {        
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getAllOffersWithFilter(req, this._responseManager.getDefaultResponseHandler(res));    
+            this._offerHandler.getAllOffersWithFilter(user, req, this._responseManager.getDefaultResponseHandler(res));    
         });
     }
 
