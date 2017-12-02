@@ -18,15 +18,18 @@ let CitySchema = new Schema({
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-CitySchema.pre('update', function(next, done) {
+
+CitySchema.index({ "location": "2dsphere" });
+
+CitySchema.pre('update', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-CitySchema.pre('save', function(next, done) {
+CitySchema.pre('save', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-CitySchema.methods.toJSON = function() {
+CitySchema.methods.toJSON = function () {
     let obj = this.toObject();
     delete obj.__v;
     delete obj.dateModified;
