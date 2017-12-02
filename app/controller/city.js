@@ -11,12 +11,11 @@ class CityController extends BaseController {
     }
 
     getAll(req, res, next) {
-        this.authenticate(req, res, next, (token, user) => {
-            if (user.isAdmin || user.isStore) {
-                this._cityHandler.getAllCitys(req, this._responseManager.getDefaultResponseHandler(res));
-            } else {
-                this._responseManager.respondWithError(res, 404, "access not available")
-            }
+        this.basicAuthenticate(req, res, () => {
+            this._cityHandler.getAllCitys(req, this._responseManager.getDefaultResponseHandler(res, ((data, message, code) => {
+                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+            })));
         });
     }
 
