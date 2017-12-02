@@ -445,6 +445,7 @@ class CityHandler extends BaseAutoBindedClass {
 
     getSearchByLongLat(req, callback) {
         let data = req.body;
+        console.log(req.query);
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -465,7 +466,8 @@ class CityHandler extends BaseAutoBindedClass {
                                 "spherical": true,
                                 "maxDistance": 0
                             }
-                        }
+                        },
+                        { $limit: 1 }
                     )
                         .exec(function (err, cities) {
                             resolve(cities);
