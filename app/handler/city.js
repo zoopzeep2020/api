@@ -57,41 +57,41 @@ class CityHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".     
  */
- /**
- * @swagger
- * /cities/searchByLongLat?{lng}&{lat}:
- *   get:
- *     tags:
- *       - City
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: search
- *         description: name of city which you want to search 
- *         in: query
- *         required: true
- *         type: string
- *       - name: lng
- *         description: longitude of city
- *         in: query
- *         required: true
- *         type: number
- *       - name: lat
- *         description: latitude of city
- *         in: query
- *         required: true
- *         type: number
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /cities/searchByLongLat?{lng}&{lat}:
+    *   get:
+    *     tags:
+    *       - City
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: basic authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: maximumvsminimumsecurity
+    *       - name: search
+    *         description: name of city which you want to search 
+    *         in: query
+    *         required: true
+    *         type: string
+    *       - name: lng
+    *         description: longitude of city
+    *         in: query
+    *         required: true
+    *         type: number
+    *       - name: lat
+    *         description: latitude of city
+    *         in: query
+    *         required: true
+    *         type: number
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
     /**
  * @swagger
  * /cities:
@@ -181,84 +181,84 @@ class CityHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".
  */
- /**
- * @swagger
- * /cities/{cityId}:
- *   delete:
- *     tags:
- *       - City
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: cityId
- *         description: cityId
- *         in: path
- *         required: true
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
-   /**
- * @swagger
- * /cities/{cityId}:
- *   get:
- *     tags:
- *       - City
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity  
- *       - name: cityId
- *         description: cityId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
- 
-/**
- * @swagger
- * definition: 
- *   UpdateActivitiesObj:
- *     properties:
- *       cityName:
- *         type: string
- *         required: true
- *       cityState:
- *         type: string
- *         required: true
- *       location:
- *         type: array
- *         required: true
- */
+    /**
+    * @swagger
+    * /cities/{cityId}:
+    *   delete:
+    *     tags:
+    *       - City
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: Content-Type
+    *         description: content-type
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: application/json
+    *       - name: cityId
+    *         description: cityId
+    *         in: path
+    *         required: true
+    *         type: string
+    *         schema:
+    *          $ref: '#/definitions/UpdateActivitiesObj'
+    *     responses:
+    *       200:
+    *         description: object of activity".
+    */
+    /**
+  * @swagger
+  * /cities/{cityId}:
+  *   get:
+  *     tags:
+  *       - City
+  *     description: activity object
+  *     produces:
+  *       - application/json
+  *     parameters:
+  *       - name: Authorization
+  *         description: basic authorization
+  *         in: header
+  *         required: true
+  *         type: string
+  *         default: maximumvsminimumsecurity  
+  *       - name: cityId
+  *         description: cityId
+  *         in: path
+  *         required: true
+  *         type: string
+  *     responses:
+  *       200:
+  *         description: object of activity".     
+  */
+
+    /**
+     * @swagger
+     * definition: 
+     *   UpdateActivitiesObj:
+     *     properties:
+     *       cityName:
+     *         type: string
+     *         required: true
+     *       cityState:
+     *         type: string
+     *         required: true
+     *       location:
+     *         type: array
+     *         required: true
+     */
     static get KEYWORD_VALIDATION_SCHEME() {
         return {
             'cityName': {
                 isLength: {
-                    options: [{ min: 2  }],
+                    options: [{ min: 2 }],
                     errorMessage: 'City title must be 2 characters long'
                 },
                 notEmpty: false,
@@ -272,7 +272,7 @@ class CityHandler extends BaseAutoBindedClass {
         let validator = this._validator;
         // req.checkBody(CityHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -297,15 +297,15 @@ class CityHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    CityModel.findOne({ _id: req.params.id }, function(err, city) {
+                return new Promise(function (resolve, reject) {
+                    CityModel.findOne({ _id: req.params.id }, function (err, city) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -336,7 +336,7 @@ class CityHandler extends BaseAutoBindedClass {
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.checkBody(CityHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -344,8 +344,8 @@ class CityHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
 
-                return new Promise(function(resolve, reject) {
-                    CityModel.findOne({ _id: req.params.id }, function(err, city) {
+                return new Promise(function (resolve, reject) {
+                    CityModel.findOne({ _id: req.params.id }, function (err, city) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -364,7 +364,7 @@ class CityHandler extends BaseAutoBindedClass {
                     if (data.hasOwnProperty(key)) {
                         city[key] = data[key];
                     }
-                }  
+                }
                 city.save();
                 return city;
             })
@@ -380,15 +380,15 @@ class CityHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    CityModel.findOne({ _id: req.params.id }, function(err, city) {
+                return new Promise(function (resolve, reject) {
+                    CityModel.findOne({ _id: req.params.id }, function (err, city) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -412,25 +412,31 @@ class CityHandler extends BaseAutoBindedClass {
     }
 
     getSearchByWord(req, callback) {
-        let data = req.body;  
+        let data = req.body;
         req.getValidationResult()
-            .then(function(result) {                
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) { 
-                    CityModel.find({cityName : {$regex : req.query.search.toLowerCase()}},
-                    )
-                    .exec(function(err, cities){
-                        resolve(cities);
+                return new Promise(function (resolve, reject) {
+                    CityModel.find({ cityName: { $regex: req.query.search.toLowerCase() } }, function (err, city) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!city) {
+                                reject(new NotFoundError("City not found"));
+                            } else {
+                                resolve(city);
+                            }
+                        }
                     })
                 });
-            }).then((cities)=>{
+            }).then((cities) => {
                 callback.onSuccess(cities);
-                
+
             })
             .catch((error) => {
                 callback.onError(error);
@@ -438,36 +444,36 @@ class CityHandler extends BaseAutoBindedClass {
     }
 
     getSearchByLongLat(req, callback) {
-        let data = req.body;      
+        let data = req.body;
         req.getValidationResult()
-            .then(function(result) {                
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) { 
+                return new Promise(function (resolve, reject) {
                     CityModel.aggregate(
-                    {
-                        "$geoNear": {
-                            "near": {
-                                "type": "Point",
-                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-                            },
-                            "distanceField": "distance",
-                            "spherical": true,
-                            "maxDistance": 0
+                        {
+                            "$geoNear": {
+                                "near": {
+                                    "type": "Point",
+                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                                },
+                                "distanceField": "distance",
+                                "spherical": true,
+                                "maxDistance": 0
+                            }
                         }
-                    }
                     )
-                    .exec(function(err, cities){
-                        resolve(cities);
-                    })
+                        .exec(function (err, cities) {
+                            resolve(cities);
+                        })
                 });
-            }).then((cities)=>{
+            }).then((cities) => {
                 callback.onSuccess(cities);
-                
+
             })
             .catch((error) => {
                 callback.onError(error);
@@ -475,8 +481,8 @@ class CityHandler extends BaseAutoBindedClass {
     }
 
     getAllCitys(req, callback) {
-        new Promise(function(resolve, reject) {
-            CityModel.find({}, function(err, city) {
+        new Promise(function (resolve, reject) {
+            CityModel.find({}, function (err, city) {
                 if (err !== null) {
                     reject(err);
                 } else {
@@ -488,14 +494,14 @@ class CityHandler extends BaseAutoBindedClass {
                 }
             })
         })
-        .then((city) => {
-            callback.onSuccess(city);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((city) => {
+                callback.onSuccess(city);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
-    
+
 }
 
 module.exports = CityHandler;

@@ -14,411 +14,413 @@ const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 var path = require('path');
-var request = require('request'); 
+var request = require('request');
+var ObjectId = require('mongodb').ObjectID;
+
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
     }
 
-/**
- * @swagger
- * /stores/{storeId}:
- *   put:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: storeId
- *         description: storeId
- *         in: path
- *         required: true
- *         type: string
- *       - name: storeName
- *         description: storeName
- *         in: body
- *         type: string
- *       - name: storeLogo
- *         in: formData
- *         description: The uploaded file of storeLogo
- *         type: file
- *       - name: storeBanner
- *         in: formData
- *         description: The uploaded file of storeBanner
- *         type: file
- *       - name: categoriesIds
- *         description: categoriesIds
- *         in: body
- *         type: array
- *       - name: buisnessOnline
- *         description: buisnessOnline
- *         in: body
- *         type: boolean
- *       - name: buisnessOffline
- *         description: buisnessOffline
- *         in: body
- *         type: boolean
- *       - name: buisnessBoth
- *         description: buisnessBoth
- *         in: body
- *         type: boolean
- *       - name: address
- *         description: address
- *         in: body
- *         type: string
- *       - name: storePhone
- *         description: storePhone
- *         in: body
- *         type: number
- *       - name: storeDiscription
- *         description: storeDiscription
- *         in: body
- *         type: string
- *       - name: featureCatalog
- *         description: featureCatalog
- *         in: body
- *         type: string
- *       - name: webAddress
- *         description: webAddress
- *         in: body
- *         type: string
- *       - name: keyword
- *         description: keyword
- *         in: body
- *         type: array
- *       - name: otherKeyword
- *         description: otherKeyword
- *         in: body
- *         type: array
- *       - name: countries
- *         description: countries
- *         in: body
- *         type: array
- *       - name: dispatchDayMin
- *         description: dispatchDayMin
- *         in: body
- *         type: number
- *       - name: dispatchDayMax
- *         description: dispatchDayMax
- *         in: body
- *         type: number
- *       - name: customization
- *         description: customization
- *         in: body
- *         type: boolean
- *       - name: giftWrap
- *         description: giftWrap
- *         in: body
- *         type: boolean
- *       - name: cod
- *         description: cod
- *         in: body
- *         type: boolean
- *       - name: freeShiping
- *         description: freeShiping
- *         in: body
- *         type: boolean
- *       - name: returnandreplace
- *         description: returnandreplace
- *         in: body
- *         type: string
- *       - name: viewCount
- *         description: viewCount
- *         in: body
- *         type: number
- *       - name: reviewCount
- *         description: reviewCount
- *         in: body
- *         type: number
- *       - name: avgRating
- *         description: avgRating
- *         in: body
- *         type: number
- *       - name: isActive
- *         description: isActive
- *         in: body
- *         type: boolean
- *         default: false
- *       - name: location
- *         description: location
- *         in: body
- *         type: array
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /stores:
- *   get:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /stores/{storeId}:
- *   get:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: storeId
- *         description: storeId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+     * @swagger
+     * /stores/{storeId}:
+     *   put:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *       - name: storeId
+     *         description: storeId
+     *         in: path
+     *         required: true
+     *         type: string
+     *       - name: storeName
+     *         description: storeName
+     *         in: body
+     *         type: string
+     *       - name: storeLogo
+     *         in: formData
+     *         description: The uploaded file of storeLogo
+     *         type: file
+     *       - name: storeBanner
+     *         in: formData
+     *         description: The uploaded file of storeBanner
+     *         type: file
+     *       - name: categoriesIds
+     *         description: categoriesIds
+     *         in: body
+     *         type: array
+     *       - name: buisnessOnline
+     *         description: buisnessOnline
+     *         in: body
+     *         type: boolean
+     *       - name: buisnessOffline
+     *         description: buisnessOffline
+     *         in: body
+     *         type: boolean
+     *       - name: buisnessBoth
+     *         description: buisnessBoth
+     *         in: body
+     *         type: boolean
+     *       - name: address
+     *         description: address
+     *         in: body
+     *         type: string
+     *       - name: storePhone
+     *         description: storePhone
+     *         in: body
+     *         type: number
+     *       - name: storeDiscription
+     *         description: storeDiscription
+     *         in: body
+     *         type: string
+     *       - name: featureCatalog
+     *         description: featureCatalog
+     *         in: body
+     *         type: string
+     *       - name: webAddress
+     *         description: webAddress
+     *         in: body
+     *         type: string
+     *       - name: keyword
+     *         description: keyword
+     *         in: body
+     *         type: array
+     *       - name: otherKeyword
+     *         description: otherKeyword
+     *         in: body
+     *         type: array
+     *       - name: countries
+     *         description: countries
+     *         in: body
+     *         type: array
+     *       - name: dispatchDayMin
+     *         description: dispatchDayMin
+     *         in: body
+     *         type: number
+     *       - name: dispatchDayMax
+     *         description: dispatchDayMax
+     *         in: body
+     *         type: number
+     *       - name: customization
+     *         description: customization
+     *         in: body
+     *         type: boolean
+     *       - name: giftWrap
+     *         description: giftWrap
+     *         in: body
+     *         type: boolean
+     *       - name: cod
+     *         description: cod
+     *         in: body
+     *         type: boolean
+     *       - name: freeShiping
+     *         description: freeShiping
+     *         in: body
+     *         type: boolean
+     *       - name: returnandreplace
+     *         description: returnandreplace
+     *         in: body
+     *         type: string
+     *       - name: viewCount
+     *         description: viewCount
+     *         in: body
+     *         type: number
+     *       - name: reviewCount
+     *         description: reviewCount
+     *         in: body
+     *         type: number
+     *       - name: avgRating
+     *         description: avgRating
+     *         in: body
+     *         type: number
+     *       - name: isActive
+     *         description: isActive
+     *         in: body
+     *         type: boolean
+     *         default: false
+     *       - name: location
+     *         description: location
+     *         in: body
+     *         type: array
+     *         schema:
+     *          $ref: '#/definitions/UpdateActivitiesObj'
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
+    /**
+     * @swagger
+     * /stores:
+     *   get:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+     * @swagger
+     * /stores/{storeId}:
+     *   get:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: basic authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: maximumvsminimumsecurity
+     *       - name: storeId
+     *         description: storeId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
 
- /**
- * @swagger
- * /stores/searchbyCategoryId/{categoryId}:
- *   get:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: categoryId
- *         description: ID of Category
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /stores/{storeId}:
- *   delete:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: storeId
- *         description: storeId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /stores/trendingStore?{lng}&{lat}&{keyword}&{buisnessOnline}&{buisnessOffline}:
- *   get:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: lng
- *         description: lng
- *         in: query
- *         type: number
- *       - name: lat
- *         description: lat
- *         in: query
- *         type: number
- *       - name: keyword
- *         description: keywordId
- *         in: query
- *         type: string
- *       - name: buisnessOnline
- *         description: buisnessOnline
- *         in: query
- *         type: boolean
- *       - name: buisnessOffline
- *         description: buisnessOffline
- *         in: query
- *         type: boolean
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /stores/search?{search}&{keywordId}&{buisnessOnline}&{buisnessOffline}&{lng}&{lat}:
- *   get:
- *     tags:
- *       - Store
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: search
- *         description: search(this word will compare with kewordTitle storeName and storeDescription and give u related store)
- *         in: query
- *         required: true
- *         type: string
- *       - name: keywordId
- *         description: keywordId(optional)
- *         in: query
- *         type: string
- *       - name: buisnessOnline
- *         description: buisnessOnline
- *         in: query
- *         required: true
- *         type: boolean
- *       - name: buisnessOffline
- *         description: buisnessOffline
- *         in: query
- *         required: true
- *         type: boolean
- *       - name: lng
- *         description: longitude of location
- *         in: query
- *         type: number
- *       - name: lat
- *         description: lattitude of location
- *         in: query
- *         type: number
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-     /**
- * @swagger
- * definition:
- *   UpdateActivitiesObj:
- *     properties:
- *       storeName:
- *         type: string
- *       storeLogo:
- *         type: string
- *       storeBanner:
- *         type: string
- *       categoriesIds:
- *         type: array
- *         items:
- *          type: string
- *       buisnessOnline:
- *         type: boolean
- *       buisnessOffline:
- *         type: boolean
- *       buisnessBoth:
- *         type: boolean
- *       address:
- *         type: string
- *       storePhone:
- *         type: number
- *       storeDiscription:
- *         type: string
- *       featureCatalog:
- *         type: number
- *       webAddress:
- *         type: string
- *       keyword:
- *         type: array
- *         items:
- *          type: string
- *       otherKeyword:
- *         type: array
- *         items:
- *          type: string
- *       countries:
- *         type: array
- *         items:
- *          type: string
- *       dispatchDayMin:
- *         type: number
- *       dispatchDayMax:
- *         type: number
- *       customization:
- *         type: boolean
- *       giftWrap:
- *         type: boolean
- *       cod:
- *         type: boolean
- *       freeShiping:
- *         type: boolean
- *       returnandreplace:
- *         type: string
- *       viewCount:
- *         type: number
- *       reviewCount:
- *         type: number
- *       avgRating:
- *         type: number
- *       isActive:
- *         type: boolean
- *       location:
- *         type: array
- *         items:
- *          type: number
- */
+    /**
+    * @swagger
+    * /stores/searchbyCategoryId/{categoryId}:
+    *   get:
+    *     tags:
+    *       - Store
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: basic authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: maximumvsminimumsecurity
+    *       - name: categoryId
+    *         description: ID of Category
+    *         in: path
+    *         required: true
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
+    /**
+     * @swagger
+     * /stores/{storeId}:
+     *   delete:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: basic authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: maximumvsminimumsecurity
+     *       - name: storeId
+     *         description: storeId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+     * @swagger
+     * /stores/trendingStore?{lng}&{lat}&{keyword}&{buisnessOnline}&{buisnessOffline}:
+     *   get:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: basic authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: maximumvsminimumsecurity
+     *       - name: lng
+     *         description: lng
+     *         in: query
+     *         type: number
+     *       - name: lat
+     *         description: lat
+     *         in: query
+     *         type: number
+     *       - name: keyword
+     *         description: keywordId
+     *         in: query
+     *         type: string
+     *       - name: buisnessOnline
+     *         description: buisnessOnline
+     *         in: query
+     *         type: boolean
+     *       - name: buisnessOffline
+     *         description: buisnessOffline
+     *         in: query
+     *         type: boolean
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+     * @swagger
+     * /stores/search?{search}&{keywordId}&{buisnessOnline}&{buisnessOffline}&{lng}&{lat}:
+     *   get:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: basic authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: maximumvsminimumsecurity
+     *       - name: search
+     *         description: search(this word will compare with kewordTitle storeName and storeDescription and give u related store)
+     *         in: query
+     *         required: true
+     *         type: string
+     *       - name: keywordId
+     *         description: keywordId(optional)
+     *         in: query
+     *         type: string
+     *       - name: buisnessOnline
+     *         description: buisnessOnline
+     *         in: query
+     *         required: true
+     *         type: boolean
+     *       - name: buisnessOffline
+     *         description: buisnessOffline
+     *         in: query
+     *         required: true
+     *         type: boolean
+     *       - name: lng
+     *         description: longitude of location
+     *         in: query
+     *         type: number
+     *       - name: lat
+     *         description: lattitude of location
+     *         in: query
+     *         type: number
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+* @swagger
+* definition:
+*   UpdateActivitiesObj:
+*     properties:
+*       storeName:
+*         type: string
+*       storeLogo:
+*         type: string
+*       storeBanner:
+*         type: string
+*       categoriesIds:
+*         type: array
+*         items:
+*          type: string
+*       buisnessOnline:
+*         type: boolean
+*       buisnessOffline:
+*         type: boolean
+*       buisnessBoth:
+*         type: boolean
+*       address:
+*         type: string
+*       storePhone:
+*         type: number
+*       storeDiscription:
+*         type: string
+*       featureCatalog:
+*         type: number
+*       webAddress:
+*         type: string
+*       keyword:
+*         type: array
+*         items:
+*          type: string
+*       otherKeyword:
+*         type: array
+*         items:
+*          type: string
+*       countries:
+*         type: array
+*         items:
+*          type: string
+*       dispatchDayMin:
+*         type: number
+*       dispatchDayMax:
+*         type: number
+*       customization:
+*         type: boolean
+*       giftWrap:
+*         type: boolean
+*       cod:
+*         type: boolean
+*       freeShiping:
+*         type: boolean
+*       returnandreplace:
+*         type: string
+*       viewCount:
+*         type: number
+*       reviewCount:
+*         type: number
+*       avgRating:
+*         type: number
+*       isActive:
+*         type: boolean
+*       location:
+*         type: array
+*         items:
+*          type: number
+*/
     static get STORE_VALIDATION_SCHEME() {
         return {
             'storeName': {
                 isLength: {
-                    options: [{ min: 2}],
+                    options: [{ min: 2 }],
                     errorMessage: 'storeName must be 2 characters long'
                 },
                 notEmpty: true,
@@ -426,76 +428,76 @@ class StoreHandler extends BaseAutoBindedClass {
             },
         }
     }
-    
+
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
         var longitude = this.noNaN(parseFloat(req.body.location[0]));
         var lattitude = this.noNaN(parseFloat(req.body.location[1]));
         req.getValidationResult()
-        .then(function(result) {
-            if (!result.isEmpty()) {
-                let errorMessages = result.array().map(function(elem) {
-                    return elem.msg;
-                });
-                throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
-            }
-            return new StoreModel({});
-        })
-        .then((store) => {
-            store.viewCount = 1
-            store.avgRating = 0
-            store.reviewCount = 0
-            store.bookmarkCount = 0
-            store.save();
-            return store;
-            //     return new Promise(function(resolve, reject) {
-            //         CityModel.aggregate(
-            //             {
-            //                 "$geoNear": {
-            //                     "near": {
-            //                         "type": "Point",
-            //                         "coordinates": [longitude, lattitude]
-            //                     },
-            //                     "distanceField": "distance",
-            //                     "spherical": true,
-            //                     "maxDistance": 0
-            //                 }
-            //             },
-            //             {$sort:{maxDistance:-1}},
-            //             {$limit:1},
-            //         function(err, city) {
-            //             if (err !== null) {
-            //                 reject(err);
-            //             } else {
-            //                 store.storeCity = city[0]['cityName']
-            //                 store.save();
-            //                 resolve(store);
-            //             }
-            //         })
-            //     });
-        })
-        .then((saved) => {
-            callback.onSuccess(saved);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError('There are validation errors: ' + errorMessages.join(' && '));
+                }
+                return new StoreModel({});
+            })
+            .then((store) => {
+                store.viewCount = 1
+                store.avgRating = 0
+                store.reviewCount = 0
+                store.bookmarkCount = 0
+                store.save();
+                return store;
+                //     return new Promise(function(resolve, reject) {
+                //         CityModel.aggregate(
+                //             {
+                //                 "$geoNear": {
+                //                     "near": {
+                //                         "type": "Point",
+                //                         "coordinates": [longitude, lattitude]
+                //                     },
+                //                     "distanceField": "distance",
+                //                     "spherical": true,
+                //                     "maxDistance": 0
+                //                 }
+                //             },
+                //             {$sort:{maxDistance:-1}},
+                //             {$limit:1},
+                //         function(err, city) {
+                //             if (err !== null) {
+                //                 reject(err);
+                //             } else {
+                //                 store.storeCity = city[0]['cityName']
+                //                 store.save();
+                //                 resolve(store);
+                //             }
+                //         })
+                //     });
+            })
+            .then((saved) => {
+                callback.onSuccess(saved);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     deleteStore(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    StoreModel.findOne({ storeId: req.params.id }, function(err, store) {
+                return new Promise(function (resolve, reject) {
+                    StoreModel.findOne({ storeId: req.params.id }, function (err, store) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -519,173 +521,173 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     updateStore(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-        let files = this.objectify(req.files);  
-        let data = req.body;       
+        let files = this.objectify(req.files);
+        let data = req.body;
         async.waterfall([
-            function(done, err) {
-                if(files != undefined && typeof files['storeLogo'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
+            function (done, err) {
+                if (files != undefined && typeof files['storeLogo'] !== "undefined") {
+                    mkdirp(targetDir, function (err) {
                         var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['storeLogo'].path, targetDir + fileName, function(err) {
+                        fs.rename(files['storeLogo'].path, targetDir + fileName, function (err) {
                             req.body.storeLogo = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
+                            let data = req.body;
+                            done(err, data);
                         });
                     });
-                }else{
+                } else {
                     done(err, data);
                 }
             },
-            function(data, done, err) {
-                if(files != undefined && typeof files['storeBanner'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
+            function (data, done, err) {
+                if (files != undefined && typeof files['storeBanner'] !== "undefined") {
+                    mkdirp(targetDir, function (err) {
                         var fileName = files['storeBanner'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['storeBanner'].path, targetDir + fileName, function(err) {
+                        fs.rename(files['storeBanner'].path, targetDir + fileName, function (err) {
                             req.body.storeBanner = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
+                            let data = req.body;
+                            done(err, data);
                         });
                     });
-                }else{
-                    let data = req.body;        
-                   done(err, data);
+                } else {
+                    let data = req.body;
+                    done(err, data);
                 }
             },
-            function(data, done){
-                if(req.body.storeName != undefined){
+            function (data, done) {
+                if (req.body.storeName != undefined) {
                     req.checkBody('storeName', 'category is required').notEmpty();
                 }
-                if(req.body.storeLogo != undefined){
+                if (req.body.storeLogo != undefined) {
                     req.checkBody('storeLogo', 'storeLogo is required').isImage(req.body.storeLogo);
                 }
-                if(req.body.categoriesIds != undefined){
+                if (req.body.categoriesIds != undefined) {
                     req.checkBody('categoriesIds', 'minimum one categoriesIds is required').notEmpty();
                 }
-                if(req.body.keyword != undefined){
+                if (req.body.keyword != undefined) {
                     req.checkBody('keyword', 'minimum one keyword is required').notEmpty();
                 }
-                if(req.body.storeBanner != undefined){
+                if (req.body.storeBanner != undefined) {
                     req.checkBody('storeBanner', 'storeBanner is required').isImage(req.body.storeBanner);
                 }
-                if(req.body.buisnessBoth && req.body.buisnessOnline && req.body.buisnessOffline){
+                if (req.body.buisnessBoth && req.body.buisnessOnline && req.body.buisnessOffline) {
                     req.checkBody('buisnessBoth', 'only one of buisnessBoth, buisnessOnline and buisnessOffline should be true').isBoolean();
                 }
-                if(req.body.address != undefined){
+                if (req.body.address != undefined) {
                     req.checkBody('address', 'address must not be empty').notEmpty();
                 }
-                if(req.body.storePhone != undefined){
+                if (req.body.storePhone != undefined) {
                     req.checkBody('storePhone', 'storePhone must not be empty').notEmpty();
                 }
-                if(req.body.storeDiscription != undefined){
+                if (req.body.storeDiscription != undefined) {
                     req.checkBody('storeDiscription', 'storeDiscription must not be empty').notEmpty();
                 }
-                if(req.body.keyword != undefined){
+                if (req.body.keyword != undefined) {
                     req.checkBody('keyword', 'keyword must not be empty').notEmpty();
                 }
-                if(req.body.otherKeyword != undefined){
+                if (req.body.otherKeyword != undefined) {
                     req.checkBody('otherKeyword', 'otherKeyword must not be empty').notEmpty();
                 }
-                if(req.body.webAddress != undefined){
+                if (req.body.webAddress != undefined) {
                     req.checkBody('webAddress', 'webAddress must not be empty').notEmpty();
                 }
-                if(req.body.countries != undefined){
+                if (req.body.countries != undefined) {
                     req.checkBody('countries', 'countries must not be empty').notEmpty();
                 }
-                if(req.body.dispatchDayMin != undefined){
+                if (req.body.dispatchDayMin != undefined) {
                     req.checkBody('dispatchDayMin', 'dispatchDayMin must not be empty').notEmpty();
                 }
-                if(req.body.dispatchDayMax != undefined){
+                if (req.body.dispatchDayMax != undefined) {
                     req.checkBody('dispatchDayMax', 'dispatchDayMax must not be empty').notEmpty();
                 }
-                if(req.body.customization != undefined){
+                if (req.body.customization != undefined) {
                     req.checkBody('customization', 'customization must be true or false').isBoolean();
                 }
-                if(req.body.giftWrap != undefined){
+                if (req.body.giftWrap != undefined) {
                     req.checkBody('giftWrap', 'giftWrap must be true or false').isBoolean();
                 }
-                if(req.body.cod != undefined){
+                if (req.body.cod != undefined) {
                     req.checkBody('cod', 'cod must be true or false').isBoolean();
                 }
-                if(req.body.freeShiping != undefined){
+                if (req.body.freeShiping != undefined) {
                     req.checkBody('freeShiping', 'freeShiping must be true or false').isBoolean();
                 }
-                if(req.body.returnandreplace != undefined){
+                if (req.body.returnandreplace != undefined) {
                     req.checkBody('returnandreplace', 'returnandreplace must not be empty').notEmpty();
                 }
-                if(req.body.isActive != undefined){
+                if (req.body.isActive != undefined) {
                     req.checkBody('isActive', 'isActive must be true or false').isBoolean();
                 }
                 req.getValidationResult()
-                .then(function(result) {
-                    if (!result.isEmpty()) {
-                        var errorMessages = {};
-                        result.array().map(function(elem) {
-                            return errorMessages[elem.param] = elem.msg;
-                        }); 
-                        throw new ValidationError(errorMessages);
-                    }  
-                    return new Promise(function(resolve, reject) {
-                        StoreModel.findOne({ _id: req.params.id }, function(err, store) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!store) {
-                                    reject(new NotFoundError("store not found"));
-                                } else {
-                                    resolve(store);
-                                }
-                            }
-                        })
-                    });
-                })
-                .then((store) => {
-                    for (var key in data) {
-                        store[key] = data[key];
-                    }   
-                    store.save();
-                    return store;
-                })
-                .then((saved) => {
-                    callback.onSuccess(saved);      
-                    const directory = './uploads';
-                    fs.readdir(directory, (err, files) => {
-                        if (err) throw error;
-                        for (const file of files) {
-                            fs.unlink(path.join(directory, file), err => {
-                                if (err) throw error;
+                    .then(function (result) {
+                        if (!result.isEmpty()) {
+                            var errorMessages = {};
+                            result.array().map(function (elem) {
+                                return errorMessages[elem.param] = elem.msg;
                             });
+                            throw new ValidationError(errorMessages);
                         }
-                    });             
-                })
-                .catch((error) => {
-                    callback.onError(error);
-                });
+                        return new Promise(function (resolve, reject) {
+                            StoreModel.findOne({ _id: req.params.id }, function (err, store) {
+                                if (err !== null) {
+                                    reject(err);
+                                } else {
+                                    if (!store) {
+                                        reject(new NotFoundError("store not found"));
+                                    } else {
+                                        resolve(store);
+                                    }
+                                }
+                            })
+                        });
+                    })
+                    .then((store) => {
+                        for (var key in data) {
+                            store[key] = data[key];
+                        }
+                        store.save();
+                        return store;
+                    })
+                    .then((saved) => {
+                        callback.onSuccess(saved);
+                        const directory = './uploads';
+                        fs.readdir(directory, (err, files) => {
+                            if (err) throw error;
+                            for (const file of files) {
+                                fs.unlink(path.join(directory, file), err => {
+                                    if (err) throw error;
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        callback.onError(error);
+                    });
             }
-          ], function(err, data) {
-                if (err) return callback.onError(err);
-                else return data;
-        });        
+        ], function (err, data) {
+            if (err) return callback.onError(err);
+            else return data;
+        });
     }
 
     getSingleStore(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     StoreModel.aggregate([
-                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
                         {
-                            "$match" : { "isActive": 1==1 }
+                            "$match": { "isActive": 1 == 1 }
                         },
                         {
                             "$lookup": {
@@ -694,7 +696,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "storesInfo"
                             }
-                        },                
+                        },
                         {
                             "$lookup": {
                                 "from": 'catalogs',
@@ -747,13 +749,13 @@ class StoreHandler extends BaseAutoBindedClass {
                             $unwind: {
                                 path: "$featureCatalog",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$reviews",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $lookup: {
@@ -767,25 +769,25 @@ class StoreHandler extends BaseAutoBindedClass {
                             $unwind: {
                                 path: "$reviews.users",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storesInfo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storesInfo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $group: {
-                                _id : "$_id",
-                                avgRating : { "$avg" : "$reviews.ratingScale"},
-                                storesInfo:{ $addToSet: '$storesInfo' },
+                                _id: "$_id",
+                                avgRating: { "$avg": "$reviews.ratingScale" },
+                                storesInfo: { $addToSet: '$storesInfo' },
                                 reviews: { $addToSet: '$reviews' },
                                 keywords: { $addToSet: '$keywords' },
                                 categoriesIds: { $addToSet: '$categoriesIds' },
@@ -814,13 +816,13 @@ class StoreHandler extends BaseAutoBindedClass {
                                 'customization': '$storesInfo.customization',
                                 'giftWrap': '$storesInfo.giftWrap',
                                 'cod': '$storesInfo.cod',
-                                'viewCount':  "$storesInfo.viewCount",
+                                'viewCount': "$storesInfo.viewCount",
                                 'freeShiping': '$storesInfo.freeShiping',
                                 'returnandreplace': '$storesInfo.returnandreplace',
                                 'bookmarkCount': '$storesInfo.bookmarkCount',
-                                'avgRating': {$divide:[{$subtract:[{$multiply:['$avgRating',10]}, { $mod: [{ $multiply: [ "$avgRating", 10 ] }, 1 ] },]},10]},
+                                'avgRating': { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
                                 reviews: {
-                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },                            
+                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },
                                 },
                                 keywords: {
                                     $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
@@ -843,209 +845,209 @@ class StoreHandler extends BaseAutoBindedClass {
                             $unwind: {
                                 path: "$storeName",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$isActive",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$address",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$viewCount",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storeLogo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storeBanner",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$buisnessOnline",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$buisnessOffline",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$buisnessBoth",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storePhone",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storeDiscription",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$webAddress",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$dispatchDayMin",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$dispatchDayMax",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$customization",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$giftWrap",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$cod",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$freeShiping",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$returnandreplace",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$countries",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$otherKeyword",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$keywords",
                                 preserveNullAndEmptyArrays: true
-                              }
-                        }, 
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$categoriesIds",
                                 preserveNullAndEmptyArrays: true
-                              }
-                        }, 
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$storeOffers",
                                 preserveNullAndEmptyArrays: true
-                              }
-                        }, 
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$storeCatalogs",
                                 preserveNullAndEmptyArrays: true
                             }
-                        },  
-                            {
+                        },
+                        {
                             $unwind: {
                                 path: "$bookmarkCount",
                                 preserveNullAndEmptyArrays: true
                             }
                         },
-                        { 
-                            $project : { 
+                        {
+                            $project: {
                                 dateModified: 0,
-                                dateCreated:0,
-                                __v:0,
-                                categoriesIds:{
+                                dateCreated: 0,
+                                __v: 0,
+                                categoriesIds: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                keyword:{
+                                keyword: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                storeCatalogs:{
+                                storeCatalogs: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                storeOffers:{
+                                storeOffers: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                reviews:{
+                                reviews: {
                                     dateModified: 0,
-                                    dateCreated:0,  
-                                    __v:0,
-                                    users:{
+                                    dateCreated: 0,
+                                    __v: 0,
+                                    users: {
                                         hashedPassword: 0,
                                         salt: 0,
                                         phone: 0,
-                                        dateCreated:0,  
-                                        isStore:0,  
-                                        isUser:0,  
-                                        iSAdmin:0,  
-                                        resetPasswordExpires:0,  
-                                        resetPasswordToken:0,  
-                                        __v:0,
+                                        dateCreated: 0,
+                                        isStore: 0,
+                                        isUser: 0,
+                                        iSAdmin: 0,
+                                        resetPasswordExpires: 0,
+                                        resetPasswordToken: 0,
+                                        __v: 0,
                                     }
-                                },                                
-                            } 
-                        },         
-                    ]).exec(function(err, results){
+                                },
+                            }
+                        },
+                    ]).exec(function (err, results) {
                         resolve(results);
                     })
                 });
             })
-            .then((result) => {   
-                StoreModel.findOne({ _id: req.params.id }, function(err, store) {
+            .then((result) => {
+                StoreModel.findOne({ _id: req.params.id }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
@@ -1057,14 +1059,14 @@ class StoreHandler extends BaseAutoBindedClass {
                             store.save();
                         }
                     }
-                }) 
+                })
                 callback.onSuccess(result);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
-    
+
     getStoreByCategoryId(req, callback) {
         let data = req.body;
         var matchQuery = [];
@@ -1073,22 +1075,22 @@ class StoreHandler extends BaseAutoBindedClass {
         var lattitude = this.noNaN(parseFloat(req.query.lat));
         var qString = {};
         for (var param in req.query) {
-            if(param!=="lng" && param!=="lat"){
+            if (param !== "lng" && param !== "lat") {
                 qString = {};
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
                 matchQuery.push(qString);
-            }             
+            }
         }
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     StoreModel.aggregate([
                         {
                             "$geoNear": {
@@ -1101,26 +1103,26 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "maxDistance": 0
                             }
                         },
-                        {$sort:{maxDistance:-1}},
+                        { $sort: { maxDistance: -1 } },
                         {
-                            "$match" : { "isActive": 1==1 }
+                            "$match": { "isActive": 1 == 1 }
                         },
                         {
                             $unwind: {
                                 path: "$categoriesIds",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
-                       
+
                         {
-                            $match:{
-                                $and:[
-                                    { "categoriesIds": { "$in": [mongoose.Types.ObjectId(req.params.id)]}},
-                                    {$and:matchQuery}
+                            $match: {
+                                $and: [
+                                    { "categoriesIds": { "$in": [mongoose.Types.ObjectId(req.params.id)] } },
+                                    { $and: matchQuery }
                                 ]
                             }
                         },
-                        
+
                         // { "$match": { "categoriesIds": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
                         {
                             "$lookup": {
@@ -1129,7 +1131,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "storesInfo"
                             }
-                        },                
+                        },
                         {
                             "$lookup": {
                                 "from": 'catalogs',
@@ -1182,13 +1184,13 @@ class StoreHandler extends BaseAutoBindedClass {
                             $unwind: {
                                 path: "$featureCatalog",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$reviews",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $lookup: {
@@ -1202,25 +1204,25 @@ class StoreHandler extends BaseAutoBindedClass {
                             $unwind: {
                                 path: "$reviews.users",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storesInfo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storesInfo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $group: {
-                                _id : "$_id",
-                                avgRating : { "$avg" : "$reviews.ratingScale"},
-                                storesInfo:{ $addToSet: '$storesInfo' },
+                                _id: "$_id",
+                                avgRating: { "$avg": "$reviews.ratingScale" },
+                                storesInfo: { $addToSet: '$storesInfo' },
                                 reviews: { $addToSet: '$reviews' },
                                 keywords: { $addToSet: '$keywords' },
                                 categoriesIds: { $addToSet: '$categoriesIds' },
@@ -1249,13 +1251,13 @@ class StoreHandler extends BaseAutoBindedClass {
                                 'customization': '$storesInfo.customization',
                                 'giftWrap': '$storesInfo.giftWrap',
                                 'cod': '$storesInfo.cod',
-                                'viewCount':  "$storesInfo.viewCount",
+                                'viewCount': "$storesInfo.viewCount",
                                 'freeShiping': '$storesInfo.freeShiping',
                                 'returnandreplace': '$storesInfo.returnandreplace',
                                 'bookmarkCount': '$storesInfo.bookmarkCount',
-                                'avgRating': {$divide:[{$subtract:[{$multiply:['$avgRating',10]}, { $mod: [{ $multiply: [ "$avgRating", 10 ] }, 1 ] },]},10]},
+                                'avgRating': { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
                                 reviews: {
-                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },                            
+                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },
                                 },
                                 keywords: {
                                     $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
@@ -1278,209 +1280,209 @@ class StoreHandler extends BaseAutoBindedClass {
                             $unwind: {
                                 path: "$storeName",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$isActive",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$address",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$viewCount",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storeLogo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storeBanner",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$buisnessOnline",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$buisnessOffline",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$buisnessBoth",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storePhone",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$storeDiscription",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$webAddress",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$dispatchDayMin",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$dispatchDayMax",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$customization",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$giftWrap",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$cod",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$freeShiping",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$returnandreplace",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$countries",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$otherKeyword",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$keywords",
                                 preserveNullAndEmptyArrays: true
-                              }
-                        }, 
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$categoriesIds",
                                 preserveNullAndEmptyArrays: true
-                              }
-                        }, 
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$storeOffers",
                                 preserveNullAndEmptyArrays: true
-                              }
-                        }, 
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$storeCatalogs",
                                 preserveNullAndEmptyArrays: true
                             }
-                        },  
-                            {
+                        },
+                        {
                             $unwind: {
                                 path: "$bookmarkCount",
                                 preserveNullAndEmptyArrays: true
                             }
                         },
-                        { 
-                            $project : { 
+                        {
+                            $project: {
                                 dateModified: 0,
-                                dateCreated:0,
-                                __v:0,
-                                categoriesIds:{
+                                dateCreated: 0,
+                                __v: 0,
+                                categoriesIds: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                keyword:{
+                                keyword: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                storeCatalogs:{
+                                storeCatalogs: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                storeOffers:{
+                                storeOffers: {
                                     dateModified: 0,
-                                    dateCreated:0,
-                                    __v:0,
+                                    dateCreated: 0,
+                                    __v: 0,
                                 },
-                                reviews:{
+                                reviews: {
                                     dateModified: 0,
-                                    dateCreated:0,  
-                                    __v:0,
-                                    users:{
+                                    dateCreated: 0,
+                                    __v: 0,
+                                    users: {
                                         hashedPassword: 0,
                                         salt: 0,
                                         phone: 0,
-                                        dateCreated:0,  
-                                        isStore:0,  
-                                        isUser:0,  
-                                        iSAdmin:0,  
-                                        resetPasswordExpires:0,  
-                                        resetPasswordToken:0,  
-                                        __v:0,
+                                        dateCreated: 0,
+                                        isStore: 0,
+                                        isUser: 0,
+                                        iSAdmin: 0,
+                                        resetPasswordExpires: 0,
+                                        resetPasswordToken: 0,
+                                        __v: 0,
                                     }
-                                },                                
-                            } 
-                        },         
-                    ]).exec(function(err, results){
+                                },
+                            }
+                        },
+                    ]).exec(function (err, results) {
                         resolve(results);
                     })
                 });
             })
-            .then((result) => {   
-                StoreModel.findOne({ _id: req.params.id }, function(err, store) {
+            .then((result) => {
+                StoreModel.findOne({ _id: req.params.id }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
@@ -1492,7 +1494,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             store.save();
                         }
                     }
-                }) 
+                })
                 callback.onSuccess(result);
             })
             .catch((error) => {
@@ -1508,24 +1510,525 @@ class StoreHandler extends BaseAutoBindedClass {
         var lattitude = this.noNaN(parseFloat(req.query.lat));
         var qString = {};
         for (var param in req.query) {
-            if((param!=="lng" && param!=="lat") && (param=="buisnessOnline" || param=="buisnessOffline")){
+            if ((param !== "lng" && param !== "lat") && (param == "buisnessOnline" || param == "buisnessOffline")) {
                 qString = {};
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
                 matchQuery.push(qString);
-            }             
+            }
         }
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                new Promise(function(resolve, reject) {
-                    if(req.query.buisnessOffline=="true") 
-                    { 
-                        StoreModel.aggregate([  
+                new Promise(function (resolve, reject) {
+                    if (req.query.buisnessOffline == "true") {
+                        StoreModel.aggregate([
+                            {
+                                "$geoNear": {
+                                    "near": {
+                                        "type": "Point",
+                                        "coordinates": [longitude, lattitude]
+                                    },
+                                    "distanceField": "distance",
+                                    "spherical": true,
+                                    "maxDistance": 0
+                                }
+                            },
+                            {
+                                "$match": { "isActive": 1 == 1 }
+                            },
+                            {
+                                "$match": { $and: matchQuery }
+                            },
+                            {
+                                $project: {
+                                    finalTotal: {
+                                        $let: {
+                                            vars: {
+                                                total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$viewCount" }] },
+                                            },
+                                            in: { $add: ["$avgRating", "$$total"] }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "$lookup": {
+                                    "from": 'stores',
+                                    "localField": "_id",
+                                    "foreignField": "_id",
+                                    "as": "storesInfo"
+                                }
+                            },
+                            {
+                                $project: {
+                                    storeName: '$storesInfo.storeName',
+                                    avgRating: '$storesInfo.avgRating',
+                                    storeBanner: '$storesInfo.storeBanner',
+                                    storeDiscription: '$storesInfo.storeDiscription',
+                                    storeLogo: '$storesInfo.storeLogo',
+                                    keywords: '$storesInfo.keywords',
+                                    featureCatalog: '$storesInfo.featureCatalog',
+                                    finalTotal: '$finalTotal',
+                                    distance: '$distance',
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeName",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$avgRating",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeBanner",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeDiscription",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeLogo",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$featureCatalog",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                "$lookup": {
+                                    "from": 'catalogs',
+                                    "localField": "featureCatalog",
+                                    "foreignField": "_id",
+                                    "as": "featureCatalogInfo"
+                                }
+                            },
+                            { $sort: { finalTotal: -1 } },
+                            { $limit: 10 },
+                        ]).exec(function (err, results) {
+                            resolve(results);
+                        }).then((results) => {
+                            callback.onSuccess(results);
+                        })
+                    } else {
+                        StoreModel.aggregate([
+                            {
+                                "$match": { "isActive": 1 == 1 }
+                            },
+                            {
+                                "$match": { $and: matchQuery }
+                            },
+                            {
+                                $project: {
+                                    finalTotal: {
+                                        $let: {
+                                            vars: {
+                                                total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$viewCount" }] },
+                                            },
+                                            in: { $add: ["$avgRating", "$$total"] }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "$lookup": {
+                                    "from": 'stores',
+                                    "localField": "_id",
+                                    "foreignField": "_id",
+                                    "as": "storesInfo"
+                                }
+                            },
+                            {
+                                $project: {
+                                    storeName: '$storesInfo.storeName',
+                                    avgRating: '$storesInfo.avgRating',
+                                    storeBanner: '$storesInfo.storeBanner',
+                                    storeDiscription: '$storesInfo.storeDiscription',
+                                    storeLogo: '$storesInfo.storeLogo',
+                                    keywords: '$storesInfo.keywords',
+                                    featureCatalog: '$storesInfo.featureCatalog',
+                                    finalTotal: '$finalTotal',
+                                    distance: '$distance',
+                                }
+                            },
+
+                            {
+                                $unwind: {
+                                    path: "$storeName",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$avgRating",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeBanner",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeDiscription",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$storeLogo",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$featureCatalog",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                "$lookup": {
+                                    "from": 'catalogs',
+                                    "localField": "featureCatalog",
+                                    "foreignField": "_id",
+                                    "as": "featureCatalogInfo"
+                                }
+                            },
+                            { $sort: { finalTotal: -1 } },
+                            { $limit: 5 },
+                        ]).exec(function (err, results) {
+                            resolve(results);
+                        }).then((results) => {
+                            callback.onSuccess(results);
+                        })
+                    }
+                });
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    // getStoreBySearch(req, callback) {
+    //     let data = req.body;
+    //     var matchQuery = [];
+    //     var ObjectID = require('mongodb').ObjectID;
+    //     var qString = {};
+
+    //     for (var param in req.query) {
+    //         qString = {};
+    //         if (param == "buisnessOnline" || param == "buisnessOffline") {
+    //             qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
+    //             matchQuery.push(qString);
+    //         }
+    //     }
+    //     req.getValidationResult()
+    //         .then(function (result) {
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+    //             return new Promise(function (resolve, reject) {
+    //                 KeywordModel.aggregate(
+    //                     { "$match": { title: { '$regex': req.query.search, '$options': 'i' } } },
+    //                     {
+    //                         $project: {
+    //                             _id: 1,
+    //                         }
+    //                     }
+    //                 )
+    //                     .exec(function (err, results) {
+    //                         resolve(results);
+    //                     })
+    //             });
+    //         }).then((keywords) => {
+    //             let objectAray = [];
+    //             for (var i = 0; i < keywords.length; i++) {
+    //                 objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
+    //             }
+    //             var longitude = this.noNaN(parseFloat(req.query.lng));
+    //             var lattitude = this.noNaN(parseFloat(req.query.lat));
+    //             return new Promise(function (resolve, reject) {
+    //                 StoreModel.aggregate(
+    //                     // {
+    //                     //     "$geoNear": {
+    //                     //         "near": {
+    //                     //             "type": "Point",
+    //                     //             "coordinates": [longitude, lattitude]
+    //                     //         },
+    //                     //         "distanceField": "distance",
+    //                     //         "spherical": true,
+    //                     //         "maxDistance": 0
+    //                     //     }
+    //                     // },
+    //                     { $sort: { maxDistance: -1 } },
+    //                     {
+    //                         $match: {
+    //                             $and: [
+    //                                 {
+    //                                     $or: [
+    //                                         { "storeName": { $regex: req.query.search, '$options': 'i' } },
+    //                                         { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
+    //                                         { "keyword": { "$in": objectAray } },
+    //                                         { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] } },
+
+    //                                     ]
+    //                                 },
+    //                                 { $and: matchQuery }
+    //                             ]
+    //                         }
+    //                     }).exec(function (err, results) {
+    //                         resolve(results);
+    //                     })
+    //             });
+    //         })
+    //         .then((stores) => {
+    //             callback.onSuccess(stores);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
+
+
+
+    getStoreBySearch(req, callback) {
+        let data = req.body;
+        var ObjectID = require('mongodb').ObjectID;
+        let query = req.query;
+        let mongoQuery = { isActive: true };
+        let skip = 0;
+        let limit = 10;
+
+        // if (req.query.active === undefined) {
+        //     req.query.active = null;
+        // }
+        // console.log(query);
+        for (var key in query) {
+            if (key == "search") {
+                mongoQuery['$or'] = [
+                    { 'storeName': { $regex: new RegExp(query[key], 'i') } },
+                    { 'storeDiscription': { $regex: new RegExp(query[key], 'i') } }
+                ]
+                // mongoQuery['$text'] = { '$search': 'Sanjay' }                
+            } else if (key == "location") {
+                mongoQuery['storeCity'] = query[key]
+            } else if (key == "active") {
+                mongoQuery['isActive'] = ('true' === query[key]);
+            } else if (key == "category") {
+                mongoQuery['categoriesIds'] = { "$in": [query[key]] };
+            } else if (key == "buisnessOnline") {
+                mongoQuery['buisnessOnline'] = ('true' === query[key]);
+            } else if (key == "buisnessOffline") {
+                mongoQuery['buisnessOffline'] = ('true' === query[key]);
+            } else if (key == "buisnessBoth") {
+                mongoQuery['buisnessBoth'] = ('true' === query[key]);
+            } else if (key == "keyword") {
+                mongoQuery['keyword'] = { "$in": [query[key]] };
+            } else if (key == "otherKeyword") {
+                mongoQuery['otherKeyword'] = { "$in": [query[key]] };
+            } else if (key == "startStores") {
+                skip = parseInt(query[key]);
+            } else if (key == "endStores") {
+                limit = parseInt(query[key]) - skip;
+            }
+        }
+
+        //    let storefileter = "{ $regex: new RegExp('s', 'i') }";
+
+        //        console.log(storefileter);
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+
+
+                    // StoreModel
+                    //     .where('storeName').gte(req.query.search).exec(function (err, results) {
+                    //         resolve(results);
+                    //     })
+
+                    StoreModel.find(
+                        mongoQuery
+                        //{
+                        // otherKeyword: { "$in": ['keyword1'] }
+                        // mongoQuery
+                        // storeName: storefileter,
+                        // isActive: { $eq: req.query.active },
+                        // storeCity: { $eq: req.query.location },              
+                        //}     
+                    ).skip(skip).limit(limit).exec(function (err, results) {
+                        resolve(results);
+                    })
+
+                    // StoreModel.where('storeName').eq(req.query.search).ne(null).exists(true).exec(function (err, results) {
+                    //     resolve(results);
+                    // })
+
+
+                    // StoreModel.aggregate(
+                    //     {
+                    //         $match: {
+                    //             // $cond: {
+                    //             //     "if": {   // (case 1 --> same as left varaible query )
+
+                    //             //                        "$and": [{
+
+                    //             //                            "$gt": ["$endTime", new Date(filterDate.from)]
+
+                    //             //                        }, {
+
+                    //             //                            "$lte": ["$endTime", new Date(filterDate.to)]
+
+                    //             //                        }, {
+
+                    //             //                            "$lt": ["$startTime", new Date(filterDate.from)]
+
+                    //             //                        }]
+
+                    //             //                    },
+
+                    //             //                    "then": {
+
+
+
+                    //             //                        "$divide": [{
+
+                    //             //                            "$subtract": ["$endTime", new Date(filterDate.from)]
+
+                    //             //                        }, 1000] // ( case 1 --> duration calculation)
+
+                    //             //                    },
+                    //             // },
+
+
+                    //             $and: [
+                    //                 {
+                    //                     $or: [
+                    //                         { "storeName": { $exists: true, $regex: req.query.search, '$options': 'i' } },
+                    //                         { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
+                    //                     ]
+                    //                 }
+                    //             ]
+                    //         }
+                    //     }).exec(function (err, results) {
+                    //         resolve(results);
+                    //     })
+                });
+            })
+            // .then((stores) => {
+            //     return new Promise(function (resolve, reject) {
+            //         StoreModel.aggregate(
+            //             {
+            //                 $match: {
+            //                     $and: [
+            //                         {
+            //                             $or: [
+            //                                 { "storeName": { $exists: true, $regex: "Near Govardhan Partyplot", '$options': 'i' } },
+            //                                 { "storeDescription": { $regex: "a", '$options': 'i' } },
+            //                             ]
+            //                         }
+            //                     ]
+            //                 }
+            //             }).exec(function (err, results) {
+            //                 resolve(results);
+            //             })
+            //     });
+            // })
+            .then((stores) => {
+                callback.onSuccess(stores);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    getStoreByKeywordCategory(req, callback) {
+        let data = req.body;
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        var keywordsArray = [];
+        var categoriesArray = [];
+        var longitude = this.noNaN(parseFloat(req.query.lng));
+        var lattitude = this.noNaN(parseFloat(req.query.lat));
+        for (var param in req.query) {
+            qString = {};
+            if (param == "buisnessOnline" || param == "buisnessOffline") {
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
+                matchQuery.push(qString);
+            }
+        }
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.aggregate(
+                        { "$match": { title: { '$regex': req.query.search } } },
+                        {
+                            $project: {
+                                _id: 1,
+                            }
+                        }
+                    )
+                        .exec(function (err, results) {
+                            resolve(results);
+                        })
+                });
+            }).then((keywords) => {
+                for (var i = 0; i < keywords.length; i++) {
+                    keywordsArray[i] = mongoose.Types.ObjectId(keywords[i]._id);
+                }
+                return new Promise(function (resolve, reject) {
+                    CategoryModel.aggregate(
+                        { "$match": { category: { '$regex': req.query.search } } },
+                        {
+                            $project: {
+                                _id: 1,
+                            }
+                        }
+                    ).exec(function (err, results) {
+                        resolve(results);
+                    })
+                });
+            }).then((categories) => {
+                for (var i = 0; i < categories.length; i++) {
+                    categoriesArray[i] = mongoose.Types.ObjectId(categories[i]._id);
+                }
+                return new Promise(function (resolve, reject) {
+                    StoreModel.aggregate(
                         {
                             "$geoNear": {
                                 "near": {
@@ -1537,365 +2040,26 @@ class StoreHandler extends BaseAutoBindedClass {
                                 "maxDistance": 0
                             }
                         },
+                        { $sort: { maxDistance: -1 } },
                         {
-                            "$match" : { "isActive": 1==1 }
-                        },
-                        {
-                            "$match" : { $and : matchQuery }
-                        },
-                        {
-                            $project: {
-                                finalTotal: {
-                                    $let: {
-                                        vars: {
-                                        total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
-                                        },
-                                        in: { $add: [ "$avgRating", "$$total" ] }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "_id",
-                                "foreignField": "_id",
-                                "as": "storesInfo"
-                            }
-                        }, 
-                        {
-                            $project: {
-                                storeName:'$storesInfo.storeName',
-                                avgRating:'$storesInfo.avgRating',
-                                storeBanner:'$storesInfo.storeBanner',
-                                storeDiscription:'$storesInfo.storeDiscription',
-                                storeLogo:'$storesInfo.storeLogo',
-                                keywords:'$storesInfo.keywords',
-                                featureCatalog:'$storesInfo.featureCatalog',
-                                finalTotal:'$finalTotal',
-                                distance:'$distance',
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeName",
-                                preserveNullAndEmptyArrays: true
-                                }
-                        },
-                        {
-                            $unwind: {
-                                path: "$avgRating",
-                                preserveNullAndEmptyArrays: true
-                                }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeBanner",
-                                preserveNullAndEmptyArrays: true
-                                }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeDiscription",
-                                preserveNullAndEmptyArrays: true
-                                }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeLogo",
-                                preserveNullAndEmptyArrays: true
-                                }
-                        },
-                        {
-                            $unwind: {
-                                path: "$featureCatalog",
-                                preserveNullAndEmptyArrays: true
-                                }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "featureCatalog",
-                                "foreignField": "_id",
-                                "as": "featureCatalogInfo"
-                            }
-                        }, 
-                        {$sort:{finalTotal:-1}},
-                        {$limit:10},
-                    ]).exec(function(err, results){
-                        resolve(results);
-                    }) .then((results) => {   
-                        callback.onSuccess(results);
-                    })  
-                }else{
-                    StoreModel.aggregate([  
-                    {
-                        "$match" : { "isActive": 1==1 }
-                    },
-                    {
-                        "$match" : { $and : matchQuery }
-                    },
-                    {
-                        $project: {
-                            finalTotal: {
-                                $let: {
-                                    vars: {
-                                    total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
+                            $match: {
+                                $and: [
+                                    {
+                                        $or: [
+                                            { "storeName": { $regex: req.query.search } },
+                                            // {"storeDescription" : {$regex : req.query.search}},
+                                            { "keyword": { "$in": keywordsArray } },
+                                            { "categoriesIds": { "$in": categoriesArray } },
+                                            { "otherKeyword": { $regex: req.query.search } },
+
+                                        ]
                                     },
-                                    in: { $add: [ "$avgRating", "$$total" ] }
-                                }
+                                    { $and: matchQuery }
+                                ]
                             }
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'stores',
-                            "localField": "_id",
-                            "foreignField": "_id",
-                            "as": "storesInfo"
-                        }
-                    }, 
-                    {
-                        $project: {
-                            storeName:'$storesInfo.storeName',
-                            avgRating:'$storesInfo.avgRating',
-                            storeBanner:'$storesInfo.storeBanner',
-                            storeDiscription:'$storesInfo.storeDiscription',
-                            storeLogo:'$storesInfo.storeLogo',
-                            keywords:'$storesInfo.keywords',
-                            featureCatalog:'$storesInfo.featureCatalog',
-                            finalTotal:'$finalTotal',
-                            distance:'$distance',
-                        }
-                    },
-                    
-                    {
-                        $unwind: {
-                            path: "$storeName",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$avgRating",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeBanner",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeDiscription",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeLogo",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$featureCatalog",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'catalogs',
-                            "localField": "featureCatalog",
-                            "foreignField": "_id",
-                            "as": "featureCatalogInfo"
-                        }
-                    }, 
-                    {$sort:{finalTotal:-1}},
-                    {$limit:5},
-                    ]).exec(function(err, results){
-                        resolve(results);
-                    }) .then((results) => {   
-                        callback.onSuccess(results);
-                    }) 
-                }     
-            });
-        })   
-        .catch((error) => {
-            callback.onError(error);
-        });
-    }
-
-    getStoreBySearch(req, callback) {
-        let data = req.body;   
-        var matchQuery = [];
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        for (var param in req.query) {
-            qString = {};
-            if(param == "buisnessOnline" || param == "buisnessOffline"){
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
-                matchQuery.push(qString);
-            }          
-        }  
-        req.getValidationResult()
-            .then(function(result) {                
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) { 
-                    KeywordModel.aggregate(
-                        {"$match":{ title: { '$regex': req.query.search ,'$options' : 'i'}}},
-                        {
-                            $project:{
-                                _id:1,
-                            }
-                        }
-                    )
-                    .exec(function(err, results){
-                        resolve(results);
-                    })
-                });
-            }).then((keywords) => {                
-                let objectAray = [];
-                for(var i=0;i<keywords.length;i++){
-                    objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
-                }
-                var longitude = this.noNaN(parseFloat(req.query.lng));
-                var lattitude = this.noNaN(parseFloat(req.query.lat));
-                return new Promise(function(resolve, reject) { 
-                    StoreModel.aggregate(
-                    {
-                        "$geoNear": {
-                            "near": {
-                                "type": "Point",
-                                "coordinates": [longitude, lattitude]
-                            },
-                            "distanceField": "distance",
-                            "spherical": true,
-                            "maxDistance": 0
-                        }
-                    },
-                    {$sort:{maxDistance:-1}},
-                    {
-                        $match:{
-                            $and:[
-                                {$or:[
-                                    {"storeName" : {$regex : req.query.search,'$options' : 'i'}},
-                                    {"storeDescription" : {$regex : req.query.search,'$options' : 'i'}},
-                                    {"keyword": { "$in": objectAray }},
-                                    {"keyword":{ "$in": [mongoose.Types.ObjectId(req.query.keywordId)]}},
-                                    
-                                ]},
-                                {$and:matchQuery}
-                            ]
-                        }
-                    }).exec(function(err, results){
-                        resolve(results);
-                    })
-                });
-            })
-            .then((stores) => {
-                callback.onSuccess(stores);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
-
-    getStoreByKeywordCategory(req, callback) {
-        let data = req.body;   
-        var matchQuery = [];        
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        var keywordsArray = [];
-        var categoriesArray = [];
-        var longitude = this.noNaN(parseFloat(req.query.lng));
-        var lattitude = this.noNaN(parseFloat(req.query.lat));
-        for (var param in req.query) {
-            qString = {};
-            if(param == "buisnessOnline" || param == "buisnessOffline"){
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
-                matchQuery.push(qString);
-            }             
-        }  
-        req.getValidationResult()
-            .then(function(result) {                
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) { 
-                    KeywordModel.aggregate(
-                        {"$match":{ title: { '$regex': req.query.search }}},
-                        {
-                            $project:{
-                                _id:1,
-                            }
-                        }
-                    )
-                    .exec(function(err, results){
-                        resolve(results);
-                    })
-                });
-            }).then((keywords) => {         
-                for(var i=0;i<keywords.length;i++){
-                    keywordsArray[i] = mongoose.Types.ObjectId(keywords[i]._id);
-                }
-                return new Promise(function(resolve, reject) { 
-                    CategoryModel.aggregate(
-                        {"$match":{ category: { '$regex': req.query.search }}},
-                        {
-                            $project:{
-                                _id:1,
-                            }
-                        }
-                        ).exec(function(err, results){
+                        }).exec(function (err, results) {
                             resolve(results);
                         })
-                });
-            }).then((categories) => {                
-                for(var i=0;i<categories.length;i++){
-                    categoriesArray[i] = mongoose.Types.ObjectId(categories[i]._id);
-                }
-                return new Promise(function(resolve, reject) { 
-                    StoreModel.aggregate(
-                    {
-                        "$geoNear": {
-                            "near": {
-                                "type": "Point",
-                                "coordinates": [longitude, lattitude]
-                            },
-                            "distanceField": "distance",
-                            "spherical": true,
-                            "maxDistance": 0
-                        }
-                    },
-                    {$sort:{maxDistance:-1}},
-                    {
-                        $match:{
-                            $and:[
-                                {$or:[
-                                    {"storeName" : {$regex : req.query.search}},
-                                    // {"storeDescription" : {$regex : req.query.search}},
-                                    {"keyword": { "$in": keywordsArray }},
-                                    {"categoriesIds": { "$in": categoriesArray }},
-                                    {"otherKeyword": {$regex : req.query.search}},
-                                    
-                                ]},
-                                {$and:matchQuery}
-                            ]
-                        }
-                    }).exec(function(err, results){
-                        resolve(results);
-                    })
                 });
             })
             .then((stores) => {
@@ -1908,15 +2072,15 @@ class StoreHandler extends BaseAutoBindedClass {
 
     getAllStores(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-                StoreModel.find({}).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).exec(function(err, store) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        resolve(store);
-                    }
-                });
-            })
+        new Promise(function (resolve, reject) {
+            StoreModel.find({}).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).exec(function (err, store) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    resolve(store);
+                }
+            });
+        })
             .then((store) => {
                 callback.onSuccess(store);
             })
@@ -1926,14 +2090,14 @@ class StoreHandler extends BaseAutoBindedClass {
     }
 
     objectify(array) {
-        if(array!== undefined){
-            return array.reduce(function(p, c) {
+        if (array !== undefined) {
+            return array.reduce(function (p, c) {
                 p[c['fieldname']] = c;
                 return p;
             }, {});
         }
     }
 
-    noNaN( n ) { return isNaN( n ) ? 0 : n; }
+    noNaN(n) { return isNaN(n) ? 0 : n; }
 }
 module.exports = StoreHandler;

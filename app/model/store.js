@@ -16,7 +16,7 @@ let StoreSchema = new Schema({
     buisnessOffline: Boolean,
     buisnessBoth: Boolean,
     address: String,
-    storePhone:Number,
+    storePhone: Number,
     storeDiscription: String,
     keyword: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -54,15 +54,19 @@ let StoreSchema = new Schema({
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-StoreSchema.pre('update', function(next, done) {
+
+
+StoreSchema.index({ storeDiscription: 'text', storeName: 'text' });
+
+StoreSchema.pre('update', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-StoreSchema.pre('save', function(next, done) {
+StoreSchema.pre('save', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-StoreSchema.methods.toJSON = function() {
+StoreSchema.methods.toJSON = function () {
     let obj = this.toObject();
     delete obj.__v;
     delete obj.dateModified;
