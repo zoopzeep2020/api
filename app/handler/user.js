@@ -228,59 +228,59 @@ const mongoose = require('mongoose');
  *         description: object of activity".
  */
 
- /**
- * @swagger
- * /users/?{continuewithexistingstore}:
- *   post:
- *     tags:
- *       - User
- *     description: create user for email which is already exist as a store
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: name
- *         description: name
- *         in: body
- *         required: true
- *         type: string
- *       - name: phone
- *         description: phone
- *         in: body
- *         required: true
- *         type: number
- *       - name: email
- *         description: email
- *         in: body
- *         required: true
- *         type: string
- *       - name: password
- *         description: password
- *         in: body
- *         required: true
- *         type: string
- *       - name: isUser
- *         description: isUser
- *         in: body
- *         type: boolean
- *       - name: isStore
- *         description: isStore
- *         in: body
- *         type: boolean
- *       - name: continuewithexistingstore
- *         description: true if you want to continue and false if not
- *         in: body
- *         required: true
- *         type: boolean
- *     responses:
- *       200:
- *         description: object of activity".
- */
+/**
+* @swagger
+* /users/?{continuewithexistingstore}:
+*   post:
+*     tags:
+*       - User
+*     description: create user for email which is already exist as a store
+*     produces:
+*       - application/json
+*     parameters:
+*       - name: Authorization
+*         description: basic authorization
+*         in: header
+*         required: true
+*         type: string
+*         default: maximumvsminimumsecurity
+*       - name: name
+*         description: name
+*         in: body
+*         required: true
+*         type: string
+*       - name: phone
+*         description: phone
+*         in: body
+*         required: true
+*         type: number
+*       - name: email
+*         description: email
+*         in: body
+*         required: true
+*         type: string
+*       - name: password
+*         description: password
+*         in: body
+*         required: true
+*         type: string
+*       - name: isUser
+*         description: isUser
+*         in: body
+*         type: boolean
+*       - name: isStore
+*         description: isStore
+*         in: body
+*         type: boolean
+*       - name: continuewithexistingstore
+*         description: true if you want to continue and false if not
+*         in: body
+*         required: true
+*         type: boolean
+*     responses:
+*       200:
+*         description: object of activity".
+*/
 /**
  * @swagger
  * /users/?{continuewithexistinguser}:
@@ -334,36 +334,36 @@ const mongoose = require('mongoose');
  *       200:
  *         description: object of activity".
  */
-     /**
- * @swagger
- * definition:
- *   UpdateActivitiesObj:
- *     properties:
- *       name:
- *         type: string
- *       phone:
- *         type: string
- *       deviceToken:
- *         type: string
- *       deviceType:
- *         type: string
- *       userImage:
- *         type: string
- *       categoriesIds:
- *         type: array
- *         items:
- *          type: string
- *       isUser:
- *         type: boolean
- *       isStore:
- *         type: boolean
- *       isAdmin:
- *         type: boolean
- *       storeId:
- *         type: string
- *       email:
- *         type: string
- */
+/**
+* @swagger
+* definition:
+*   UpdateActivitiesObj:
+*     properties:
+*       name:
+*         type: string
+*       phone:
+*         type: string
+*       deviceToken:
+*         type: string
+*       deviceType:
+*         type: string
+*       userImage:
+*         type: string
+*       categoriesIds:
+*         type: array
+*         items:
+*          type: string
+*       isUser:
+*         type: boolean
+*       isStore:
+*         type: boolean
+*       isAdmin:
+*         type: boolean
+*       storeId:
+*         type: string
+*       email:
+*         type: string
+*/
 class UserHandler {
     constructor() {
         this._validator = require('validator');
@@ -375,7 +375,7 @@ class UserHandler {
         return {
             'name': {
                 isLength: {
-                    options: [{ min: 2}],
+                    options: [{ min: 2 }],
                     errorMessage: 'Name must be 2 characters long'
                 },
                 notEmpty: true,
@@ -387,11 +387,11 @@ class UserHandler {
                 },
                 notEmpty: true,
                 errorMessage: "Email is required"
-                
+
             },
             'password': {
                 isLength: {
-                    options: [{ min: 8}],
+                    options: [{ min: 8 }],
                     errorMessage: 'Password must be 8 characters long'
                 },
                 notEmpty: true,
@@ -406,65 +406,68 @@ class UserHandler {
                 errorMessage: 'Phone is required'
             }
         };
-    }   
+    }
 
     createNewUser(req, callback) {
         let data = req.body;
         let validator = this._validator;
         let storeHandler = this._storeHandler;
         let request = req;
+
         req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
         req.checkBody('isStore', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
         req.checkBody('isUser', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
         req.getValidationResult()
-            .then(function(result) {
-                    var errorMessages = {};
-                    if (!result.isEmpty()) {
-                        let errorMessages = result.array().map(function (elem) {
-                                return elem.msg;
-                        });
-                        throw new ValidationError(errorMessages.join(' && ')); ValidationError(errorMessages);
-                    }
+            .then(function (result) {
+                var errorMessages = {};
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages.join(' && ')); ValidationError(errorMessages);
+                }
                 return data;
             })
             .then((user) => {
-                return new Promise(function(resolve, reject) {
-                    UserModel.findOne({ email: user.email }, function(err, docs) {
+                return new Promise(function (resolve, reject) {
+                    console.log(data);
+                    UserModel.findOne({ email: user.email }, function (err, docs) {
                         user.userImage = "";
                         // for result found or not 
-                        if (docs != null) {                    
+                        if (docs != null) {
                             // check user already exists
-                            if(docs.isStore && docs.isUser){  
-                                if(user.isStore){
+                            if (docs.isStore && docs.isUser) {
+                                if (user.isStore) {
                                     reject(new AlreadyExistsError("Store already exists"));
-                                }else{
+                                } else {
                                     reject(new AlreadyExistsError("User already exists"));
                                 }
-                            }else{
-                                if(user.isStore){
-                                    if(user.isStore && docs.isUser && !docs.isStore && !(req.query.continuewithexistinguser=="true")){
+                            } else {
+
+                                if (user.isStore) {
+                                    if (user.isStore && docs.isUser && !docs.isStore && !(req.query.continuewithexistinguser == "true")) {
                                         reject(new AlreadyExistsError("user already exists with this email. Would you like to continue?"));
-                                    }else if(!docs.isStore){
+                                    } else if (!docs.isStore) {
                                         storeHandler.createNewStore(request, {
-                                            onSuccess: function(data) {
+                                            onSuccess: function (data) {
                                                 docs.isStore = true;
                                                 docs.storeId = data._id;
                                                 resolve(docs);
                                             },
-                                            onError: function(data) {
+                                            onError: function (data) {
                                                 reject(new AlreadyExistsError("Somthing happend wrong"));
                                             },
                                         });
-                                    }else{
+                                    } else {
                                         reject(new AlreadyExistsError("Store already exists"));
                                     }
-                                }else{ 
-                                    if(user.isUser && docs.isStore && !docs.isUser && !(req.query.continuewithexistingstore=="true")){
+                                } else {
+                                    if (user.isUser && docs.isStore && !docs.isUser && !(req.query.continuewithexistingstore == "true")) {
                                         reject(new AlreadyExistsError("store already exists with this email. Would you like to continue?"));
-                                    }else  if(!docs.isUser){
+                                    } else if (!docs.isUser) {
                                         docs.isUser = true;
                                         resolve(docs);
-                                    }else{
+                                    } else {
                                         reject(new AlreadyExistsError("User already exists"));
                                     }
                                 }
@@ -472,11 +475,11 @@ class UserHandler {
                         } else {
                             if (user.isStore) {
                                 storeHandler.createNewStore(request, {
-                                    onSuccess: function(data) {
+                                    onSuccess: function (data) {
                                         user.storeId = data._id;
                                         resolve(new UserModel(user));
                                     },
-                                    onError: function(data) {
+                                    onError: function (data) {
                                         reject(new AlreadyExistsError("Somthing happend wrong"));
                                     },
                                 });
@@ -489,22 +492,23 @@ class UserHandler {
                 });
             })
             .then((user) => {
+                console.log(user);
                 user.email = user.email.toLowerCase();
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
-                    token:userToken.token,
-                    _id:user._id,
-                    name:user.name,
-                    userId:user.name,
-                    email:user.email.toLowerCase(),  
-                    phone:user.phone,
-                    latLong:user.latLong,
-                    userImage:user.userImage,
-                    deviceToken:user.deviceToken,
-                    storeId:user.storeId,
-                    isStore:user.isStore,
-                    isUser:user.isUser,
+                    token: userToken.token,
+                    _id: user._id,
+                    name: user.name,
+                    userId: user.name,
+                    email: user.email.toLowerCase(),
+                    phone: user.phone,
+                    latLong: user.latLong,
+                    userImage: user.userImage,
+                    deviceToken: user.deviceToken,
+                    storeId: user.storeId,
+                    isStore: user.isStore,
+                    isUser: user.isUser,
                 };
                 return data;
             })
@@ -520,7 +524,7 @@ class UserHandler {
         let data = req.body;
         req.checkBody('adminKey', 'adminKey is required').notEmpty();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -530,29 +534,29 @@ class UserHandler {
                 return data;
             })
             .then((user) => {
-                return new Promise(function(resolve, reject) {
-                    var count = AdminModel.count({}, function(err, count){
-                        if(count <= 0){
+                return new Promise(function (resolve, reject) {
+                    var count = AdminModel.count({}, function (err, count) {
+                        if (count <= 0) {
                             new AdminModel({
-                                adminKey:"zeepzoopadminkey"
+                                adminKey: "zeepzoopadminkey"
                             }).save();
                         }
                     });
-                    AdminModel.findOne({ adminKey: req.body.adminKey }, function(err, key) {
+                    AdminModel.findOne({ adminKey: req.body.adminKey }, function (err, key) {
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!key) {
                                 reject(new NotFoundError("key not match"));
                             } else {
-                                UserModel.findOne({ email: req.body.email.toLowerCase() }, function(err, user) {
+                                UserModel.findOne({ email: req.body.email.toLowerCase() }, function (err, user) {
                                     if (err !== null) {
                                         reject(err);
                                     } else {
                                         if (!user) {
                                             reject(new NotFoundError("User not found"));
                                         } else {
-                                            
+
                                             resolve([user, key]);
                                         }
                                     }
@@ -563,10 +567,10 @@ class UserHandler {
                 });
             })
             .then((result) => {
-                return new Promise(function(resolve, reject) {
-                    crypto.randomBytes(20, function(err, buf, user, key) {
+                return new Promise(function (resolve, reject) {
+                    crypto.randomBytes(20, function (err, buf, user, key) {
                         var token = buf.toString('hex');
-                        if(err) reject(err);
+                        if (err) reject(err);
                         resolve([result[0], result[1], token]);
                     });
                 });
@@ -580,16 +584,16 @@ class UserHandler {
                 key.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
-                    token:userToken.token,
-                    name:user.name,
-                    email:user.email.toLowerCase(),  
-                    phone:user.phone,
-                    latLong:user.latLong,
-                    deviceToken:user.deviceToken,
-                    storeId:user.storeId,
-                    isStore:user.isStore,
-                    isUser:user.isUser,
-                    isAdmin:user.isAdmin
+                    token: userToken.token,
+                    name: user.name,
+                    email: user.email.toLowerCase(),
+                    phone: user.phone,
+                    latLong: user.latLong,
+                    deviceToken: user.deviceToken,
+                    storeId: user.storeId,
+                    isStore: user.isStore,
+                    isUser: user.isUser,
+                    isAdmin: user.isAdmin
                 };
                 return data;
             })
@@ -606,117 +610,117 @@ class UserHandler {
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-        .then(function(result) {
-            if (!result.isEmpty()) {
-                let errorMessages = result.array().map(function (elem) {
-                    return elem.msg;
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+
+                return new Promise(function (resolve, reject) {
+                    OfferModel.findOneAndUpdate({ $and: [{ '_id': req.params.id }, { 'offerCode': req.body.offerCode }, { 'claimedOfferBy': { "$ne": mongoose.Types.ObjectId(req.body.userId) } }] },
+                        {
+                            '$addToSet': { 'claimedOfferBy': mongoose.Types.ObjectId(req.body.userId) },
+                        },
+                        { 'new': true, 'multi': true },
+                        function (err, offer) {
+                            if (offer == null) {
+                                reject(new NotFoundError("Offercode is not valid or you have already claimed offer"));
+                            } else {
+                                resolve(offer);
+                            }
+                        })
                 });
-                throw new ValidationError(errorMessages);
-            }
-            
-            return new Promise(function(resolve, reject) {
-                OfferModel.findOneAndUpdate({$and:[{'_id': req.params.id},{'offerCode': req.body.offerCode},{'claimedOfferBy':{ "$ne":  mongoose.Types.ObjectId(req.body.userId)}}]},
-                {
-                    '$addToSet': { 'claimedOfferBy': mongoose.Types.ObjectId(req.body.userId) },
-                },
-                {'new': true, 'multi':true},
-                function(err, offer){
-                    if(offer == null){   
-                        reject(new NotFoundError("Offercode is not valid or you have already claimed offer"));                
-                    }else{
-                        resolve(offer);
-                    }
-                })
+            })
+            .then((saved) => {
+                callback.onSuccess(saved);
+            })
+            .catch((error) => {
+                callback.onError(error);
             });
-        })
-        .then((saved) => {
-            callback.onSuccess(saved);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
     }
 
     updateUser(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
-        let files = this.objectify(req.files);        
+        let files = this.objectify(req.files);
         async.waterfall([
-            function(done, err) {
-                if(files != undefined && typeof files['userImage'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
+            function (done, err) {
+                if (files != undefined && typeof files['userImage'] !== "undefined") {
+                    mkdirp(targetDir, function (err) {
                         var fileName = files['userImage'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['userImage'].path, targetDir + fileName, function(err) {
+                        fs.rename(files['userImage'].path, targetDir + fileName, function (err) {
                             req.body.userImage = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
+                            let data = req.body;
+                            done(err, data);
                         });
                     });
-                }else{
-                    let data = req.body;        
+                } else {
+                    let data = req.body;
                     done(err, data);
                 }
             },
-            
-            function(data, done){
-                if(req.body.name != undefined){
+
+            function (data, done) {
+                if (req.body.name != undefined) {
                     req.checkBody('name').notEmpty();
                 }
-                if(req.body.email != undefined){
+                if (req.body.email != undefined) {
                     req.checkBody('email', 'you cannot update email').isEmpty().notEmpty();
                 }
-                if(req.body.password != undefined){
+                if (req.body.password != undefined) {
                     req.checkBody('password', 'password is too short').checkLength(req.body.password, 8);
                 }
                 req.getValidationResult()
-                .then(function(result) {
-                    if (!result.isEmpty()) {
-                        let errorMessages = result.array().map(function(elem) {
-                            return elem.msg;
-                        });
-                        throw new ValidationError(errorMessages.join(' && '));
-                    }  
-                    return new Promise(function(resolve, reject) {                         
-                        UserModel.findOne({ _id: req.params.id }, function(err, user) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!user) {
-                                    reject(new NotFoundError("user not found"));
-                                } else {
-                                    resolve(user);
-                                }
-                            }
-                        })
-                    });
-                })
-                .then((user) => {
-                    for (var key in data) {
-                        user[key] = data[key];
-                    }   
-                    user.email = user.email.toLowerCase();
-                    user.save();
-                    return user;
-                })
-                .then((saved) => {
-                    callback.onSuccess(saved);      
-                    const directory = './uploads';
-                    fs.readdir(directory, (err, files) => {
-                        if (err) throw error;
-                        for (const file of files) {
-                            fs.unlink(path.join(directory, file), err => {
-                                if (err) throw error;
+                    .then(function (result) {
+                        if (!result.isEmpty()) {
+                            let errorMessages = result.array().map(function (elem) {
+                                return elem.msg;
                             });
+                            throw new ValidationError(errorMessages.join(' && '));
                         }
-                    });             
-                })
-                .catch((error) => {
-                    callback.onError(error);
-                });
+                        return new Promise(function (resolve, reject) {
+                            UserModel.findOne({ _id: req.params.id }, function (err, user) {
+                                if (err !== null) {
+                                    reject(err);
+                                } else {
+                                    if (!user) {
+                                        reject(new NotFoundError("user not found"));
+                                    } else {
+                                        resolve(user);
+                                    }
+                                }
+                            })
+                        });
+                    })
+                    .then((user) => {
+                        for (var key in data) {
+                            user[key] = data[key];
+                        }
+                        user.email = user.email.toLowerCase();
+                        user.save();
+                        return user;
+                    })
+                    .then((saved) => {
+                        callback.onSuccess(saved);
+                        const directory = './uploads';
+                        fs.readdir(directory, (err, files) => {
+                            if (err) throw error;
+                            for (const file of files) {
+                                fs.unlink(path.join(directory, file), err => {
+                                    if (err) throw error;
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        callback.onError(error);
+                    });
             }
-          ], function(err, data) {
-                if (err) return callback.onError(err);
-                else return data;
-        });        
+        ], function (err, data) {
+            if (err) return callback.onError(err);
+            else return data;
+        });
     }
 
     getUserInfo(req, userToken, callback) {
@@ -725,7 +729,7 @@ class UserHandler {
             .then((result) => {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
-                            return elem.msg;
+                        return elem.msg;
                     });
                     throw new ValidationError('There have been validation errors: ' + errorMessages.join(' && ')); ValidationError(errorMessages);
                 }
@@ -733,13 +737,13 @@ class UserHandler {
                 if (userToken.id !== req.params.id && !userToken.isAdmin) {
                     throw new UnauthorizedError("Provided id doesn't match with  the requested user id");
                 } else {
-                    return new Promise(function(resolve, reject) {
-                        UserModel.findById(userId).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'] }).exec(function(err, user) {
+                    return new Promise(function (resolve, reject) {
+                        UserModel.findById(userId).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'] }).exec(function (err, user) {
                             if (err !== null) {
                                 reject(err);
                             } else {
                                 if (user === null) {
-                                    
+
                                 } else {
                                     resolve(user);
                                 }
@@ -761,13 +765,13 @@ class UserHandler {
             .then((result) => {
                 if (!result.isEmpty()) {
                     var errorMessages = {};
-                    result.array().map(function(elem) {
+                    result.array().map(function (elem) {
                         return errorMessages[elem.param] = elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    AdminModel.find().exec(function(err, adminKey) {
+                return new Promise(function (resolve, reject) {
+                    AdminModel.find().exec(function (err, adminKey) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -785,25 +789,25 @@ class UserHandler {
     }
 
     _provideTokenPayload(user) {
-        if(user.storeId){
+        if (user.storeId) {
             return {
                 id: user.id,
-                storeId:user.storeId,
-                isAdmin:user.isAdmin,
-                isUser:user.isUser,
-                isStore:user.isStore,   
-                email:user.email,
-                userImage:user.userImage,
+                storeId: user.storeId,
+                isAdmin: user.isAdmin,
+                isUser: user.isUser,
+                isStore: user.isStore,
+                email: user.email,
+                userImage: user.userImage,
                 scope: 'default'
             };
-        }else{
+        } else {
             return {
                 id: user.id,
-                isAdmin:user.isAdmin,
-                isUser:user.isUser,
-                isStore:user.isStore,   
-                email:user.email,
-                userImage:user.userImage,
+                isAdmin: user.isAdmin,
+                isUser: user.isUser,
+                isStore: user.isStore,
+                email: user.email,
+                userImage: user.userImage,
                 scope: 'default'
             };
         }
@@ -820,8 +824,8 @@ class UserHandler {
     }
 
     objectify(array) {
-        if(array!== undefined){
-            return array.reduce(function(p, c) {
+        if (array !== undefined) {
+            return array.reduce(function (p, c) {
                 p[c['fieldname']] = c;
                 return p;
             }, {});
