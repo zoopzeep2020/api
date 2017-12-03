@@ -506,7 +506,7 @@ class UserHandler {
                     latLong: user.latLong,
                     userImage: user.userImage,
                     deviceToken: user.deviceToken,
-                    storeId: user.storeId,
+                    storeId: { _id: user.storeId },
                     isStore: user.isStore,
                     isUser: user.isUser,
                 };
