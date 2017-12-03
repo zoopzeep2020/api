@@ -2,6 +2,7 @@
  * Created by WebrexStudio on 5/9/17.
  */
 const CollectionModel = require(APP_MODEL_PATH + 'collection').CollectionModel;
+const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -470,6 +471,14 @@ class CollectionHandler extends BaseAutoBindedClass {
         });
     }
 
+    getStoreCatalog(i, storeId) {
+        return new Promise(function (resolve, reject) {
+            CatalogModel.find({ storeId: storeId }).limit(3).exec(function (err, catalog) {
+                return resolve([i, catalog]);
+            })
+        });
+    }
+
     getSingleCollection(req, callback) {
         let data = req.body;
         console.log(req.params.id);
@@ -639,8 +648,26 @@ class CollectionHandler extends BaseAutoBindedClass {
                         //     }
                         // },
                     ]).exec(function (err, results) {
-                        resolve(results);
+                        resolve(results[0]);
+
                     })
+                });
+            })
+            .then((results) => {
+                if (results.storesInfo != undefined) {
+                    var promises = [];
+                    for (let i = 0; i < results.storesInfo.length; i++) {
+                        promises.push(this.getStoreCatalog(i, results.storesInfo[i]._id));
+                    }
+                }
+                return new Promise(function (resolve, reject) {
+                    Promise.all(promises).then(function (catalogInfo) {
+                        console.log(catalogInfo, catalogInfo.length - 1);
+                        for (let i = 0; i < catalogInfo.length; i++) {
+                            results.storesInfo[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
+                        };
+                        resolve(results);
+                    });
                 });
             })
             .then((collection) => {
