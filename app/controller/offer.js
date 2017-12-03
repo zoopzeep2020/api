@@ -9,22 +9,22 @@ class OfferController extends BaseController {
         this._offerHandler = new OfferHandler();
         this._passport = require('passport');
     }
- 
-    getAll(req, res, next) {        
+
+    getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getAllOffers(user,req, this._responseManager.getDefaultResponseHandler(res));    
+            this._offerHandler.getAllOffers(user, req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
-    getAllWithoutLogin(req, res, next){
+    getAllWithoutLogin(req, res, next) {
         this.basicAuthenticate(req, res, () => {
-            this._offerHandler.getAllWithoutLogin( req, this._responseManager.getDefaultResponseHandler(res));
+            this._offerHandler.getAllWithoutLogin(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
-    getAllWithFilter(req, res, next) {        
+    getAllWithFilter(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getAllOffersWithFilter(user, req, this._responseManager.getDefaultResponseHandler(res));    
+            this._offerHandler.getAllOffersWithFilter(user, req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
@@ -35,7 +35,7 @@ class OfferController extends BaseController {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
-        });     
+        });
     }
 
     getOfferBySearch(req, res, next) {
@@ -50,14 +50,14 @@ class OfferController extends BaseController {
 
     saveOffer(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isUser && user.id == req.body.userId)){
+            if (user.isAdmin || (user.isUser && user.id == req.body.userId)) {
                 this._offerHandler.saveOffer(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not available")
+            }
         });
     }
-    
+
     getStoreOffer(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
@@ -70,31 +70,32 @@ class OfferController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
-                this._offerHandler.createNewOffer(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            this._offerHandler.createNewOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            // if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
+            //     this._offerHandler.createNewOffer(req, this._responseManager.getDefaultResponseHandler(res));
+            // } else {
+            //     this._responseManager.respondWithError(res, 404, "access not available")
+            // }
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+            if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
                 this._offerHandler.updateOffer(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not available")
+            }
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+            if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
                 this._offerHandler.deleteOffer(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not available")
+            }
         });
     }
 
@@ -102,7 +103,7 @@ class OfferController extends BaseController {
         let responseManager = this._responseManager;
         this._passport.authenticate('jwt-rs-auth', {
             onVerified: callback,
-            onFailure: function(error) {
+            onFailure: function (error) {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);

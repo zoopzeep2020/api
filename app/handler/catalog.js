@@ -14,6 +14,8 @@ const fs = require('fs');
 var async = require('async');
 const mkdirp = require('mkdirp');
 const path = require('path');
+const url = require('url');
+var request = require('request');
 
 class CatalogHandler extends BaseAutoBindedClass {
     constructor() {
@@ -21,370 +23,370 @@ class CatalogHandler extends BaseAutoBindedClass {
         this._validator = require('validator');
     }
 
- /**
- * @swagger
- * /catalogs:
- *   get:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /catalogs:
+    *   get:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
- /**
- * @swagger
- * /catalogs/{catalogId}:
- *   get:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: catalogId
- *         description: catalogId
- *         in: path
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /catalogs/{catalogId}:
+    *   get:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: catalogId
+    *         description: catalogId
+    *         in: path
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
- /**
- * @swagger
- * /catalogs/store/{storeId}:
- *   get:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: storeId
- *         description: storeId
- *         in: path
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /catalogs/store/{storeId}:
+    *   get:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: storeId
+    *         description: storeId
+    *         in: path
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
- /**
- * @swagger
- * /catalogs/search?{search}:
- *   get:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: search
- *         description: search
- *         in: path
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /catalogs/search?{search}:
+    *   get:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: search
+    *         description: search
+    *         in: path
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
-  /**
- * @swagger
- * /catalogs/featurecatalog?{lang}&{lat}:
- *   get:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: lang
- *         description: lang
- *         in: query
- *         type: number
- *       - name: lat
- *         description: lat
- *         in: query
- *         type: number
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+   * @swagger
+   * /catalogs/featurecatalog?{lang}&{lat}:
+   *   get:
+   *     tags:
+   *       - Catalogue
+   *     description: activity object
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: Authorization
+   *         description: token authorization
+   *         in: header
+   *         required: true
+   *         type: string
+   *       - name: lang
+   *         description: lang
+   *         in: query
+   *         type: number
+   *       - name: lat
+   *         description: lat
+   *         in: query
+   *         type: number
+   *     responses:
+   *       200:
+   *         description: object of activity".     
+   */
 
- /**
- * @swagger
- * /catalogs:
- *   post:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         required: true
- *         type: string
- *       - name: catalogUrl
- *         description: catalogUrl
- *         in: body
- *         required: true
- *         type: string
- *       - name: catalogDescription
- *         description: catalogDescription
- *         in: body
- *         required: true
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
+    /**
+    * @swagger
+    * /catalogs:
+    *   post:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: Content-Type
+    *         description: content-type
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: application/json
+    *       - name: storeId
+    *         description: storeId
+    *         in: body
+    *         required: true
+    *         type: string
+    *       - name: catalogUrl
+    *         description: catalogUrl
+    *         in: body
+    *         required: true
+    *         type: string
+    *       - name: catalogDescription
+    *         description: catalogDescription
+    *         in: body
+    *         required: true
+    *         type: string
+    *         schema:
+    *          $ref: '#/definitions/UpdateActivitiesObj'
+    *     responses:
+    *       200:
+    *         description: object of activity".
+    */
 
- /**
- * @swagger
- * /catalogs/{catalogId}:
- *   delete:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: catalgId
- *         description: catalogId
- *         in: path
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
+    /**
+    * @swagger
+    * /catalogs/{catalogId}:
+    *   delete:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: Content-Type
+    *         description: content-type
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: application/json
+    *       - name: catalgId
+    *         description: catalogId
+    *         in: path
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".
+    */
 
- /**
- * @swagger
- * /catalogs/{catalogId}:
- *   put:
- *     tags:
- *       - Catalogue
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         type: string
- *       - name: catalogUrl
- *         description: catalogUrl
- *         in: body
- *         type: string
- *       - name: catalogDescription
- *         description: catalogDescription
- *         in: body
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
+    /**
+    * @swagger
+    * /catalogs/{catalogId}:
+    *   put:
+    *     tags:
+    *       - Catalogue
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: Content-Type
+    *         description: content-type
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: application/json
+    *       - name: storeId
+    *         description: storeId
+    *         in: body
+    *         type: string
+    *       - name: catalogUrl
+    *         description: catalogUrl
+    *         in: body
+    *         type: string
+    *       - name: catalogDescription
+    *         description: catalogDescription
+    *         in: body
+    *         type: string
+    *         schema:
+    *          $ref: '#/definitions/UpdateActivitiesObj'
+    *     responses:
+    *       200:
+    *         description: object of activity".
+    */
 
-  /**
- * @swagger
- * definition:
- *   UpdateActivitiesObj:
- *     properties:
- *       storeId:
- *         type: string
- *         required: true
- *       catalogUrl:
- *         type: string
- *         required: true
- *       catalogDescription:
- *         type: string
- *         required: true
- */
+    /**
+   * @swagger
+   * definition:
+   *   UpdateActivitiesObj:
+   *     properties:
+   *       storeId:
+   *         type: string
+   *         required: true
+   *       catalogUrl:
+   *         type: string
+   *         required: true
+   *       catalogDescription:
+   *         type: string
+   *         required: true
+   */
     static get CATALOG_VALIDATION_SCHEME() {
         return {
             'catalogDescription': {
                 isLength: {
-                    options: [{ min: 2}],
+                    options: [{ min: 2 }],
                     errorMessage: 'Catalog description must be 2 characters long'
                 },
                 notEmpty: true,
                 errorMessage: 'Catalog description is required'
             }
         };
-    }    
+    }
 
     createNewCatalog(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
-            function(done, err) {
-                if(typeof files['catalogUrl'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
+            function (done, err) {
+                if (typeof files['catalogUrl'] !== "undefined") {
+                    mkdirp(targetDir, function (err) {
                         var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function(err) {
+                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function (err) {
                             req.body.catalogUrl = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
+                            let data = req.body;
+                            done(err, data);
                         });
                     });
-                }else{
-                    let data = req.body;        
+                } else {
+                    let data = req.body;
                     done(err, data);
                 }
             },
-            function(data, done){
+            function (data, done) {
                 req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
-                if(req.body.catalogUrl != undefined){
+                if (req.body.catalogUrl != undefined) {
                     req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
-                }else{
+                } else {
                     req.checkBody('catalogUrl', 'Catalog image is required').notEmpty();
                 }
                 req.getValidationResult()
-                .then(function(result) {
-                    if (!result.isEmpty()) {
-                        let errorMessages = result.array().map(function (elem) {
-                            return elem.msg;
-                        });
-                        throw new ValidationError(errorMessages);
-                    }  
-                    return new CatalogModel(data);
-                })
-                .then((catalog) => {
-                    catalog.save();
-                    return catalog;
-                })
-                .then((catalog) => {
-                    return new Promise(function(resolve, reject) {
-                        StoreModel.findOne({ _id: catalog.storeId }, function(err, store) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!store) {
-                                    reject(new NotFoundError("store not found"));
-                                } else {
-                                    if(store.featureCatalog == undefined){
-                                        store.featureCatalog = catalog._id 
-                                    }
-                                    store.save();
-                                    resolve(catalog);
-                                }
-                            }
-                        })
-                    });
-                })
-                .then((saved) => {
-                    callback.onSuccess(saved);      
-                    const directory = './uploads';
-                    fs.readdir(directory, (err, files) => {
-                        if (err) throw error;
-                        for (const file of files) {
-                            fs.unlink(path.join(directory, file), err => {
-                                if (err) throw error;
+                    .then(function (result) {
+                        if (!result.isEmpty()) {
+                            let errorMessages = result.array().map(function (elem) {
+                                return elem.msg;
                             });
+                            throw new ValidationError(errorMessages);
                         }
-                    });             
-                })
-                .catch((error) => {
-                    callback.onError(error);
-                });
+                        return new CatalogModel(data);
+                    })
+                    .then((catalog) => {
+                        catalog.save();
+                        return catalog;
+                    })
+                    .then((catalog) => {
+                        return new Promise(function (resolve, reject) {
+                            StoreModel.findOne({ _id: catalog.storeId }, function (err, store) {
+                                if (err !== null) {
+                                    reject(err);
+                                } else {
+                                    if (!store) {
+                                        reject(new NotFoundError("store not found"));
+                                    } else {
+                                        if (store.featureCatalog == undefined) {
+                                            store.featureCatalog = catalog._id
+                                        }
+                                        store.save();
+                                        resolve(catalog);
+                                    }
+                                }
+                            })
+                        });
+                    })
+                    .then((saved) => {
+                        callback.onSuccess(saved);
+                        const directory = './uploads';
+                        fs.readdir(directory, (err, files) => {
+                            if (err) throw error;
+                            for (const file of files) {
+                                fs.unlink(path.join(directory, file), err => {
+                                    if (err) throw error;
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        callback.onError(error);
+                    });
             }
-          ], function(err, data) {
-                if (err) return callback.onError(err);
-                else return data;
+        ], function (err, data) {
+            if (err) return callback.onError(err);
+            else return data;
         });
     }
-   
+
     deleteCatalog(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                return new Promise(function (resolve, reject) {
+                    CatalogModel.findOne({ _id: req.params.id }, function (err, catalog) {
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!catalog) {
                                 reject(new NotFoundError("Catalog not found"));
                             } else {
-                                if(user.isAdmin || (catalog.storeId === user.storeId)){
+                                if (user.isAdmin || (catalog.storeId === user.storeId)) {
                                     resolve(catalog);
-                                }else{
+                                } else {
                                     reject(new NotFoundError("you are not allow to remove this catalog"));
                                 }
                             }
@@ -408,78 +410,78 @@ class CatalogHandler extends BaseAutoBindedClass {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
-            function(done, err) {
-                if(typeof files['catalogUrl'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
+            function (done, err) {
+                if (typeof files['catalogUrl'] !== "undefined") {
+                    mkdirp(targetDir, function (err) {
                         var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function(err) {
+                        fs.rename(files['catalogUrl'].path, targetDir + fileName, function (err) {
                             req.body.catalogUrl = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
+                            let data = req.body;
+                            done(err, data);
                         });
                     });
-                }else{
-                    let data = req.body;        
+                } else {
+                    let data = req.body;
                     done(err, data);
                 }
             },
-            function(data, done){
-                if(req.body.catalogDescription != undefined){
+            function (data, done) {
+                if (req.body.catalogDescription != undefined) {
                     req.checkBody(CatalogHandler.CATALOG_VALIDATION_SCHEME);
                 }
-                if(req.body.catalogUrl != undefined){
+                if (req.body.catalogUrl != undefined) {
                     req.checkBody('catalogUrl', 'Catalog image is required').isImage(req.body.catalogUrl);
                 }
                 req.getValidationResult()
-                .then(function(result) {
-                    if (!result.isEmpty()) {
-                        let errorMessages = result.array().map(function (elem) {
-                            return elem.msg;
-                        });
-                        throw new ValidationError(errorMessages);
-                    }      
-
-                    return new Promise(function(resolve, reject) {
-                        CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!catalog) {
-                                    reject(new NotFoundError("Catalog not found"));
-                                } else {
-                                    resolve(catalog);
-                                }
-                            }
-                        })
-                    });
-                })
-                .then((catalog) => {
-                    for (var key in data) {
-                        catalog[key] = data[key];
-                    }     
-                    catalog.save();
-                    return catalog;
-                })
-                .then((saved) => {
-                    callback.onSuccess(saved);      
-                    const directory = './uploads';
-                    fs.readdir(directory, (err, files) => {
-                        if (err) throw error;
-                        for (const file of files) {
-                            fs.unlink(path.join(directory, file), err => {
-                                if (err) throw error;
+                    .then(function (result) {
+                        if (!result.isEmpty()) {
+                            let errorMessages = result.array().map(function (elem) {
+                                return elem.msg;
                             });
+                            throw new ValidationError(errorMessages);
                         }
+
+                        return new Promise(function (resolve, reject) {
+                            CatalogModel.findOne({ _id: req.params.id }, function (err, catalog) {
+                                if (err !== null) {
+                                    reject(err);
+                                } else {
+                                    if (!catalog) {
+                                        reject(new NotFoundError("Catalog not found"));
+                                    } else {
+                                        resolve(catalog);
+                                    }
+                                }
+                            })
+                        });
+                    })
+                    .then((catalog) => {
+                        for (var key in data) {
+                            catalog[key] = data[key];
+                        }
+                        catalog.save();
+                        return catalog;
+                    })
+                    .then((saved) => {
+                        callback.onSuccess(saved);
+                        const directory = './uploads';
+                        fs.readdir(directory, (err, files) => {
+                            if (err) throw error;
+                            for (const file of files) {
+                                fs.unlink(path.join(directory, file), err => {
+                                    if (err) throw error;
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        callback.onError(error);
                     });
-                })
-                .catch((error) => {
-                    callback.onError(error);
-                });
             }
-          ], function(err, data) {
-                if (err) return callback.onError(err);
-                else return data;
-          });
+        ], function (err, data) {
+            if (err) return callback.onError(err);
+            else return data;
+        });
     }
 
     getFeatureCatalog(req, callback) {
@@ -487,14 +489,14 @@ class CatalogHandler extends BaseAutoBindedClass {
         var longitude = this.noNaN(parseFloat(req.query.lng));
         var lattitude = this.noNaN(parseFloat(req.query.lat));
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                new Promise(function(resolve, reject) {
+                new Promise(function (resolve, reject) {
                     StoreModel.aggregate([
                         // {
                         //     "$geoNear": {
@@ -512,9 +514,9 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 finalTotal: {
                                     $let: {
                                         vars: {
-                                        total: { $divide: [ { $multiply: [ '$viewCount', 5 ] }, { $max: "$viewCount" }]},
+                                            total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$viewCount" }] },
                                         },
-                                        in: { $add: [ "$avgRating", "$$total" ] }
+                                        in: { $add: ["$avgRating", "$$total"] }
                                     }
                                 }
                             }
@@ -526,7 +528,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "storeInfo"
                             }
-                        }, 
+                        },
                         {
                             "$lookup": {
                                 "from": 'catalogs',
@@ -534,57 +536,57 @@ class CatalogHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "catalogInfo"
                             }
-                        },  
+                        },
                         {
                             $unwind: {
                                 path: "$storeInfo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $unwind: {
                                 path: "$catalogInfo",
                                 preserveNullAndEmptyArrays: true
-                              }
+                            }
                         },
                         {
                             $project: {
-                                storeId:'$catalogInfo.storeId',
-                                featureCatalog:'$catalogInfo.featureCatalog',
-                                catalogUrl:'$catalogInfo.catalogUrl',
-                                catalogDescription:'$catalogInfo.catalogDescription',
-                                finalTotal:'$finalTotal',
+                                storeId: '$catalogInfo.storeId',
+                                featureCatalog: '$catalogInfo.featureCatalog',
+                                catalogUrl: '$catalogInfo.catalogUrl',
+                                catalogDescription: '$catalogInfo.catalogDescription',
+                                finalTotal: '$finalTotal',
                             }
                         },
-                        {$sort:{finalTotal:-1}},
-                        {$limit:10},
+                        { $sort: { finalTotal: -1 } },
+                        { $limit: 10 },
                     ])
-                    .exec(function(err, results){
-                        resolve(results);
-                    }) .then((results) => {   
-                        callback.onSuccess(results);
-                    })
+                        .exec(function (err, results) {
+                            resolve(results);
+                        }).then((results) => {
+                            callback.onSuccess(results);
+                        })
                 });
-             })
-           
+            })
+
             .catch((error) => {
                 callback.onError(error);
             });
     }
-   
+
     getSingleCatalog(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function(err, catalog) {
+                return new Promise(function (resolve, reject) {
+                    CatalogModel.findOne({ _id: req.params.id }, function (err, catalog) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -607,15 +609,15 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     getAllCatalogs(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-                CatalogModel.find({}, function(err, posts) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        resolve(posts);
-                    }
-                });
-            })
+        new Promise(function (resolve, reject) {
+            CatalogModel.find({}, function (err, posts) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    resolve(posts);
+                }
+            });
+        })
             .then((posts) => {
                 callback.onSuccess(posts);
             })
@@ -628,15 +630,15 @@ class CatalogHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('storeId', 'Invalid storeId provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    CatalogModel.find({ storeId: req.params.storeId }, function(err, catalog) {
+                return new Promise(function (resolve, reject) {
+                    CatalogModel.find({ storeId: req.params.storeId }, function (err, catalog) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -657,75 +659,140 @@ class CatalogHandler extends BaseAutoBindedClass {
             });
     }
 
+
     getCatalogBySearch(req, callback) {
-        let data = req.body;   
-        var matchQuery = [];
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        for (var param in req.query) {
-            qString = {};
-            if(param == "buisnessOnline" || param == "buisnessOffline"){
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
-                matchQuery.push(qString);
-            }             
-        }  
-        var longitude = this.noNaN(parseFloat(req.query.lng));
-        var lattitude = this.noNaN(parseFloat(req.query.lat));
+        let data = req.body;
+        let query = req.query;
+        let stores = [];
+        let mongoQuery = {};
+        var queryString = url.parse(req.url, true).search;
+        let skip = 0;
+        let limit = 10;
+        console.log(req.query, queryString);
         req.getValidationResult()
-            .then(function(result) {                
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) { 
-                    StoreModel.aggregate(
-                    {
-                        "$geoNear": {
-                            "near": {
-                                "type": "Point",
-                                "coordinates": [longitude,lattitude]
-                            },
-                            "distanceField": "distance",
-                            "spherical": true,
-                            "maxDistance": 0
+            }).then(() => {
+                return new Promise(function (resolve, reject) {
+                    var URLStore = 'http://' + req.get('host') + '/stores/search' + queryString;
+                    var optionsStore = {
+                        url: URLStore,
+                        method: 'GET',
+                        headers: req.headers
+                    };
+                    request(optionsStore, function (error, response, body) {
+                        let storesData = JSON.parse(body)['data'];
+                        for (let i = 0; i < storesData.length; i++) {
+                            stores[i] = storesData[i]._id;
                         }
-                    },
-                    {$sort:{maxDistance:-1}},
-                    {
-                        $match:{$and:matchQuery}
+                        console.log(stores)
+                        resolve(stores);
+                    });
+                });
+            }).then((stores) => {
+                return new Promise(function (resolve, reject) {
+                    if (stores) {
+                        mongoQuery['storeId'] = { "$in": stores };
                     }
-                ).exec(function(err, results){
+
+                    for (var key in query) {
+                        if (key == "catalogSearch") {
+                            mongoQuery['$or'] = [
+                                { 'catalogDescription': { $regex: new RegExp(query[key], 'i') } }
+                            ]
+                        } else if (key == "startCatalogs") {
+                            skip = parseInt(query[key]);
+                        } else if (key == "endCatalogs") {
+                            limit = parseInt(query[key]) - skip + 1;
+                        }
+                    }
+
+                    CatalogModel.find(mongoQuery).skip(skip).limit(limit).exec(function (err, results) {
                         resolve(results);
                     })
                 });
-            })
-            .then((store) => {
-                let objectAray = [];
-                for(var i=0;i<store.length;i++){
-                    objectAray[i] = mongoose.Types.ObjectId(store[i]._id);
-                }
-                return new Promise(function(resolve, reject) { 
-                    CatalogModel.aggregate({$match:{"storeId": { "$in": objectAray }}}).exec(function(err, results){
-                        resolve(results);
-                    })
-                })
-            }) 
-            .then((results) => {
-                callback.onSuccess(results);
+            }).then((catalog) => {
+                callback.onSuccess(catalog);
             })
             .catch((error) => {
                 callback.onError(error);
             });
     }
-    
+
+    // getCatalogBySearch(req, callback) {
+    //     let data = req.body;   
+    //     var matchQuery = [];
+    //     var ObjectID = require('mongodb').ObjectID;
+    //     var qString = {};
+    //     for (var param in req.query) {
+    //         qString = {};
+    //         if(param == "buisnessOnline" || param == "buisnessOffline"){
+    //             qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : {$regex :req.query[param]};
+    //             matchQuery.push(qString);
+    //         }             
+    //     }  
+    //     var longitude = this.noNaN(parseFloat(req.query.lng));
+    //     var lattitude = this.noNaN(parseFloat(req.query.lat));
+    //     req.getValidationResult()
+    //         .then(function(result) {                
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+    //             return new Promise(function(resolve, reject) { 
+    //                 StoreModel.aggregate(
+    //                 {
+    //                     "$geoNear": {
+    //                         "near": {
+    //                             "type": "Point",
+    //                             "coordinates": [longitude,lattitude]
+    //                         },
+    //                         "distanceField": "distance",
+    //                         "spherical": true,
+    //                         "maxDistance": 0
+    //                     }
+    //                 },
+    //                 {$sort:{maxDistance:-1}},
+    //                 {
+    //                     $match:{$and:matchQuery}
+    //                 }
+    //             ).exec(function(err, results){
+    //                     resolve(results);
+    //                 })
+    //             });
+    //         })
+    //         .then((store) => {
+    //             let objectAray = [];
+    //             for(var i=0;i<store.length;i++){
+    //                 objectAray[i] = mongoose.Types.ObjectId(store[i]._id);
+    //             }
+    //             return new Promise(function(resolve, reject) { 
+    //                 CatalogModel.aggregate({$match:{"storeId": { "$in": objectAray }}}).exec(function(err, results){
+    //                     resolve(results);
+    //                 })
+    //             })
+    //         }) 
+    //         .then((results) => {
+    //             callback.onSuccess(results);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
+
     objectify(array) {
-        return array.reduce(function(p, c) {
+        return array.reduce(function (p, c) {
             p[c['fieldname']] = c;
             return p;
         }, {});
     }
-    noNaN( n ) { return isNaN( n ) ? 0 : n; }
+    noNaN(n) { return isNaN(n) ? 0 : n; }
 }
 module.exports = CatalogHandler;

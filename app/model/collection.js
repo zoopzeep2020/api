@@ -18,24 +18,27 @@ let CollectionSchema = new Schema({
         ref: 'Offer'
     }],
     cityName: [],
+    cityId: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'city'
+    }],
     buisnessOnline: Boolean,
     buisnessOffline: Boolean,
     collectionName: String,
     collectionType: String,
     collectionPicture: String,
-    collectionPicture: String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-CollectionSchema.pre('update', function(next, done) {
+CollectionSchema.pre('update', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-CollectionSchema.pre('save', function(next, done) {
+CollectionSchema.pre('save', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-CollectionSchema.methods.toJSON = function() {
+CollectionSchema.methods.toJSON = function () {
     let obj = this.toObject();
     delete obj.__v;
     delete obj.dateModified;
