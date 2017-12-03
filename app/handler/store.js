@@ -432,8 +432,8 @@ class StoreHandler extends BaseAutoBindedClass {
     createNewStore(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        var longitude = this.noNaN(parseFloat(req.body.location[0]));
-        var lattitude = this.noNaN(parseFloat(req.body.location[1]));
+        // var longitude = this.noNaN(parseFloat(req.body.location[0]));
+        // var lattitude = this.noNaN(parseFloat(req.body.location[1]));        
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
