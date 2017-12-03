@@ -519,14 +519,14 @@ class CollectionHandler extends BaseAutoBindedClass {
                                 "as": "offerInfo"
                             }
                         },
-                        // {
-                        //     "$lookup": {
-                        //         "from": 'catalogs',
-                        //         "localField": "storesInfo._id",
-                        //         "foreignField": "storeId",
-                        //         "as": "storesInfo.catalogInfo"
-                        //     }
-                        // },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "storesInfo._id",
+                                "foreignField": "storeId",
+                                "as": "storesInfo.catalogInfo"
+                            }
+                        },
                         // {
                         //     "$lookup": {
                         //         "from": 'catalogs',
