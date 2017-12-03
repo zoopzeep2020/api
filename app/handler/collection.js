@@ -519,14 +519,14 @@ class CollectionHandler extends BaseAutoBindedClass {
                                 "as": "offerInfo"
                             }
                         },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storesInfo._id",
-                                "foreignField": "storeId",
-                                "as": "catalogInfo"
-                            }
-                        },
+                        // {
+                        //     "$lookup": {
+                        //         "from": 'catalogs',
+                        //         "localField": "storesInfo._id",
+                        //         "foreignField": "storeId",
+                        //         "as": "storesInfo.catalogInfo"
+                        //     }
+                        // },
                         // {
                         //     "$lookup": {
                         //         "from": 'catalogs',
@@ -576,11 +576,11 @@ class CollectionHandler extends BaseAutoBindedClass {
                         {
                             $group: {
                                 _id: "$_id",
-                                collectionInfo: { $addToSet: '$collectionInfo' },
+                                //   collectionInfo: { $addToSet: '$collectionInfo' },
                                 storesInfo: { $addToSet: '$storesInfo' },
                                 offerInfo: { $addToSet: '$offerInfo' },
-                                catalogInfo: { $addToSet: '$catalogInfo' },
-                                featureCatalogInfo: { $addToSet: '$featureCatalogInfo' }
+                                //     catalogInfo: { $addToSet: '$catalogInfo' },
+                                //  featureCatalogInfo: { $addToSet: '$featureCatalogInfo' }
                             },
                         },
                         // {
