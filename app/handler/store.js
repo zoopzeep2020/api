@@ -686,9 +686,9 @@ class StoreHandler extends BaseAutoBindedClass {
                 return new Promise(function (resolve, reject) {
                     StoreModel.aggregate([
                         { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
-                        {
-                            "$match": { "isActive": 1 == 1 }
-                        },
+                        // {
+                        //     "$match": { "isActive": 1 == 1 }
+                        // },
                         {
                             "$lookup": {
                                 "from": 'stores',
@@ -762,12 +762,12 @@ class StoreHandler extends BaseAutoBindedClass {
                                 from: "users",
                                 localField: "reviews.userId",
                                 foreignField: "_id",
-                                as: "reviews.users"
+                                as: "reviews.userId"
                             }
                         },
                         {
                             $unwind: {
-                                path: "$reviews.users",
+                                path: "$reviews.userId",
                                 preserveNullAndEmptyArrays: true
                             }
                         },
@@ -1026,7 +1026,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     dateModified: 0,
                                     dateCreated: 0,
                                     __v: 0,
-                                    users: {
+                                    userId: {
                                         hashedPassword: 0,
                                         salt: 0,
                                         phone: 0,
@@ -1197,12 +1197,12 @@ class StoreHandler extends BaseAutoBindedClass {
                                 from: "users",
                                 localField: "reviews.userId",
                                 foreignField: "_id",
-                                as: "reviews.users"
+                                as: "reviews.userId"
                             }
                         },
                         {
                             $unwind: {
-                                path: "$reviews.users",
+                                path: "$reviews.userId",
                                 preserveNullAndEmptyArrays: true
                             }
                         },
@@ -1461,7 +1461,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     dateModified: 0,
                                     dateCreated: 0,
                                     __v: 0,
-                                    users: {
+                                    userId: {
                                         hashedPassword: 0,
                                         salt: 0,
                                         phone: 0,

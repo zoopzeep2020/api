@@ -57,197 +57,197 @@ class ReviewHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".
  */
-   /**
- * @swagger
- * /reviews/{reviewId}:
- *   put:
- *     tags:
- *       - Review
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: reviewId
- *         description: reviewId
- *         in: body
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: body
- *         type: string
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         type: string
- *       - name: ratingScale
- *         description: ratingScale
- *         in: body
- *         type: number
- *       - name: description
- *         description: description
- *         in: body
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /reviews:
- *   get:
- *     tags:
- *       - Review
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /reviews/{reviewId}:
- *   get:
- *     tags:
- *       - Review
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: reviewId
- *         description: reviewId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /reviews/{reviewId}:
- *   delete:
- *     tags:
- *       - Review
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: reviewId
- *         description: reviewId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * /reviews/store/{storeId}:
- *   get:
- *     tags:
- *       - Review
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: storeId
- *         description: storeId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+  * @swagger
+  * /reviews/{reviewId}:
+  *   put:
+  *     tags:
+  *       - Review
+  *     description: activity object
+  *     produces:
+  *       - application/json
+  *     parameters:
+  *       - name: Authorization
+  *         description: token authorization
+  *         in: header
+  *         required: true
+  *         type: string
+  *       - name: Content-Type
+  *         description: content-type
+  *         in: header
+  *         required: true
+  *         type: string
+  *         default: application/json
+  *       - name: reviewId
+  *         description: reviewId
+  *         in: body
+  *         required: true
+  *         type: string
+  *       - name: userId
+  *         description: userId
+  *         in: body
+  *         type: string
+  *       - name: storeId
+  *         description: storeId
+  *         in: body
+  *         type: string
+  *       - name: ratingScale
+  *         description: ratingScale
+  *         in: body
+  *         type: number
+  *       - name: description
+  *         description: description
+  *         in: body
+  *         type: string
+  *         schema:
+  *          $ref: '#/definitions/UpdateActivitiesObj'
+  *     responses:
+  *       200:
+  *         description: object of activity".
+  */
+    /**
+     * @swagger
+     * /reviews:
+     *   get:
+     *     tags:
+     *       - Review
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+     * @swagger
+     * /reviews/{reviewId}:
+     *   get:
+     *     tags:
+     *       - Review
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: reviewId
+     *         description: reviewId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+     * @swagger
+     * /reviews/{reviewId}:
+     *   delete:
+     *     tags:
+     *       - Review
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: reviewId
+     *         description: reviewId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+     * @swagger
+     * /reviews/store/{storeId}:
+     *   get:
+     *     tags:
+     *       - Review
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: basic authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: maximumvsminimumsecurity
+     *       - name: storeId
+     *         description: storeId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
 
-/**
- * @swagger
- * /reviews/user/{userId}:
- *   get:
- *     tags:
- *       - Review
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
- /**
- * @swagger
- * definition:
- *   UpdateActivitiesObj:
- *     properties:
- *       userId:
- *         type: string
- *         required: true
- *       storeId:
- *         type: string
- *         required: true
- *       ratingScale:
- *         type: number
- *         required: true
- *       description:
- *         type: number
- *         required: true
- */
-   
+    /**
+     * @swagger
+     * /reviews/user/{userId}:
+     *   get:
+     *     tags:
+     *       - Review
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: userId
+     *         description: userId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+    * @swagger
+    * definition:
+    *   UpdateActivitiesObj:
+    *     properties:
+    *       userId:
+    *         type: string
+    *         required: true
+    *       storeId:
+    *         type: string
+    *         required: true
+    *       ratingScale:
+    *         type: number
+    *         required: true
+    *       description:
+    *         type: number
+    *         required: true
+    */
+
     createNewReview(req, callback) {
         let data = req.body;
         let validator = this._validator;
         let ModelData = {};
         req.checkBody('ratingScale', 'rating Scale required').notEmpty();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -259,57 +259,60 @@ class ReviewHandler extends BaseAutoBindedClass {
                         ModelData[key] = data[key];
                     }
                     ModelData.timeDifference = "";
-                } 
+                }
                 return new ReviewModel(ModelData);
             })
             .then((ModelData) => {
                 return ModelData;
             })
             .then((saved) => {
-                StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
-                    if (err !== null) {
-                        new NotFoundError("store not found");
-                    } else {
-                        if (!store) {
+                ReviewModel.findOne({ _id: req.params.id }, function (err, review) {
+                    StoreModel.findOne({ _id: req.body.storeId }, function (err, store) {
+                        if (err !== null) {
                             new NotFoundError("store not found");
                         } else {
-                            saved.ratingScale = parseFloat(saved.ratingScale).toFixed(1)
-                            store.avgRating = (store.avgRating*store.reviewCount + parseInt(ModelData.ratingScale))/(parseInt(store.reviewCount)+1);
-                            store.reviewCount = store.reviewCount + 1;
-                            store.save();
+                            if (!store) {
+                                new NotFoundError("store not found");
+                            } else {
+                                saved.ratingScale = parseFloat(saved.ratingScale).toFixed(1)
+                                store.avgRating = (store.avgRating * store.reviewCount + parseInt(ModelData.ratingScale)) / (parseInt(store.reviewCount) + 1);
+                                store.reviewCount = store.reviewCount + 1;
+                                store.save();
+                            }
                         }
-                    }
-                }) 
+                    })
+                })
+
                 saved.save();
                 callback.onSuccess(saved);
             })
             .catch((error) => {
                 callback.onError(error);
             });
-    }  
+    }
 
     deleteReview(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    ReviewModel.findOne({ _id: req.params.id }, function(err, review) {
+                return new Promise(function (resolve, reject) {
+                    ReviewModel.findOne({ _id: req.params.id }, function (err, review) {
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!review) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                if(user.isAdmin || (review.userId === user.userId)){
+                                if (user.isAdmin || (review.userId === user.userId)) {
                                     resolve(review);
-                                }else{
+                                } else {
                                     reject(new NotFoundError("you are not allow to remove this review"));
                                 }
                             }
@@ -318,14 +321,14 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
-                StoreModel.findOne({ _id: review.storeId }, function(err, store) {
+                StoreModel.findOne({ _id: review.storeId }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
-                            store.avgRating = (store.avgRating*store.reviewCount - parseFloat(review.ratingScale))/(store.reviewCount-1);
+                            store.avgRating = (store.avgRating * store.reviewCount - parseFloat(review.ratingScale)) / (store.reviewCount - 1);
                             store.reviewCount = store.reviewCount - 1;
                             store.save();
                         }
@@ -336,7 +339,7 @@ class ReviewHandler extends BaseAutoBindedClass {
             .then((review) => {
                 review.remove();
                 return review;
-            }).then((saved) => {     
+            }).then((saved) => {
                 callback.onSuccess({}, "Review id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
@@ -350,7 +353,7 @@ class ReviewHandler extends BaseAutoBindedClass {
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.checkBody(ReviewHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -358,8 +361,8 @@ class ReviewHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
 
-                return new Promise(function(resolve, reject) {
-                    ReviewModel.findOne({ _id: req.params.id }, function(err, review) {
+                return new Promise(function (resolve, reject) {
+                    ReviewModel.findOne({ _id: req.params.id }, function (err, review) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -373,15 +376,15 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
-                return new Promise(function(resolve, reject) {
-                    StoreModel.findOne({ _id: review.storeId }, function(err, store) {
+                return new Promise(function (resolve, reject) {
+                    StoreModel.findOne({ _id: review.storeId }, function (err, store) {
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!store) {
                                 reject(new NotFoundError("Review not found"));
                             } else {
-                                store.avgRating = (store.avgRating*store.reviewCount - parseFloat(review.ratingScale) + parseFloat(req.body.ratingScale))/(store.reviewCount); 
+                                store.avgRating = (store.avgRating * store.reviewCount - parseFloat(review.ratingScale) + parseFloat(req.body.ratingScale)) / (store.reviewCount);
                                 store.save();
                                 resolve(review)
                             }
@@ -410,30 +413,29 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     var errorMessages = {};
-                    result.array().map(function(elem) {
+                    result.array().map(function (elem) {
                         return errorMessages[elem.param] = elem.msg;
                     });
                     throw new ValidationError(errorMessages);
-                }     
-                return new Promise(function(resolve, reject) {
+                }
+                return new Promise(function (resolve, reject) {
                     ReviewModel.findOne({ _id: req.params.id })
-                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' })
-                    .exec(function(err, review)
-                    {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!review) {
-                                reject(new NotFoundError("Review not found"));
+                        .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating'], model: 'Store' })
+                        .exec(function (err, review) {
+                            if (err !== null) {
+                                reject(err);
                             } else {
-                                resolve(review);
+                                if (!review) {
+                                    reject(new NotFoundError("Review not found"));
+                                } else {
+                                    resolve(review);
+                                }
                             }
-                        }
-                    })
-                });           
+                        })
+                });
             })
             .then((review) => {
                 var currdatetime = new Date();
@@ -452,33 +454,32 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     ReviewModel.find({ storeId: req.params.id })
-                    .populate({ path: 'userId', select: ['name', 'userImage', 'phone','email'],  model: 'User' }).exec(function(err, review)
-                    {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!review) {
-                                reject(new NotFoundError("Review not found"));
+                        .populate({ path: 'userId', select: ['name', 'userImage', 'phone', 'email'], model: 'User' }).exec(function (err, review) {
+                            if (err !== null) {
+                                reject(err);
                             } else {
-                                resolve(review);
+                                if (!review) {
+                                    reject(new NotFoundError("Review not found"));
+                                } else {
+                                    resolve(review);
+                                }
                             }
-                        }
-                    })
+                        })
                 });
             })
             .then((review) => {
                 var currdatetime = new Date();
                 var datecreated;
-                for(var i=0;i<review.length;i++){
+                for (var i = 0; i < review.length; i++) {
                     datecreated = review[i].dateCreated;
                     review[i].timeDifference = this.timeago(datecreated)
                     review[i].save();
@@ -494,34 +495,33 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     var errorMessages = {};
-                    result.array().map(function(elem) {
+                    result.array().map(function (elem) {
                         return errorMessages[elem.param] = elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     ReviewModel.find({ userId: req.params.id })
-                    .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
-                    {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!review) {
-                                reject(new NotFoundError("Review not found"));
+                        .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating'], model: 'Store' }).exec(function (err, review) {
+                            if (err !== null) {
+                                reject(err);
                             } else {
-                                resolve(review);
+                                if (!review) {
+                                    reject(new NotFoundError("Review not found"));
+                                } else {
+                                    resolve(review);
+                                }
                             }
-                        }
-                    })
+                        })
                 });
             })
             .then((review) => {
                 var currdatetime = new Date();
                 var datecreated;
-                for(var i=0;i<review.length;i++){
+                for (var i = 0; i < review.length; i++) {
                     datecreated = review[i].dateCreated;
                     review[i].timeDifference = this.timeago(datecreated)
                     review[i].save();
@@ -535,10 +535,9 @@ class ReviewHandler extends BaseAutoBindedClass {
 
     getAllReviews(req, callback) {
         let data = req.body;
-            return new Promise(function(resolve, reject) {
-                ReviewModel.find({ })
-                .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner','avgRating'],  model: 'Store' }).exec(function(err, review)
-                {
+        return new Promise(function (resolve, reject) {
+            ReviewModel.find({})
+                .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating'], model: 'Store' }).exec(function (err, review) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -549,11 +548,11 @@ class ReviewHandler extends BaseAutoBindedClass {
                         }
                     }
                 })
-            })
+        })
             .then((review) => {
                 var currdatetime = new Date();
                 var datecreated;
-                for(var i=0;i<review.length;i++){
+                for (var i = 0; i < review.length; i++) {
                     datecreated = review[i].dateCreated;
                     review[i].timeDifference = this.timeago(datecreated)
                     review[i].save();
@@ -576,16 +575,15 @@ class ReviewHandler extends BaseAutoBindedClass {
             year: 365 * 24 * 60 * 1000 * 60
         };
         var obj = {};
-        
+
         var r = Math.round,
-        dir = ' ago',
-        pl = function(v, n) {
-            return (s === undefined) ? n + ' ' + v + (n > 1 ? 's' : '') + dir : n + v.substring(0, 1)
-        },
-        ts = Date.now() - new Date(nd).getTime(),
-        ii;
-        if( ts < 0 )
-        {
+            dir = ' ago',
+            pl = function (v, n) {
+                return (s === undefined) ? n + ' ' + v + (n > 1 ? 's' : '') + dir : n + v.substring(0, 1)
+            },
+            ts = Date.now() - new Date(nd).getTime(),
+            ii;
+        if (ts < 0) {
             ts *= -1;
             dir = ' from now';
         }
@@ -593,10 +591,10 @@ class ReviewHandler extends BaseAutoBindedClass {
             if (r(ts) < o[i]) return pl(ii || 'm', r(ts / (o[ii] || 1)))
             ii = i;
         }
-        return pl(i, r(ts / o[i])); 
+        return pl(i, r(ts / o[i]));
     }
-    
+
 }
 
-    
+
 module.exports = ReviewHandler;
