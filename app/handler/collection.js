@@ -650,145 +650,145 @@ class CollectionHandler extends BaseAutoBindedClass {
             });
     }
 
-    getSearchByQuery(req, callback) {
-        let data = req.body;
-        var matchQuery = [];
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
-        var i = 0;
-        var longitude = this.noNaN(parseFloat(req.query.lng));
-        var lattitude = this.noNaN(parseFloat(req.query.lat));
-        for (var param in req.query) {
-            if (param == "buisnessOnline" || param == "buisnessOffline") {
-                qString = {};
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
-                matchQuery.push(qString);
-            }
-        }
-        req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    CityModel.aggregate([
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [longitude, lattitude]
-                                },
-                                "distanceField": "distance",
-                                "spherical": true,
-                                "maxDistance": 5000
-                            }
-                        },
-                    ]).exec(function (err, results) {
-                        resolve(results);
-                    })
-                });
-            }).then((results) => {
-                var matchCity = [{ cityName: { '$regex': 'emptyarray' } }];
-                for (var i = 0; i < results.length; i++) {
-                    qString = {};
-                    qString['cityName'] = { $regex: results[i]['cityName'] }
-                    matchCity.push(qString);
-                }
-                return new Promise(function (resolve, reject) {
-                    CollectionModel.aggregate([
-                        {
-                            "$match": { $and: [{ $and: matchQuery }, { $or: matchCity }] }
-                        },
-                        {
-                            $unwind: {
-                                path: "$offerId",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$catalogId",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "storeId",
-                                "foreignField": "_id",
-                                "as": "storesInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'offers',
-                                "localField": "offerId",
-                                "foreignField": "_id",
-                                "as": "offerInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "catalogId",
-                                "foreignField": "_id",
-                                "as": "catalogInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storesInfo.featureCatalog",
-                                "foreignField": "_id",
-                                "as": "featureCatalogInfo"
-                            }
-                        },
-                        {
-                            $project: {
-                                collectionName: 1,
-                                collectionType: 1,
-                                collectionPicture: 1,
-                                cityName: 1,
-                                storesInfo: {
-                                    _id: 1,
-                                    storeName: 1,
-                                    storeLogo: 1,
-                                    storeBanner: 1,
-                                    avgRating: 1,
-                                },
-                                offerInfo: {
-                                    _id: 1,
-                                    offerName: 1,
-                                    offerPicture: 1,
-                                    offerDescription: 1,
-                                },
-                                catalogInfo: {
-                                    _id: 1,
-                                    catalogUrl: 1,
-                                    catalogDescription: 1,
-                                },
-                                featureCatalogInfo: {
-                                    _id: 1,
-                                    catalogUrl: 1,
-                                    catalogDescription: 1,
-                                },
-                            }
-                        },
-                    ]).exec(function (err, results) {
-                        resolve(results);
-                    })
-                });
-            })
-            .then((collection) => {
-                callback.onSuccess(collection);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
+    // getSearchByQuery(req, callback) {
+    //     let data = req.body;
+    //     var matchQuery = [];
+    //     var ObjectID = require('mongodb').ObjectID;
+    //     var qString = {};
+    //     var i = 0;
+    //     var longitude = this.noNaN(parseFloat(req.query.lng));
+    //     var lattitude = this.noNaN(parseFloat(req.query.lat));
+    //     for (var param in req.query) {
+    //         if (param == "buisnessOnline" || param == "buisnessOffline") {
+    //             qString = {};
+    //             qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
+    //             matchQuery.push(qString);
+    //         }
+    //     }
+    //     req.getValidationResult()
+    //         .then(function (result) {
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+    //             return new Promise(function (resolve, reject) {
+    //                 CityModel.aggregate([
+    //                     {
+    //                         "$geoNear": {
+    //                             "near": {
+    //                                 "type": "Point",
+    //                                 "coordinates": [longitude, lattitude]
+    //                             },
+    //                             "distanceField": "distance",
+    //                             "spherical": true,
+    //                             "maxDistance": 5000
+    //                         }
+    //                     },
+    //                 ]).exec(function (err, results) {
+    //                     resolve(results);
+    //                 })
+    //             });
+    //         }).then((results) => {
+    //             var matchCity = [{ cityName: { '$regex': 'emptyarray' } }];
+    //             for (var i = 0; i < results.length; i++) {
+    //                 qString = {};
+    //                 qString['cityName'] = { $regex: results[i]['cityName'] }
+    //                 matchCity.push(qString);
+    //             }
+    //             return new Promise(function (resolve, reject) {
+    //                 CollectionModel.aggregate([
+    //                     {
+    //                         "$match": { $and: [{ $and: matchQuery }, { $or: matchCity }] }
+    //                     },
+    //                     {
+    //                         $unwind: {
+    //                             path: "$offerId",
+    //                             preserveNullAndEmptyArrays: true
+    //                         }
+    //                     },
+    //                     {
+    //                         $unwind: {
+    //                             path: "$catalogId",
+    //                             preserveNullAndEmptyArrays: true
+    //                         }
+    //                     },
+    //                     {
+    //                         "$lookup": {
+    //                             "from": 'stores',
+    //                             "localField": "storeId",
+    //                             "foreignField": "_id",
+    //                             "as": "storesInfo"
+    //                         }
+    //                     },
+    //                     {
+    //                         "$lookup": {
+    //                             "from": 'offers',
+    //                             "localField": "offerId",
+    //                             "foreignField": "_id",
+    //                             "as": "offerInfo"
+    //                         }
+    //                     },
+    //                     {
+    //                         "$lookup": {
+    //                             "from": 'catalogs',
+    //                             "localField": "catalogId",
+    //                             "foreignField": "_id",
+    //                             "as": "catalogInfo"
+    //                         }
+    //                     },
+    //                     {
+    //                         "$lookup": {
+    //                             "from": 'catalogs',
+    //                             "localField": "storesInfo.featureCatalog",
+    //                             "foreignField": "_id",
+    //                             "as": "featureCatalogInfo"
+    //                         }
+    //                     },
+    //                     {
+    //                         $project: {
+    //                             collectionName: 1,
+    //                             collectionType: 1,
+    //                             collectionPicture: 1,
+    //                             cityName: 1,
+    //                             storesInfo: {
+    //                                 _id: 1,
+    //                                 storeName: 1,
+    //                                 storeLogo: 1,
+    //                                 storeBanner: 1,
+    //                                 avgRating: 1,
+    //                             },
+    //                             offerInfo: {
+    //                                 _id: 1,
+    //                                 offerName: 1,
+    //                                 offerPicture: 1,
+    //                                 offerDescription: 1,
+    //                             },
+    //                             catalogInfo: {
+    //                                 _id: 1,
+    //                                 catalogUrl: 1,
+    //                                 catalogDescription: 1,
+    //                             },
+    //                             featureCatalogInfo: {
+    //                                 _id: 1,
+    //                                 catalogUrl: 1,
+    //                                 catalogDescription: 1,
+    //                             },
+    //                         }
+    //                     },
+    //                 ]).exec(function (err, results) {
+    //                     resolve(results);
+    //                 })
+    //             });
+    //         })
+    //         .then((collection) => {
+    //             callback.onSuccess(collection);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
 
     getLatestCollections(req, callback) {
         let data = req.body;

@@ -396,7 +396,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                         {
                             $project: {
                                 '_id': '$_id',
-                                'storeId': '$storesInfo.storeId',
+                                'storeId': '$storeId',
                                 'storeName': '$storesInfo.storeName',
                                 'address': '$storesInfo.address',
                                 'storeLogo': '$storesInfo.storeLogo',
