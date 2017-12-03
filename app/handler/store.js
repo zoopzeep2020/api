@@ -1869,107 +1869,18 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function (resolve, reject) {
 
-
-
-                    StoreModel.aggregate([
-                        {
-                            "$match": { mongoQuery }
-                        },
-                        {
-                            $project: {
-                                finalTotal: {
-                                    $let: {
-                                        vars: {
-                                            total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$ " }] },
-                                        },
-                                        in: { $add: ["$avgRating", "$$total"] }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "_id",
-                                "foreignField": "_id",
-                                "as": "storesInfo"
-                            }
-                        },
-                        {
-                            $project: {
-                                storeName: '$storesInfo.storeName',
-                                avgRating: '$storesInfo.avgRating',
-                                storeBanner: '$storesInfo.storeBanner',
-                                storeDiscription: '$storesInfo.storeDiscription',
-                                storeLogo: '$storesInfo.storeLogo',
-                                keywords: '$storesInfo.keywords',
-                                featureCatalog: '$storesInfo.featureCatalog',
-                                finalTotal: '$finalTotal',
-                                distance: '$distance',
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeName",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$avgRating",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeBanner",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeDiscription",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeLogo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$featureCatalog",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "featureCatalog",
-                                "foreignField": "_id",
-                                "as": "featureCatalogInfo"
-                            }
-                        },
-                        { $sort: { finalTotal: -1 } },
-                        { $limit: 10 },
-                    ]).exec(function (err, results) {
+                    StoreModel.find(
+                        mongoQuery
+                        //{
+                        // otherKeyword: { "$in": ['keyword1'] }
+                        // mongoQuery
+                        // storeName: storefileter,
+                        // isActive: { $eq: req.query.active },
+                        // storeCity: { $eq: req.query.location },              
+                        //}     
+                    ).skip(skip).limit(limit).sort().exec(function (err, results) {
                         resolve(results);
                     })
-
-                    // StoreModel.find(
-                    //     mongoQuery
-                    //     //{
-                    //     // otherKeyword: { "$in": ['keyword1'] }
-                    //     // mongoQuery
-                    //     // storeName: storefileter,
-                    //     // isActive: { $eq: req.query.active },
-                    //     // storeCity: { $eq: req.query.location },              
-                    //     //}     
-                    // ).skip(skip).limit(limit).sort().exec(function (err, results) {
-                    //     resolve(results);
-                    // })
 
                     // StoreModel.where('storeName').eq(req.query.search).ne(null).exists(true).exec(function (err, results) {
                     //     resolve(results);
