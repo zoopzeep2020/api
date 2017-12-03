@@ -1812,7 +1812,13 @@ class StoreHandler extends BaseAutoBindedClass {
     //         });
     // }
 
-
+    getStoreCatalog(i, storeId) {
+        return new Promise(function (resolve, reject) {
+            CatalogModel.find({ storeId: storeId }).limit(3).exec(function (err, catalog) {
+                return resolve([i, catalog]);
+            })
+        });
+    }
 
     getStoreBySearch(req, callback) {
         let data = req.body;
@@ -1861,12 +1867,31 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    StoreModel.find(
-                        mongoQuery
-                    ).skip(skip).limit(limit).sort().exec(function (err, results) {
+                    StoreModel.find(mongoQuery).skip(skip).limit(limit).sort().lean().exec(function (err, results) {
                         resolve(results);
                     })
                 });
+            })
+            .then((results) => {
+                if (query['search'] || query['category']) {
+                    if (results != undefined) {
+                        var promises = [];
+                        for (let i = 0; i < results.length; i++) {
+                            promises.push(this.getStoreCatalog(i, results[i]._id));
+                        }
+                    }
+                    return new Promise(function (resolve, reject) {
+                        Promise.all(promises).then(function (catalogInfo) {
+                            console.log(catalogInfo);
+                            for (let i = 0; i < catalogInfo.length; i++) {
+                                results[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
+                            };
+                            resolve(results);
+                        });
+                    });
+                } else {
+                    return results;
+                }
             })
             .then((stores) => {
                 callback.onSuccess(stores);
