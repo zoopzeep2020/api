@@ -13,185 +13,185 @@ class BookmarkHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
- /**
- * @swagger
- * /bookmarks:
- *   get:
- *     tags:
- *       - Bookmark
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /bookmarks:
+    *   get:
+    *     tags:
+    *       - Bookmark
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
- /**
- * @swagger
- * /bookmarks/{bookmarkId}:
- *   get:
- *     tags:
- *       - Bookmark
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: bookmarkId
- *         description: bookmarkId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /bookmarks/{bookmarkId}:
+    *   get:
+    *     tags:
+    *       - Bookmark
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: bookmarkId
+    *         description: bookmarkId
+    *         in: path
+    *         required: true
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
- /**
- * @swagger
- * /bookmarks/user/{userId}:
- *   get:
- *     tags:
- *       - Bookmark
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /bookmarks/user/{userId}:
+    *   get:
+    *     tags:
+    *       - Bookmark
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: userId
+    *         description: userId
+    *         in: path
+    *         required: true
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
-/**
- * @swagger
- * /bookmarks:
- *   post:
- *     tags:
- *       - Bookmark
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: userId
- *         description: userId
- *         in: body
- *         type: string
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
+    /**
+     * @swagger
+     * /bookmarks:
+     *   post:
+     *     tags:
+     *       - Bookmark
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *       - name: userId
+     *         description: userId
+     *         in: body
+     *         type: string
+     *       - name: storeId
+     *         description: storeId
+     *         in: body
+     *         type: string
+     *         schema:
+     *          $ref: '#/definitions/UpdateActivitiesObj'
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
 
- /**
- * @swagger
- * /bookmarks/{bookmarkId}:
- *   delete:
- *     tags:
- *       - Bookmark
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: bookmarkId
- *         description: bookmarkId
- *         in: path
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /bookmakrs/{bookmarkId}:
- *   put:
- *     tags:
- *       - Blog
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         type: string
- *       - name: bookmarkId
- *         description: bookmarkId
- *         in: path
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: body
- *         type: string
- *       - name: storeId
- *         description: storeId
- *         in: body
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".     
- */
- /**
- * @swagger
- * definition:
- *   UpdateActivitiesObj:
- *     properties:
- *       userId:
- *         type: string
- *         required: true
- *       storeId:
- *         type: string
- *         required: true
- */
+    /**
+    * @swagger
+    * /bookmarks/{bookmarkId}:
+    *   delete:
+    *     tags:
+    *       - Bookmark
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: Content-Type
+    *         description: content-type
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: application/json
+    *       - name: bookmarkId
+    *         description: bookmarkId
+    *         in: path
+    *         type: string
+    *     responses:
+    *       200:
+    *         description: object of activity".
+    */
+    /**
+     * @swagger
+     * /bookmakrs/{bookmarkId}:
+     *   put:
+     *     tags:
+     *       - Blog
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         type: string
+     *       - name: bookmarkId
+     *         description: bookmarkId
+     *         in: path
+     *         type: string
+     *       - name: userId
+     *         description: userId
+     *         in: body
+     *         type: string
+     *       - name: storeId
+     *         description: storeId
+     *         in: body
+     *         type: string
+     *         schema:
+     *          $ref: '#/definitions/UpdateActivitiesObj'
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+     */
+    /**
+    * @swagger
+    * definition:
+    *   UpdateActivitiesObj:
+    *     properties:
+    *       userId:
+    *         type: string
+    *         required: true
+    *       storeId:
+    *         type: string
+    *         required: true
+    */
 
     createNewBookmark(req, callback) {
         let data = req.body;
@@ -200,9 +200,9 @@ class BookmarkHandler extends BaseAutoBindedClass {
         req.checkBody('userId', 'userId is required').notEmpty();
         req.checkBody('storeId', 'storeId is required').notEmpty();
         req.checkBody('storeId', 'Invalid storeId provided').isMongoId();
-        
+
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -216,7 +216,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 return bookmark;
             })
             .then((saved) => {
-                StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
+                StoreModel.findOne({ _id: req.body.storeId }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
@@ -227,7 +227,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                             store.save();
                         }
                     }
-                }) 
+                })
                 callback.onSuccess(saved);
             })
             .catch((error) => {
@@ -239,15 +239,15 @@ class BookmarkHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    BookmarkModel.findOne({ _id: req.params.id }, function(err, bookmark) {
+                return new Promise(function (resolve, reject) {
+                    BookmarkModel.findOne({ _id: req.params.id }, function (err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -265,7 +265,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 return bookmark;
             })
             .then((saved) => {
-                StoreModel.findOne({ _id: req.body.storeId }, function(err, store) {
+                StoreModel.findOne({ _id: req.body.storeId }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
                     } else {
@@ -276,7 +276,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                             store.save();
                         }
                     }
-                }) 
+                })
                 callback.onSuccess({}, "Bookmark id " + saved.id + " deleted successfully ");
             })
             .catch((error) => {
@@ -289,7 +289,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -297,8 +297,8 @@ class BookmarkHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
 
-                return new Promise(function(resolve, reject) {
-                    BookmarkModel.findOne({ _id: req.params.id }, function(err, bookmark) {
+                return new Promise(function (resolve, reject) {
+                    BookmarkModel.findOne({ _id: req.params.id }, function (err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -316,7 +316,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                     if (data.hasOwnProperty(key)) {
                         bookmark[key] = data[key];
                     }
-                }  
+                }
                 bookmark.save();
                 return bookmark;
             })
@@ -332,15 +332,15 @@ class BookmarkHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    BookmarkModel.findOne({ _id: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'],  model: 'Store'  }).exec(function(err, bookmark) {
+                return new Promise(function (resolve, reject) {
+                    BookmarkModel.findOne({ _id: req.params.id }).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner'], model: 'Store' }).exec(function (err, bookmark) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -365,95 +365,96 @@ class BookmarkHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-        .then(function(result) {
-            if (!result.isEmpty()) {
-                let errorMessages = result.array().map(function (elem) {
-                    return elem.msg;
-                });
-                throw new ValidationError(errorMessages);
-            }
-            return new Promise(function(resolve, reject) {
-                BookmarkModel.aggregate(
-                    [{
-                        "$match" : { "userId": mongoose.Types.ObjectId(req.params.id) }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'stores',
-                            "localField": "storeId",
-                            "foreignField": "_id",
-                            "as": "storesInfo"
-                        }
-                    }, 
-                    {
-                        "$lookup": {
-                            "from": 'catalogs',
-                            "localField": "storeId",
-                            "foreignField": "storeId",
-                            "as": "catalogInfo"
-                        }
-                    }, 
-                    {
-                        $project: {
-                            '_id': '$_id',
-                            'storeName': '$storesInfo.storeName',
-                            'address': '$storesInfo.address',
-                            'storeLogo': '$storesInfo.storeLogo',
-                            'storeBanner': '$storesInfo.storeBanner',
-                            catalogInfo: {
-                                $filter: { input: "$catalogInfo", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    BookmarkModel.aggregate(
+                        [{
+                            "$match": { "userId": mongoose.Types.ObjectId(req.params.id) }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'stores',
+                                "localField": "storeId",
+                                "foreignField": "_id",
+                                "as": "storesInfo"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "storeId",
+                                "foreignField": "storeId",
+                                "as": "catalogInfo"
+                            }
+                        },
+                        {
+                            $project: {
+                                '_id': '$_id',
+                                'storeId': '$storesInfo.storeId',
+                                'storeName': '$storesInfo.storeName',
+                                'address': '$storesInfo.address',
+                                'storeLogo': '$storesInfo.storeLogo',
+                                'storeBanner': '$storesInfo.storeBanner',
+                                catalogInfo: {
+                                    $filter: { input: "$catalogInfo", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
                             },
                         },
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeName",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$address",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeLogo",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    {
-                        $unwind: {
-                            path: "$storeBanner",
-                            preserveNullAndEmptyArrays: true
-                          }
-                    },
-                    ]).exec(function(err, bookmark) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        if (!bookmark) {
-                            reject(new NotFoundError("Bookmark not found"));
-                        } else {
-                            resolve(bookmark);
-                        }
-                    }
-                })
+                        {
+                            $unwind: {
+                                path: "$storeName",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$address",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeLogo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeBanner",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        ]).exec(function (err, bookmark) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!bookmark) {
+                                    reject(new NotFoundError("Bookmark not found"));
+                                } else {
+                                    resolve(bookmark);
+                                }
+                            }
+                        })
+                });
+            })
+            .then((bookmark) => {
+                callback.onSuccess(bookmark);
+            })
+            .catch((error) => {
+                callback.onError(error);
             });
-        })
-        .then((bookmark) => {
-            callback.onSuccess(bookmark);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
     }
 
     getAllBookmarks(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-            BookmarkModel.find({}).populate({ path: 'storeId', select: ['_id','storeName', 'storeLogo', 'storeBanner','address','featureCatalog','avgRating','storeDiscription'],  model: 'Store' }).exec(function(err, bookmark) {
+        new Promise(function (resolve, reject) {
+            BookmarkModel.find({}).populate({ path: 'storeId', select: ['_id', 'storeName', 'storeLogo', 'storeBanner', 'address', 'featureCatalog', 'avgRating', 'storeDiscription'], model: 'Store' }).exec(function (err, bookmark) {
                 if (err !== null) {
                     reject(err);
                 } else {
@@ -465,12 +466,12 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 }
             })
         })
-        .then((bookmark) => {
-            callback.onSuccess(bookmark);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((bookmark) => {
+                callback.onSuccess(bookmark);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 }
 
