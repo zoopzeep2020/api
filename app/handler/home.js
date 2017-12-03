@@ -32,6 +32,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 headers: req.headers
             };
             request(optionsStore, type, function (error, response, body) {
+                console.log(body, url);
                 return resolve([type, JSON.parse(body)['data']]);
             });
         });

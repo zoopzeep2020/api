@@ -650,6 +650,73 @@ class CollectionHandler extends BaseAutoBindedClass {
             });
     }
 
+    getCollectionBySearch(req, callback) {
+        console.log(req.query);
+        let data = req.body;
+        let query = req.query;
+        let stores = [];
+        let mongoQuery = {};
+        var queryString = url.parse(req.url, true).search;
+        let skip = 0;
+        let limit = 10;
+        console.log(req.query, queryString);
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+            }).then(() => {
+                return new Promise(function (resolve, reject) {
+                    var URLStore = 'http://' + req.get('host') + '/stores/search' + queryString;
+                    var optionsStore = {
+                        url: URLStore,
+                        method: 'GET',
+                        headers: req.headers
+                    };
+                    request(optionsStore, function (error, response, body) {
+                        let storesData = JSON.parse(body)['data'];
+                        for (let i = 0; i < storesData.length; i++) {
+                            stores[i] = storesData[i]._id;
+                        }
+                        console.log(stores)
+                        resolve(stores);
+                    });
+                });
+            }).then((stores) => {
+                return new Promise(function (resolve, reject) {
+                    if (stores) {
+                        mongoQuery['storeId'] = { "$in": stores };
+                    }
+
+                    for (var key in query) {
+                        if (key == "collectionSearch") {
+                            mongoQuery['$or'] = [
+                                { 'collectionName': { $regex: new RegExp(query[key], 'i') } },
+                                { 'collectionDescription': { $regex: new RegExp(query[key], 'i') } }
+                            ]
+                        } else if (key == "startCollections") {
+                            console.log('fdfd');
+                            skip = parseInt(query[key]);
+                        } else if (key == "endCollections") {
+                            limit = parseInt(query[key]) - skip + 1;
+                        }
+                    }
+
+                    CollectionModel.find(mongoQuery).skip(skip).limit(limit).exec(function (err, results) {
+                        resolve(results);
+                    })
+                });
+            }).then((collection) => {
+                callback.onSuccess(collection);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
     // getSearchByQuery(req, callback) {
     //     let data = req.body;
     //     var matchQuery = [];

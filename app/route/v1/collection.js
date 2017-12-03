@@ -9,7 +9,7 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/', collectionController.getAll);
-router.get('/searchByQuery', collectionController.getSearchByQuery);
+router.get('/search', collectionController.getCollectionBySearch);
 router.get('/latestcollections', collectionController.getLatestCollections);
 router.get('/:id', collectionController.get);
 router.post('/', upload.any(), collectionController.create);

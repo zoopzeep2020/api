@@ -12,7 +12,7 @@ class CollectionController extends BaseController {
 
     getAll(req, res, next) {
         this.basicAuthenticate(req, res, () => {
-                this._collectionHandler.getAllCollections(req, this._responseManager.getDefaultResponseHandler(res));  
+            this._collectionHandler.getAllCollections(req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
@@ -23,19 +23,19 @@ class CollectionController extends BaseController {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
-        });     
+        });
     }
-    
-    getSearchByQuery(req, res, next) {
+
+    getCollectionBySearch(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
-            this._collectionHandler.getSearchByQuery(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+            this._collectionHandler.getCollectionBySearch(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
-        });     
+        });
     }
-    
+
     getLatestCollections(req, res, next) {
         let responseManager = this._responseManager;
         this.basicAuthenticate(req, res, () => {
@@ -43,36 +43,36 @@ class CollectionController extends BaseController {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
-        });     
+        });
     }
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+            if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
                 this._collectionHandler.createNewCollection(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not available")
+            }
         });
     }
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+            if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
                 this._collectionHandler.updateCollection(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not available")
+            }
         });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.body.storeId)){
+            if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
                 this._collectionHandler.deleteCollection(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
-            } 
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not available")
+            }
         });
     }
 
@@ -80,7 +80,7 @@ class CollectionController extends BaseController {
         let responseManager = this._responseManager;
         this._passport.authenticate('jwt-rs-auth', {
             onVerified: callback,
-            onFailure: function(error) {
+            onFailure: function (error) {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
