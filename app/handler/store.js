@@ -1822,10 +1822,6 @@ class StoreHandler extends BaseAutoBindedClass {
         let skip = 0;
         let limit = 10;
 
-        // if (req.query.active === undefined) {
-        //     req.query.active = null;
-        // }
-        // console.log(query);
         for (var key in query) {
             if (key == "search") {
                 mongoQuery['$or'] = [
@@ -1856,9 +1852,6 @@ class StoreHandler extends BaseAutoBindedClass {
             }
         }
 
-        //    let storefileter = "{ $regex: new RegExp('s', 'i') }";
-
-        //        console.log(storefileter);
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -1868,94 +1861,13 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-
                     StoreModel.find(
                         mongoQuery
-                        //{
-                        // otherKeyword: { "$in": ['keyword1'] }
-                        // mongoQuery
-                        // storeName: storefileter,
-                        // isActive: { $eq: req.query.active },
-                        // storeCity: { $eq: req.query.location },              
-                        //}     
                     ).skip(skip).limit(limit).sort().exec(function (err, results) {
                         resolve(results);
                     })
-
-                    // StoreModel.where('storeName').eq(req.query.search).ne(null).exists(true).exec(function (err, results) {
-                    //     resolve(results);
-                    // })
-
-
-                    // StoreModel.aggregate(
-                    //     {
-                    //         $match: {
-                    //             // $cond: {
-                    //             //     "if": {   // (case 1 --> same as left varaible query )
-
-                    //             //                        "$and": [{
-
-                    //             //                            "$gt": ["$endTime", new Date(filterDate.from)]
-
-                    //             //                        }, {
-
-                    //             //                            "$lte": ["$endTime", new Date(filterDate.to)]
-
-                    //             //                        }, {
-
-                    //             //                            "$lt": ["$startTime", new Date(filterDate.from)]
-
-                    //             //                        }]
-
-                    //             //                    },
-
-                    //             //                    "then": {
-
-
-
-                    //             //                        "$divide": [{
-
-                    //             //                            "$subtract": ["$endTime", new Date(filterDate.from)]
-
-                    //             //                        }, 1000] // ( case 1 --> duration calculation)
-
-                    //             //                    },
-                    //             // },
-
-
-                    //             $and: [
-                    //                 {
-                    //                     $or: [
-                    //                         { "storeName": { $exists: true, $regex: req.query.search, '$options': 'i' } },
-                    //                         { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
-                    //                     ]
-                    //                 }
-                    //             ]
-                    //         }
-                    //     }).exec(function (err, results) {
-                    //         resolve(results);
-                    //     })
                 });
             })
-            // .then((stores) => {
-            //     return new Promise(function (resolve, reject) {
-            //         StoreModel.aggregate(
-            //             {
-            //                 $match: {
-            //                     $and: [
-            //                         {
-            //                             $or: [
-            //                                 { "storeName": { $exists: true, $regex: "Near Govardhan Partyplot", '$options': 'i' } },
-            //                                 { "storeDescription": { $regex: "a", '$options': 'i' } },
-            //                             ]
-            //                         }
-            //                     ]
-            //                 }
-            //             }).exec(function (err, results) {
-            //                 resolve(results);
-            //             })
-            //     });
-            // })
             .then((stores) => {
                 callback.onSuccess(stores);
             })

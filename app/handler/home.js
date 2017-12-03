@@ -32,7 +32,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 headers: req.headers
             };
             request(optionsStore, type, function (error, response, body) {
-                console.log(body, url);
                 return resolve([type, JSON.parse(body)['data']]);
             });
         });
@@ -88,7 +87,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
         Promise.all([
             this.requestAsync(req, 'http://' + req.get('host') + '/stores/trendingstore' + queryString, 'trendingStores'),
             this.requestAsync(req, 'http://' + req.get('host') + '/catalogs/featurecatalog' + queryString, 'trendingCatalog'),
-            this.requestAsync(req, 'http://' + req.get('host') + '/collections/searchByQuery' + queryString, 'trendingCollections')
+            this.requestAsync(req, 'http://' + req.get('host') + '/collections/search' + queryString, 'trendingCollections')
         ])
             .then(function (allData) {
                 for (let i = 0; i < allData.length; i++) {
