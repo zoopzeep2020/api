@@ -455,6 +455,7 @@ class CityHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
+                    console.log(CityModel.schema._indexes)
                     CityModel.aggregate(
                         {
                             "$geoNear": {
