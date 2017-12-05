@@ -9,7 +9,7 @@ let CitySchema = new Schema({
     cityState: String,
     location: {
         type: [Number],  // [<longitude>, <latitude>]
-        index: '2dsphere'      // create the geospatial index
+        index: '2d'      // create the geospatial index
     },
     name: String,
     state: String,
@@ -19,7 +19,7 @@ let CitySchema = new Schema({
     dateModified: { type: Date, default: Date.now },
 });
 
-CitySchema.index({ "location": "2dsphere" });
+CitySchema.index({ "location": "2d" });
 
 CitySchema.pre('update', function (next, done) {
     this.dateModified = Date.now();
