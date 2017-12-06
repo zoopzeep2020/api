@@ -484,6 +484,7 @@ class CityHandler extends BaseAutoBindedClass {
     }
 
     getAllCitys(req, callback) {
+
         new Promise(function (resolve, reject) {
             CityModel.find({}, function (err, city) {
                 if (err !== null) {
@@ -498,6 +499,20 @@ class CityHandler extends BaseAutoBindedClass {
             })
         })
             .then((city) => {
+                // var cityUdated = [];
+                // for(var i=0;i<city.length;i++){
+                //     var object = {};
+                //     var location= {
+                //         "type": "Point",
+                //         "coordinates": city[i]['location']
+                //     }
+                //         object['_id']=city[i]['id']
+                //         object['cityName']=city[i]['cityName']
+                //         object['cityState']=city[i]['cityState']
+                //         object['location']=location
+                //         cityUdated.push(object)
+                // }
+                // console.log(cityUdated)
                 callback.onSuccess(city);
             })
             .catch((error) => {

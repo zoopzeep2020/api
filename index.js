@@ -63,7 +63,7 @@ var options = {
 var swaggerSpec = swaggerJSDoc(options);
 // serve swagger
 app.get('/api.json', function (req, res) {
-  res.setHeader('Content-Type', 'application/json');
+//   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
 
@@ -71,7 +71,7 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept-Language, Authorization");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Content-Type', 'application/json');
+    // res.setHeader('Content-Type', 'application/json');
     if ('OPTIONS' === req.method) {
         res.sendStatus(200);
     } else
@@ -130,7 +130,7 @@ customValidators: {
     }
 }}));
 app.get('/swagger', function (req, res) {
-    res.setHeader('Content-Type', 'text/html');
+    // res.setHeader('Content-Type', 'text/html');
     res.sendFile(path.join(__dirname+ '/swagger/api-docs/index.html'));
 });
     app.get('/auth/facebook', this._passport.authenticate('facebook', { 

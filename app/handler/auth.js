@@ -2,6 +2,7 @@
  * Created by WebrexStudio on 5/9/17.
  */
 const RevokedToken = require(APP_MODEL_PATH + 'auth/revoked-token').RevokedTokenModel;
+const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -26,8 +27,31 @@ class AuthHandler extends BaseAutoBindedClass {
                 if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
                     user[key] = req.body[key];
                 }
+                if (key == 'location') {
+                    // return new Promise(function (resolve, reject) {
+                    //     console.log(CityModel.schema._indexes)
+                    //     CityModel.aggregate(
+                    //         {
+                    //             "$geoNear": {
+                    //                 "near": {
+                    //                     "type": "Point",
+                    //                     "coordinates": req.body.location
+                    //                 },
+                    //                 "distanceField": "distance",
+                    //                 "spherical": true,
+                    //                 "maxDistance": 0
+                    //             }
+                    //         },
+                    //         { $limit: 1 }
+                    //     ).exec(function (err, cities) {
+                    //         user['cityName'] = cities[0]['cityName'];
+                    //         resolve(cities);
+                    //     })
+                    // });
+                }
             } 
             user.save();
+            // console.log(cities)
             let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
             let data = {
                 _id:user._id,
@@ -43,7 +67,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 isUser:user.isUser,
                 userImage:user.userImage,  
                 deviceType:user.deviceType,
-                isAdmin:user.isAdmin
+                isAdmin:user.isAdmin,
+                cityName:user.cityName
             };
             callback.onSuccess(data);
         } else {
