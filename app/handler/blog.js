@@ -523,6 +523,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) {
                     var like = req.body.like;
+                    console.log(like)
                     if(like){
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
@@ -532,12 +533,13 @@ class BlogHandler extends BaseAutoBindedClass {
                             '$addToSet': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
                         },
                         {'new': true, 'multi':true},
-                        function(err, blog){
-                            blog.likeCount = blog.likeCount+1;
-                            blog.isLike = true;
-                            blog.save();
-                            resolve(blog);
-                        })
+                            function(err, blog){
+                                blog.likeCount = blog.likeCount+1;
+                                blog.isLike = true;
+                                blog.save();
+                                console.log(blog)
+                                resolve(blog);
+                            })
                     }else if(!like){
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
@@ -863,7 +865,63 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+    // getStoreCatalog(i, storeId) {
+    //     return new Promise(function (resolve, reject) {
+    //         CatalogModel.find({ storeId: storeId }).limit(3).exec(function (err, catalog) {
+    //             return resolve([i, catalog]);
+    //         })
+    //     });
+    // }
+   
+    getBlogBySearch(req, callback) {
+        let data = req.body;
+        var ObjectID = require('mongodb').ObjectID;
+        let query = req.query;
+        let mongoQuery = {};
+        let skip = 0;
+        let limit = 10;
+        let sorting = {};
+
+        for (var key in query) {
+            if (key == "search") {
+                mongoQuery['$or'] = [
+                    { 'title': { $regex: new RegExp(query[key], 'i') } },
+                    { 'description': { $regex: new RegExp(query[key], 'i') } }
+                ]               
+            } else if (key == "URL") {
+                mongoQuery['URL'] = query[key]
+            } else if (key == "startBlogs") {
+                skip = parseInt(query[key]);
+            } else if (key == "endBlogs") {
+                limit = parseInt(query[key]) - skip + 1;
+            }else if (key == "trending") {
+                sorting = query["trending"] == 'true' ? { likeCount : -1}:{}
+            }
+        }
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    BlogModel.find(mongoQuery).skip(skip).limit(limit).sort(sorting).lean().exec(function (err, results) {
+                        resolve(results);
+                    })
+                });
+            })
+            .then((results) => {
+                for(var i=0;i<results.length;i++){
+                    results[i].time = this.timeago(results[i].dateCreated)
+                }
+                callback.onSuccess(results);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {
@@ -875,6 +933,36 @@ class BlogHandler extends BaseAutoBindedClass {
     }
 
     noNaN( n ) { return isNaN( n ) ? 0 : n; }
+
+    timeago(nd, s) {
+        var o = {
+            second: 1000,
+            minute: 60 * 1000,
+            hour: 60 * 1000 * 60,
+            day: 24 * 60 * 1000 * 60,
+            week: 7 * 24 * 60 * 1000 * 60,
+            month: 30 * 24 * 60 * 1000 * 60,
+            year: 365 * 24 * 60 * 1000 * 60
+        };
+        var obj = {};
+
+        var r = Math.round,
+            dir = ' ago',
+            pl = function (v, n) {
+                return (s === undefined) ? n + ' ' + v + (n > 1 ? 's' : '') + dir : n + v.substring(0, 1)
+            },
+            ts = Date.now() - new Date(nd).getTime(),
+            ii;
+        if (ts < 0) {
+            ts *= -1;
+            dir = ' from now';
+        }
+        for (var i in o) {
+            if (r(ts) < o[i]) return pl(ii || 'm', r(ts / (o[ii] || 1)))
+            ii = i;
+        }
+        return pl(i, r(ts / o[i]));
+    }
 }
 
 module.exports = BlogHandler;

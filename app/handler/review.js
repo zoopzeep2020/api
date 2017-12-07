@@ -438,7 +438,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                 });
             })
             .then((review) => {
-                var currdatetime = new Date();
                 var datecreated;
                 datecreated = review.dateCreated;
                 review.timeDifference = this.timeago(datecreated)

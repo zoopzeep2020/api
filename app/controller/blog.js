@@ -28,6 +28,12 @@ class BlogController extends BaseController {
         });
     }
 
+    getBlogBySearch(req, res, next){
+        this.basicAuthenticate(req, res, () => {
+            this._blogHandler.getBlogBySearch( req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {

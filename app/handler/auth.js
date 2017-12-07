@@ -36,13 +36,15 @@ class AuthHandler extends BaseAutoBindedClass {
                     user[key] = req.body[key];
                 }
                 if (key == 'location') {
+                    var longitude = this.noNaN(parseFloat(req.body.location[0]));
+                    var lattitude = this.noNaN(parseFloat(req.body.location[1]));
                     return new Promise(function (resolve, reject) {
                         CityModel.aggregate(
                             {
                                 "$geoNear": {
                                     "near": {
                                         "type": "Point",
-                                        "coordinates": req.body.location
+                                        "coordinates": [longitude,lattitude]
                                     },
                                     "distanceField": "distance",
                                     "spherical": true,
@@ -52,7 +54,6 @@ class AuthHandler extends BaseAutoBindedClass {
                             { $limit: 1 }
                         ).exec(function (err, results) {
                             user['cityName'] = results[0]['cityName'];
-                            console.log("results",results)
                             resolve(user);
                         })
                     });
@@ -300,6 +301,7 @@ class AuthHandler extends BaseAutoBindedClass {
             algorithm: config.jwtOptions.algorithm
         };
     }
+    noNaN( n ) { return isNaN( n ) ? 0 : n; }
 }
 
 module.exports = AuthHandler;

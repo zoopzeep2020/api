@@ -1631,7 +1631,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     finalTotal: {
                                         $let: {
                                             vars: {
-                                                total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$ " }] },
+                                                total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$viewCount" }] },
                                             },
                                             in: { $add: ["$avgRating", "$$total"] }
                                         }
@@ -1939,7 +1939,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 limit = parseInt(query[key]) - skip + 1;
             }
         }
-
+        
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -2015,9 +2015,9 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         }
                     )
-                        .exec(function (err, results) {
-                            resolve(results);
-                        })
+                    .exec(function (err, results) {
+                        resolve(results);
+                    })
                 });
             }).then((keywords) => {
                 for (var i = 0; i < keywords.length; i++) {
@@ -2093,12 +2093,12 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             });
         })
-            .then((store) => {
-                callback.onSuccess(store);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((store) => {
+            callback.onSuccess(store);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     objectify(array) {
