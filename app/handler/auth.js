@@ -36,10 +36,11 @@ class AuthHandler extends BaseAutoBindedClass {
                     user[key] = req.body[key];
                 }
                 if (key == 'location') {
-                    var longitude = this.noNaN(parseFloat(req.body.location[0]));
-                    var lattitude = this.noNaN(parseFloat(req.body.location[1]));
-                    return new Promise(function (resolve, reject) {
-                        CityModel.aggregate(
+                    if(req.body.location !=undefined){
+                        var longitude = this.noNaN(parseFloat(req.body.location[0]));
+                        var lattitude = this.noNaN(parseFloat(req.body.location[1]));
+                        return new Promise(function (resolve, reject) {
+                            CityModel.aggregate(
                             {
                                 "$geoNear": {
                                     "near": {
@@ -52,11 +53,12 @@ class AuthHandler extends BaseAutoBindedClass {
                                 }
                             },
                             { $limit: 1 }
-                        ).exec(function (err, results) {
-                            user['cityName'] = results[0]['cityName'];
-                            resolve(user);
-                        })
-                    });
+                            ).exec(function (err, results) {
+                                user['cityName'] = results[0]['cityName'];
+                                resolve(user);
+                            })
+                        });
+                    }
                 }
             } 
         }).then((results) => {
