@@ -532,7 +532,7 @@ class BlogHandler extends BaseAutoBindedClass {
         });
     }
 
-    /*likeBlog(req, callback) {
+    likeBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
         req.getValidationResult()
@@ -585,8 +585,8 @@ class BlogHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
-    }*/
-    likeBlog(req, callback) {
+    }
+    /*likeBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
         req.getValidationResult()
@@ -642,7 +642,7 @@ class BlogHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
-    }
+    }*/
     saveBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
