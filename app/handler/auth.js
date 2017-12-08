@@ -12,7 +12,6 @@ const utf8 = require('utf8');
 const nodemailer = require('nodemailer');
 const SHA_HASH_LENGTH = 64;
 const ForbiddenError = require(APP_ERROR_PATH + 'forbidden');
-
 class AuthHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -36,29 +35,27 @@ class AuthHandler extends BaseAutoBindedClass {
                     user[key] = req.body[key];
                 }
                 if (key == 'location') {
-                    if(req.body.location !=undefined){
-                        var longitude = this.noNaN(parseFloat(req.body.location[0]));
-                        var lattitude = this.noNaN(parseFloat(req.body.location[1]));
-                        return new Promise(function (resolve, reject) {
-                            CityModel.aggregate(
-                            {
-                                "$geoNear": {
-                                    "near": {
-                                        "type": "Point",
-                                        "coordinates": [longitude,lattitude]
-                                    },
-                                    "distanceField": "distance",
-                                    "spherical": true,
-                                    "maxDistance": 0
-                                }
-                            },
-                            { $limit: 1 }
-                            ).exec(function (err, results) {
-                                user['cityName'] = results[0]['cityName'];
-                                resolve(user);
-                            })
-                        });
-                    }
+                    var longitude = isNaN(parseFloat(req.body.location[0]))?0:parseFloat(req.body.location[0]);
+                    var lattitude = isNaN(parseFloat(req.body.location[1]))?0:parseFloat(req.body.location[1]);
+                    return new Promise(function (resolve, reject) {
+                        CityModel.aggregate(
+                        {
+                            "$geoNear": {
+                                "near": {
+                                    "type": "Point",
+                                    "coordinates": [longitude,lattitude]
+                                },
+                                "distanceField": "distance",
+                                "spherical": true,
+                                "maxDistance": 0
+                            }
+                        },
+                        { $limit: 1 }
+                        ).exec(function (err, results) {
+                            user['cityName'] = results[0]['cityName'];
+                            resolve(user);
+                        })
+                    });
                 }
             } 
         }).then((results) => {
@@ -303,7 +300,7 @@ class AuthHandler extends BaseAutoBindedClass {
             algorithm: config.jwtOptions.algorithm
         };
     }
-    noNaN( n ) { return isNaN( n ) ? 0 : n; }
+    noNaN( n ) { return isNaN( parseFloat(n) ) ? 0 : n; }
 }
 
 module.exports = AuthHandler;
