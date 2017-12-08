@@ -687,7 +687,7 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
-    getSingleStore(req, callback) {
+   /* getSingleStore(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
@@ -754,401 +754,401 @@ class StoreHandler extends BaseAutoBindedClass {
         .catch((error) => {
             callback.onError(error);
         });
+    }*/
+    getSingleStore(req, callback) {
+        let data = req.body;
+        req.checkParams('id', 'Invalid store id provided').isMongoId();
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    StoreModel.aggregate([
+                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
+                        {
+                            "$match": { "isActive": 1 == 1 }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'stores',
+                                "localField": "_id",
+                                "foreignField": "_id",
+                                "as": "storesInfo"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "_id",
+                                "foreignField": "storeId",
+                                "as": "storeCatalogs"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "featureCatalog",
+                                "foreignField": "_id",
+                                "as": "featureCatalog"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'keywords',
+                                "localField": "keyword",
+                                "foreignField": "_id",
+                                "as": "keywords"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'categories',
+                                "localField": "categoriesIds",
+                                "foreignField": "_id",
+                                "as": "categoriesIds"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'offers',
+                                "localField": "_id",
+                                "foreignField": "storeId",
+                                "as": "storeOffers"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'reviews',
+                                "localField": "_id",
+                                "foreignField": "storeId",
+                                "as": "reviews",
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: "$featureCatalog",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$reviews",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "reviews.userId",
+                                foreignField: "_id",
+                                as: "reviews.userId"
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$reviews.userId",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$_id",
+                                avgRating: { "$avg": "$reviews.ratingScale" },
+                                storesInfo: { $addToSet: '$storesInfo' },
+                                reviews: { $addToSet: '$reviews' },
+                                keywords: { $addToSet: '$keywords' },
+                                categoriesIds: { $addToSet: '$categoriesIds' },
+                                storeOffers: { $addToSet: '$storeOffers' },
+                                storeCatalogs: { $addToSet: '$storeCatalogs' },
+                                featureCatalog: { $addToSet: '$featureCatalog' }
+                            },
+                        },
+                        {
+                            $project: {
+                                'storeName': '$storesInfo.storeName',
+                                'isActive': '$storesInfo.isActive',
+                                'address': '$storesInfo.address',
+                                'storeLogo': '$storesInfo.storeLogo',
+                                'storeBanner': '$storesInfo.storeBanner',
+                                'otherKeyword': '$storesInfo.otherKeyword',
+                                'buisnessOnline': '$storesInfo.buisnessOnline',
+                                'buisnessOffline': '$storesInfo.buisnessOffline',
+                                'buisnessBoth': '$storesInfo.buisnessBoth',
+                                'storePhone': '$storesInfo.storePhone',
+                                'storeDiscription': '$storesInfo.storeDiscription',
+                                'webAddress': '$storesInfo.webAddress',
+                                'countries': '$storesInfo.countries',
+                                'dispatchDayMin': '$storesInfo.dispatchDayMin',
+                                'dispatchDayMax': '$storesInfo.dispatchDayMax',
+                                'customization': '$storesInfo.customization',
+                                'giftWrap': '$storesInfo.giftWrap',
+                                'cod': '$storesInfo.cod',
+                                'viewCount': "$storesInfo.viewCount",
+                                'freeShiping': '$storesInfo.freeShiping',
+                                'returnandreplace': '$storesInfo.returnandreplace',
+                                'bookmarkCount': '$storesInfo.bookmarkCount',
+                                'avgRating': { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
+                                reviews: {
+                                    $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },
+                                },
+                                keywords: {
+                                    $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
+                                },
+                                categoriesIds: {
+                                    $filter: { input: "$categoriesIds", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                                storeOffers: {
+                                    $filter: { input: "$storeOffers", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                                storeCatalogs: {
+                                    $filter: { input: "$storeCatalogs", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                                featureCatalog: {
+                                    $filter: { input: "$featureCatalog", as: "c", cond: { $ifNull: ["$$c._id", false] } },
+                                },
+                            },
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeName",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$isActive",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$address",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$viewCount",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeLogo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeBanner",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$buisnessOnline",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$buisnessOffline",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$buisnessBoth",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storePhone",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeDiscription",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$webAddress",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$dispatchDayMin",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$dispatchDayMax",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$customization",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$giftWrap",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$cod",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$freeShiping",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$returnandreplace",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$countries",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$otherKeyword",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$keywords",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$categoriesIds",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeOffers",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storeCatalogs",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$bookmarkCount",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $project: {
+                                dateModified: 0,
+                                dateCreated: 0,
+                                __v: 0,
+                                categoriesIds: {
+                                    dateModified: 0,
+                                    dateCreated: 0,
+                                    __v: 0,
+                                },
+                                keyword: {
+                                    dateModified: 0,
+                                    dateCreated: 0,
+                                    __v: 0,
+                                },
+                                storeCatalogs: {
+                                    dateModified: 0,
+                                    dateCreated: 0,
+                                    __v: 0,
+                                },
+                                storeOffers: {
+                                    dateModified: 0,
+                                    dateCreated: 0,
+                                    __v: 0,
+                                },
+                                reviews: {
+                                    dateModified: 0,
+                                    dateCreated: 0,
+                                    __v: 0,
+                                    userId: {
+                                        hashedPassword: 0,
+                                        salt: 0,
+                                        phone: 0,
+                                        dateCreated: 0,
+                                        isStore: 0,
+                                        isUser: 0,
+                                        iSAdmin: 0,
+                                        resetPasswordExpires: 0,
+                                        resetPasswordToken: 0,
+                                        __v: 0,
+                                    }
+                                },
+                            }
+                        },
+                    ]).exec(function (err, results) {
+                        resolve(results);
+                    })
+                });
+            })
+            .then((result) => {
+                StoreModel.findOne({ _id: req.params.id }, function (err, store) {
+                    if (err !== null) {
+                        new NotFoundError("store not found");
+                    } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            store.viewCount = store.viewCount + 1;
+                            store.avgRating = result[0].avgRating;
+                            store.save();
+                        }
+                    }
+                })
+                callback.onSuccess(result);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
-    // getSingleStore(req, callback) {
-    //     let data = req.body;
-    //     req.checkParams('id', 'Invalid store id provided').isMongoId();
-    //     req.getValidationResult()
-    //         .then(function (result) {
-    //             if (!result.isEmpty()) {
-    //                 let errorMessages = result.array().map(function (elem) {
-    //                     return elem.msg;
-    //                 });
-    //                 throw new ValidationError(errorMessages);
-    //             }
-    //             return new Promise(function (resolve, reject) {
-    //                 StoreModel.aggregate([
-    //                     { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
-    //                     {
-    //                         "$match": { "isActive": 1 == 1 }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'stores',
-    //                             "localField": "_id",
-    //                             "foreignField": "_id",
-    //                             "as": "storesInfo"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'catalogs',
-    //                             "localField": "_id",
-    //                             "foreignField": "storeId",
-    //                             "as": "storeCatalogs"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'catalogs',
-    //                             "localField": "featureCatalog",
-    //                             "foreignField": "_id",
-    //                             "as": "featureCatalog"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'keywords',
-    //                             "localField": "keyword",
-    //                             "foreignField": "_id",
-    //                             "as": "keywords"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'categories',
-    //                             "localField": "categoriesIds",
-    //                             "foreignField": "_id",
-    //                             "as": "categoriesIds"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'offers',
-    //                             "localField": "_id",
-    //                             "foreignField": "storeId",
-    //                             "as": "storeOffers"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup": {
-    //                             "from": 'reviews',
-    //                             "localField": "_id",
-    //                             "foreignField": "storeId",
-    //                             "as": "reviews",
-    //                         },
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$featureCatalog",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$reviews",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $lookup: {
-    //                             from: "users",
-    //                             localField: "reviews.userId",
-    //                             foreignField: "_id",
-    //                             as: "reviews.userId"
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$reviews.userId",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storesInfo",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storesInfo",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $group: {
-    //                             _id: "$_id",
-    //                             avgRating: { "$avg": "$reviews.ratingScale" },
-    //                             storesInfo: { $addToSet: '$storesInfo' },
-    //                             reviews: { $addToSet: '$reviews' },
-    //                             keywords: { $addToSet: '$keywords' },
-    //                             categoriesIds: { $addToSet: '$categoriesIds' },
-    //                             storeOffers: { $addToSet: '$storeOffers' },
-    //                             storeCatalogs: { $addToSet: '$storeCatalogs' },
-    //                             featureCatalog: { $addToSet: '$featureCatalog' }
-    //                         },
-    //                     },
-    //                     {
-    //                         $project: {
-    //                             'storeName': '$storesInfo.storeName',
-    //                             'isActive': '$storesInfo.isActive',
-    //                             'address': '$storesInfo.address',
-    //                             'storeLogo': '$storesInfo.storeLogo',
-    //                             'storeBanner': '$storesInfo.storeBanner',
-    //                             'otherKeyword': '$storesInfo.otherKeyword',
-    //                             'buisnessOnline': '$storesInfo.buisnessOnline',
-    //                             'buisnessOffline': '$storesInfo.buisnessOffline',
-    //                             'buisnessBoth': '$storesInfo.buisnessBoth',
-    //                             'storePhone': '$storesInfo.storePhone',
-    //                             'storeDiscription': '$storesInfo.storeDiscription',
-    //                             'webAddress': '$storesInfo.webAddress',
-    //                             'countries': '$storesInfo.countries',
-    //                             'dispatchDayMin': '$storesInfo.dispatchDayMin',
-    //                             'dispatchDayMax': '$storesInfo.dispatchDayMax',
-    //                             'customization': '$storesInfo.customization',
-    //                             'giftWrap': '$storesInfo.giftWrap',
-    //                             'cod': '$storesInfo.cod',
-    //                             'viewCount': "$storesInfo.viewCount",
-    //                             'freeShiping': '$storesInfo.freeShiping',
-    //                             'returnandreplace': '$storesInfo.returnandreplace',
-    //                             'bookmarkCount': '$storesInfo.bookmarkCount',
-    //                             'avgRating': { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
-    //                             reviews: {
-    //                                 $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },
-    //                             },
-    //                             keywords: {
-    //                                 $filter: { input: "$keywords", as: "a", cond: { $ifNull: ["$$a._id", false] } },
-    //                             },
-    //                             categoriesIds: {
-    //                                 $filter: { input: "$categoriesIds", as: "c", cond: { $ifNull: ["$$c._id", false] } },
-    //                             },
-    //                             storeOffers: {
-    //                                 $filter: { input: "$storeOffers", as: "c", cond: { $ifNull: ["$$c._id", false] } },
-    //                             },
-    //                             storeCatalogs: {
-    //                                 $filter: { input: "$storeCatalogs", as: "c", cond: { $ifNull: ["$$c._id", false] } },
-    //                             },
-    //                             featureCatalog: {
-    //                                 $filter: { input: "$featureCatalog", as: "c", cond: { $ifNull: ["$$c._id", false] } },
-    //                             },
-    //                         },
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storeName",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$isActive",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$address",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$viewCount",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storeLogo",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storeBanner",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$buisnessOnline",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$buisnessOffline",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$buisnessBoth",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storePhone",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storeDiscription",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$webAddress",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$dispatchDayMin",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$dispatchDayMax",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$customization",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$giftWrap",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$cod",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$freeShiping",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$returnandreplace",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$countries",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$otherKeyword",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$keywords",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$categoriesIds",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storeOffers",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$storeCatalogs",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $unwind: {
-    //                             path: "$bookmarkCount",
-    //                             preserveNullAndEmptyArrays: true
-    //                         }
-    //                     },
-    //                     {
-    //                         $project: {
-    //                             dateModified: 0,
-    //                             dateCreated: 0,
-    //                             __v: 0,
-    //                             categoriesIds: {
-    //                                 dateModified: 0,
-    //                                 dateCreated: 0,
-    //                                 __v: 0,
-    //                             },
-    //                             keyword: {
-    //                                 dateModified: 0,
-    //                                 dateCreated: 0,
-    //                                 __v: 0,
-    //                             },
-    //                             storeCatalogs: {
-    //                                 dateModified: 0,
-    //                                 dateCreated: 0,
-    //                                 __v: 0,
-    //                             },
-    //                             storeOffers: {
-    //                                 dateModified: 0,
-    //                                 dateCreated: 0,
-    //                                 __v: 0,
-    //                             },
-    //                             reviews: {
-    //                                 dateModified: 0,
-    //                                 dateCreated: 0,
-    //                                 __v: 0,
-    //                                 userId: {
-    //                                     hashedPassword: 0,
-    //                                     salt: 0,
-    //                                     phone: 0,
-    //                                     dateCreated: 0,
-    //                                     isStore: 0,
-    //                                     isUser: 0,
-    //                                     iSAdmin: 0,
-    //                                     resetPasswordExpires: 0,
-    //                                     resetPasswordToken: 0,
-    //                                     __v: 0,
-    //                                 }
-    //                             },
-    //                         }
-    //                     },
-    //                 ]).exec(function (err, results) {
-    //                     resolve(results);
-    //                 })
-    //             });
-    //         })
-    //         .then((result) => {
-    //             StoreModel.findOne({ _id: req.params.id }, function (err, store) {
-    //                 if (err !== null) {
-    //                     new NotFoundError("store not found");
-    //                 } else {
-    //                     if (!store) {
-    //                         new NotFoundError("store not found");
-    //                     } else {
-    //                         store.viewCount = store.viewCount + 1;
-    //                         store.avgRating = result[0].avgRating;
-    //                         store.save();
-    //                     }
-    //                 }
-    //             })
-    //             callback.onSuccess(result);
-    //         })
-    //         .catch((error) => {
-    //             callback.onError(error);
-    //         });
-    // }
     getStoreByCategoryId(req, callback) {
         let data = req.body;
         var matchQuery = [];
