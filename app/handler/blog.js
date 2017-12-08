@@ -1008,6 +1008,36 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
+    getBlogByUrl(req, callback) {
+        let data = req.body;
+        var ObjectID = require('mongodb').ObjectID;
+        let mongoQuery = {};
+        mongoQuery['URL'] = req.params.url
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    BlogModel.findOne(mongoQuery).lean().exec(function (err, results) {
+                        resolve(results);
+                    })
+                });
+            })
+            .then((results) => {
+                for(var i=0;i<results.length;i++){
+                    results[i].time = this.timeago(results[i].dateCreated)
+                }
+                callback.onSuccess(results);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     objectify(array) {
         if(array!== undefined){
             return array.reduce(function(p, c) {

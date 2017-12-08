@@ -694,7 +694,7 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
-   /* getSingleStore(req, callback) {
+    /*getSingleStore(req, callback) {
         console.log(req.body)
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
@@ -728,7 +728,8 @@ class StoreHandler extends BaseAutoBindedClass {
                         resolve(results);
                     });
                 });
-            }).then((results) => {
+            })
+            .then((results) => {
                 if (results != undefined) {
                     var promises = [];
                     for (let i = 0; i < results.length; i++) {
@@ -743,7 +744,8 @@ class StoreHandler extends BaseAutoBindedClass {
                         resolve(results);
                     });
                 });
-            }).then((results) => {
+            })
+            .then((results) => {
                 if (results != undefined) {
                     var promises = [];
                     for (let i = 0; i < results.length; i++) {
