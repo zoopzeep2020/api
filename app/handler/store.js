@@ -687,7 +687,15 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
+    getStoreCatalogue(i, storeId) {
+        return new Promise(function (resolve, reject) {
+            CatalogModel.find({ storeId: storeId }).exec(function (err, catalog) {
+                return resolve([i, catalog]);
+            })
+        });
+    }
    /* getSingleStore(req, callback) {
+        console.log(req.body)
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
@@ -706,20 +714,35 @@ class StoreHandler extends BaseAutoBindedClass {
                     })
                 });
             }).then((results) => {
-                    if (results != undefined) {
-                        var promises = [];
-                        for (let i = 0; i < results.length; i++) {
-                            promises.push(this.getStoreOffer(i, results[i]._id));
-                        }
+                if (results != undefined) {
+                    var promises = [];
+                    for (let i = 0; i < results.length; i++) {
+                        promises.push(this.getStoreOffer(i, results[i]._id));
                     }
-                    return new Promise(function (resolve, reject) {
-                        Promise.all(promises).then(function (offerInfo) {
-                            for (let i = 0; i < offerInfo.length; i++) {
-                                results[offerInfo[i][0]]['offerInfo'] = offerInfo[i][1];
-                            };
-                            resolve(results);
-                        });
+                }
+                return new Promise(function (resolve, reject) {
+                    Promise.all(promises).then(function (storeOffers) {
+                        for (let i = 0; i < storeOffers.length; i++) {
+                            results[storeOffers[i][0]]['storeOffers'] = storeOffers[i][1];
+                        };
+                        resolve(results);
                     });
+                });
+            }).then((results) => {
+                if (results != undefined) {
+                    var promises = [];
+                    for (let i = 0; i < results.length; i++) {
+                        promises.push(this.getStoreCatalogue(i, results[i]._id));
+                    }
+                }
+                return new Promise(function (resolve, reject) {
+                    Promise.all(promises).then(function (storeCatalogs) {
+                        for (let i = 0; i < storeCatalogs.length; i++) {
+                            results[storeCatalogs[i][0]]['storeCatalogs'] = storeCatalogs[i][1];
+                        };
+                        resolve(results);
+                    });
+                });
             }).then((results) => {
                 if (results != undefined) {
                     var promises = [];
@@ -728,27 +751,26 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 }
                 return new Promise(function (resolve, reject) {
-                    Promise.all(promises).then(function (reviewInfo) {
-                        for (let i = 0; i < reviewInfo.length; i++) {
-                            results[reviewInfo[i][0]]['reviewInfo'] = reviewInfo[i][1];
+                    Promise.all(promises).then(function (reviews) {
+                        for (let i = 0; i < reviews.length; i++) {
+                            results[reviews[i][0]]['reviews'] = reviews[i][1];
                         };
                         resolve(results);
                     });
                 });
-        }).then((result) => {
-            StoreModel.findOne({ _id: req.params.id }, function (err, store) {
-                if (err !== null) {
-                    new NotFoundError("store not found");
-                } else {
-                    if (!store) {
-                        new NotFoundError("store not found");
-                    } else {
-                        store.viewCount = store.viewCount + 1;
-                        store.avgRating = ((store.avgRating*10)-((store.avgRating*10)%1))/10; 
-                        store.save();
+            }).then((result) => {
+                StoreModel.findOne({ _id: req.params.id }, function (err, store) {
+                    if (err !== null) {
+                      } else {
+                        if (!store) {
+                            new NotFoundError("store not found");
+                        } else {
+                            store.viewCount = store.viewCount + 1;
+                            store.avgRating = ((store.avgRating*10)-((store.avgRating*10)%1))/10; 
+                            store.save();
+                        }
                     }
-                }
-            })
+                })
             callback.onSuccess(result);
         })
         .catch((error) => {
