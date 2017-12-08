@@ -9,6 +9,8 @@ let BlogSchema = new Schema({
     blogPicture:String,
     URL:String,
     description:String,
+    metaDescription:String,
+    metaKeyword:String,
     authorImage:String,
     authorName:String,
     isSave:{ type: Boolean },

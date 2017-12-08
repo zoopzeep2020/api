@@ -699,9 +699,9 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    StoreModel.aggregate([
-                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } }
-                    ]).exec(function (err, results) {
+                    StoreModel.findOne(
+                        { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } ,
+                    ).exec(function (err, results) {
                         resolve(results);
                     })
                 });
@@ -744,7 +744,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         new NotFoundError("store not found");
                     } else {
                         store.viewCount = store.viewCount + 1;
-                        store.avgRating = result[0].avgRating;
+                        store.avgRating = ((store.avgRating*10)-((store.avgRating*10)%1))/10; 
                         store.save();
                     }
                 }
@@ -1939,7 +1939,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 limit = parseInt(query[key]) - skip + 1;
             }
         }
-        
+
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {

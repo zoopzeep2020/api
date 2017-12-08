@@ -466,12 +466,12 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 }
             })
         })
-            .then((bookmark) => {
-                callback.onSuccess(bookmark);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((bookmark) => {
+            callback.onSuccess(bookmark);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 }
 

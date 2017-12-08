@@ -233,6 +233,16 @@ const path = require('path');
  *         in: body
  *         required: true
  *         type: string
+ *       - name: metaDescription
+ *         description: metaDescription of blog
+ *         in: body
+ *         required: true
+ *         type: string
+ *       - name: metaKeyword
+ *         description: metaKeyword of blog
+ *         in: body
+ *         required: true
+ *         type: string
  *         schema:
  *          $ref: '#/definitions/UpdateActivitiesObj'
  *     responses:
@@ -258,6 +268,12 @@ const path = require('path');
  *         type: string
  *         required: true
  *       authorName:
+ *         type: string
+ *         required: true 
+ *       metaDescription:
+ *         type: string
+ *         required: true 
+ *       metaKeyword:
  *         type: string
  *         required: true 
  *       likeCount:
@@ -362,7 +378,7 @@ class BlogHandler extends BaseAutoBindedClass {
                     return new BlogModel(data);                    
                 })
                 .then((blog) => {
-                    blog.URL = 'https://www.zeepzoop.com/blogs/'+ req.body.title.trim().replace(/\s+/g, '-').toLowerCase();
+                    blog.URL = req.body.title.trim().replace(/\s+/g, '-').toLowerCase();
                     blog.likeCount = 0
                     blog.saveCount = 0
                     blog.save();
@@ -457,6 +473,12 @@ class BlogHandler extends BaseAutoBindedClass {
                 if(req.body.description != undefined){
                     req.checkBody(BlogHandler.BLOG_VALIDATION_SCHEME);
                 }
+                if(req.body.metaDescription != undefined){
+                    req.checkBody('metaDescription', 'metaDescription is required').notEmpty();
+                }
+                if(req.body.metaKeyword != undefined){
+                    req.checkBody('metaKeyword', 'metaKeyword is required').notEmpty();
+                }
         
                 req.getValidationResult()
                 .then(function(result) {
@@ -510,7 +532,7 @@ class BlogHandler extends BaseAutoBindedClass {
         });
     }
 
-    likeBlog(req, callback) {
+    /*likeBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
         req.getValidationResult()
@@ -563,8 +585,64 @@ class BlogHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
+    }*/
+    likeBlog(req, callback) {
+        let data = req.body;
+        req.checkBody('blogId', 'Invalid urlparam').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                    var like = req.body.like;
+                    console.log(like)
+                    if(like){
+                        BlogModel.findByIdAndUpdate({
+                            '_id': mongoose.Types.ObjectId(req.body.blogId),
+                            'likedBy': { "$ne":  mongoose.Types.ObjectId(req.body.userId) }
+                        },
+                        {
+                            "$inc": { "likeCount": 1 },
+                            '$push': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
+                        },
+                        {'new': true},
+                            function(err, blog){
+                                // blog.likeCount = blog.likeCount+1;
+                                blog.isLike = true;
+                                // blog.save();
+                                console.log(blog)
+                                resolve(blog);
+                            })
+                    }else if(!like){
+                        BlogModel.findByIdAndUpdate({
+                            '_id': mongoose.Types.ObjectId(req.body.blogId),
+                            'likedBy':{ '$ne':  mongoose.Types.ObjectId(req.body.userId)}
+                        },
+                        {
+                            "$inc": { "likeCount": -1 },
+                            
+                            "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        },
+                        {'new': true, 'multi':true},
+                        function(err, blog){
+                            // blog.likeCount = blog.likeCount-1;
+                            blog.isLike = false;
+                            blog.save();
+                            resolve(blog);
+                        })
+                    }
+                });
+            }).then((blog) => {
+                callback.onSuccess(blog);
+            })          
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
-
     saveBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();

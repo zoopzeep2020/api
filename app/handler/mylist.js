@@ -247,7 +247,6 @@ class MylistHandler extends BaseAutoBindedClass {
         req.checkBody('stores', 'minimum one list is required').notEmpty();
         req.checkBody('userId', 'userId is required').notEmpty();
         req.checkBody('userId', 'Invalid userId provided').isMongoId();
-        
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
