@@ -15,7 +15,7 @@ const url = require('url');
 var request = require('request');
 var async = require('async');
 
-class FeedbackHandler extends BaseAutoBindedClass {
+class HomeHandler extends BaseAutoBindedClass {
     constructor() {
         super();
         this._validator = require('validator');
@@ -95,42 +95,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 }
                 callback.onSuccess(mainObj);
             });
-
-        // async.waterfall([
-        //     function (done, err) {
-
-
-        //     },
-        //     function (data, done, err) {
-        //         var URLCatalog = 'http://' + req.get('host') + '/catalogs/featurecatalog' + queryString;
-        //         var optionsCatalog = {
-        //             url: URLCatalog,
-        //             method: 'GET',
-        //             headers: req.headers
-        //         };
-        //         request(optionsCatalog, function (error, response, body) {
-        //             mainObj['trendingCatalog'] = JSON.parse(body)['data'];
-        //             let data = mainObj
-        //             done(err, data);
-        //         })
-        //     },
-        //     function (data, done) {
-        //         var URLCollection = 'http://' + req.get('host') + '/collections/searchByQuery' + queryString;
-        //         var optionsCollection = {
-        //             url: URLCollection,
-        //             method: 'GET',
-        //             headers: req.headers
-        //         };
-        //         request(optionsCollection, function (error, response, body) {
-        //             mainObj['trendingCollections'] = JSON.parse(body)['data'];
-        //             let data = mainObj
-        //             callback.onSuccess(mainObj);
-        //         })
-        //     }
-        // ], function (err, data) {
-        //     if (err) return callback.onError(err);
-        //     else return data;
-        // });
     }
     objectify(array) {
         return array.reduce(function (p, c) {
@@ -141,4 +105,4 @@ class FeedbackHandler extends BaseAutoBindedClass {
     noNaN(n) { return isNaN(n) ? 0 : n; }
 }
 
-module.exports = FeedbackHandler;
+module.exports = HomeHandler;

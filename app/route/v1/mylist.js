@@ -8,6 +8,7 @@ let mylistController = new MylistController();
 router.get('/', mylistController.getAll);
 router.get('/:id', mylistController.get);
 router.get('/user/:id', mylistController.getUserMylist);
+router.get('/useronlymylist/:id', mylistController.getUserOnlyMylist);
 router.post('/', mylistController.create);
 router.delete('/:id', mylistController.remove);
 router.put('/:id', mylistController.update);

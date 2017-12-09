@@ -442,6 +442,38 @@ class MylistHandler extends BaseAutoBindedClass {
             });
     }
 
+    getUserOnlyMylist(req, callback) {
+        let data = req.body;
+        req.checkParams('id', 'Invalid id provided').isMongoId();
+        req.getValidationResult()
+            .then(function(result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function(resolve, reject) {
+                MylistModel.aggregate([
+                    { "$match": { "userId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                    {
+                        $project:{
+                            _id:1,
+                            listName:1
+                        }
+                    }
+                    ]).exec(function(err, results){
+                        resolve(results);
+                    })
+                });
+            })
+            .then((mylist) => {
+                callback.onSuccess(mylist);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
     getSingleMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();

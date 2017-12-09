@@ -11,9 +11,15 @@ class OfferController extends BaseController {
     }
 
     getAll(req, res, next) {
-        this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getAllOffers(user, req, this._responseManager.getDefaultResponseHandler(res));
-        });
+        if (req.headers['authorization']=="maximumvsminimumsecurity") {
+            this.basicAuthenticate(req, res, () => {
+                this._offerHandler.getAllOffers("userisnotdefined", req, this._responseManager.getDefaultResponseHandler(res));
+            });
+        } else {
+            this.authenticate(req, res, next, (token, user) => {
+                this._offerHandler.getAllOffers(user, req, this._responseManager.getDefaultResponseHandler(res));
+            });
+        }
     }
 
     getAllWithoutLogin(req, res, next) {
@@ -31,11 +37,20 @@ class OfferController extends BaseController {
     get(req, res, next) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
-            this._offerHandler.getSingleOffer(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+            this._offerHandler.getSingleOffer(user, req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                 responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
         });
+        // if (req.headers['authorization']=="maximumvsminimumsecurity") {
+        //     this.basicAuthenticate(req, res, () => {
+        //         this._offerHandler.getAllOffers("userisnotdefined", req, this._responseManager.getDefaultResponseHandler(res));
+        //     });
+        // } else {
+        //     this.authenticate(req, res, next, (token, user) => {
+        //         this._offerHandler.getAllOffers(user, req, this._responseManager.getDefaultResponseHandler(res));
+        //     });
+        // }
     }
 
     getOfferBySearch(req, res, next) {

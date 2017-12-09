@@ -481,7 +481,6 @@ class CollectionHandler extends BaseAutoBindedClass {
 
     getSingleCollection(req, callback) {
         let data = req.body;
-        console.log(req.params.id);
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function (result) {
@@ -662,7 +661,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function (resolve, reject) {
                     Promise.all(promises).then(function (catalogInfo) {
-                        console.log(catalogInfo, catalogInfo.length - 1);
                         for (let i = 0; i < catalogInfo.length; i++) {
                             results.storesInfo[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
                         };

@@ -545,7 +545,6 @@ class BlogHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) {
                     var like = req.body.like;
-                    console.log(like)
                     if(like){
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
@@ -559,7 +558,6 @@ class BlogHandler extends BaseAutoBindedClass {
                                 blog.likeCount = blog.likeCount+1;
                                 blog.isLike = true;
                                 blog.save();
-                                console.log(blog)
                                 resolve(blog);
                             })
                     }else if(!like){
@@ -599,7 +597,6 @@ class BlogHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) {
                     var like = req.body.like;
-                    console.log(like)
                     if(like){
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
@@ -614,7 +611,6 @@ class BlogHandler extends BaseAutoBindedClass {
                                 // blog.likeCount = blog.likeCount+1;
                                 blog.isLike = true;
                                 // blog.save();
-                                console.log(blog)
                                 resolve(blog);
                             })
                     }else if(!like){

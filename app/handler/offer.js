@@ -499,7 +499,6 @@ class OfferHandler extends BaseAutoBindedClass {
         var queryString = url.parse(req.url, true).search;
         let skip = 0;
         let limit = 10;
-        console.log(req.query, queryString);
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -521,7 +520,6 @@ class OfferHandler extends BaseAutoBindedClass {
                         for (let i = 0; i < storesData.length; i++) {
                             stores[i] = storesData[i]._id;
                         }
-                        console.log(stores)
                         resolve(stores);
                     });
                 });
@@ -538,7 +536,6 @@ class OfferHandler extends BaseAutoBindedClass {
                                 { 'offerDescription': { $regex: new RegExp(query[key], 'i') } }
                             ]
                         } else if (key == "startOffers") {
-                            console.log('fdfd');
                             skip = parseInt(query[key]);
                         } else if (key == "endOffers") {
                             limit = parseInt(query[key]) - skip + 1;
@@ -696,7 +693,7 @@ class OfferHandler extends BaseAutoBindedClass {
         });
     }
 
-    getSingleOffer(req, callback) {
+    getSingleOffer(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -735,6 +732,12 @@ class OfferHandler extends BaseAutoBindedClass {
                             }
                         },
                         {
+                            $unwind: {
+                                path: "$claimedOfferBy",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
                             $project: {
                                 _id: 1,
                                 offerName: 1,
@@ -757,7 +760,48 @@ class OfferHandler extends BaseAutoBindedClass {
                                 catalogsInfo: {
                                     catalogUrl: 1,
                                     catalogDescription: 1
-                                }
+                                },
+                                isClaimedByMe: {
+                                    $cond: {
+                                        if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
+                                        then: true,
+                                        else: false
+                                    }
+                                },
+                            }
+                        },
+                        {
+                            $group:{
+                                _id: '$_id',
+                                offerName: { "$first": "$offerName" },
+                                offerPicture: { "$first": "$offerPicture" },
+                                offerDescription: { "$first": "$offerDescription" },
+                                aplicableForAll: { "$first": "$aplicableForAll" },
+                                discountTypePercentage: { "$first": "$discountTypePercentage" },
+                                discountTypeFlat: { "$first": "$discountTypeFlat" },
+                                storesInfo: { $addToSet: '$storesInfo' },
+                                featureCatalog: { $addToSet: '$featureCatalog' },
+                                catalogsInfo: { $addToSet: '$catalogsInfo' },
+                                isClaimedByMe: { $max: '$isClaimedByMe' }
+                                
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$featureCatalog",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$catalogsInfo",
+                                preserveNullAndEmptyArrays: true
                             }
                         },
                         function (err, offer) {
@@ -819,6 +863,11 @@ class OfferHandler extends BaseAutoBindedClass {
                                 "foreignField": "_id",
                                 "as": "featureCatalog"
                             }
+                        }, {
+                            $unwind: {
+                                path: "$claimedOfferBy",
+                                preserveNullAndEmptyArrays: true
+                            }
                         },
                         {
                             $project: {
@@ -843,7 +892,48 @@ class OfferHandler extends BaseAutoBindedClass {
                                 catalogsInfo: {
                                     catalogUrl: 1,
                                     catalogDescription: 1
-                                }
+                                },
+                                isClaimedByMe: {
+                                    $cond: {
+                                        if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
+                                        then: true,
+                                        else: false
+                                    }
+                                },
+                            }
+                        },
+                        {
+                            $group:{
+                                _id: '$_id',
+                                offerName: { "$first": "$offerName" },
+                                offerPicture: { "$first": "$offerPicture" },
+                                offerDescription: { "$first": "$offerDescription" },
+                                aplicableForAll: { "$first": "$aplicableForAll" },
+                                discountTypePercentage: { "$first": "$discountTypePercentage" },
+                                discountTypeFlat: { "$first": "$discountTypeFlat" },
+                                storesInfo: { $addToSet: '$storesInfo' },
+                                featureCatalog: { $addToSet: '$featureCatalog' },
+                                catalogsInfo: { $addToSet: '$catalogsInfo' },
+                                isClaimedByMe: { $max: '$isClaimedByMe' }
+                                
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$featureCatalog",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$storesInfo",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$catalogsInfo",
+                                preserveNullAndEmptyArrays: true
                             }
                         },
                         function (err, offer) {
@@ -917,14 +1007,14 @@ class OfferHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.offerId),
                             'savedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                            {
-                                "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                            }, { 'new': true, 'multi': true }).exec(function (err, offer) {
-                                offer.saveCount = offer.saveCount - 1;
-                                offer.isSave = save;
-                                offer.save()
-                                resolve(offer);
-                            })
+                        {
+                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        }, { 'new': true, 'multi': true }).exec(function (err, offer) {
+                            offer.saveCount = offer.saveCount - 1;
+                            offer.isSave = save;
+                            offer.save()
+                            resolve(offer);
+                        })
                     }
 
                 });
@@ -961,11 +1051,24 @@ class OfferHandler extends BaseAutoBindedClass {
                     }
                 },
                 {
+                    $unwind: {
+                        path: "$claimedOfferBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
                     $project: {
                         _id: 1,
                         isSave: {
                             $cond: {
                                 if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
+                                then: true,
+                                else: false
+                            }
+                        },
+                        isClaimedByMe: {
+                            $cond: {
+                                if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
                                 then: true,
                                 else: false
                             }
@@ -991,7 +1094,8 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypeFlat: { $first: '$discountTypeFlat' },
                         dateModified: { $first: '$dateModified' },
                         storeId: { $first: '$storeId' },
-                        isSave: { $max: '$isSave' }
+                        isSave: { $max: '$isSave' },
+                        isClaimedByMe: { $max: '$isClaimedByMe' }
                     }
                 },
                 function (err, offer) {
@@ -1025,6 +1129,12 @@ class OfferHandler extends BaseAutoBindedClass {
                     }
                 },
                 {
+                    $unwind: {
+                        path: "$claimedOfferBy",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
                     $project: {
                         _id: 1,
                         isSave: {
@@ -1041,6 +1151,13 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypePercentage: 1,
                         discountTypeFlat: 1,
                         storeId: 1,
+                        isClaimedByMe: {
+                            $cond: {
+                                if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
+                                then: true,
+                                else: false
+                            }
+                        },
                     }
                 },
                 {
@@ -1055,7 +1172,8 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypeFlat: { $first: '$discountTypeFlat' },
                         dateModified: { $first: '$dateModified' },
                         storeId: { $first: '$storeId' },
-                        isSave: { $max: '$isSave' }
+                        isSave: { $max: '$isSave' },
+                        isClaimedByMe: { $max: '$isClaimedByMe' }
                     }
                 },
                 function (err, offer) {

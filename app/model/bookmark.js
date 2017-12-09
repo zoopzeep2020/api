@@ -13,7 +13,6 @@ let BookmarkSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Store'
     },
-    
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now }
 });

@@ -695,7 +695,6 @@ class StoreHandler extends BaseAutoBindedClass {
         });
     }
     /*getSingleStore(req, callback) {
-        console.log(req.body)
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
@@ -1173,6 +1172,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     getStoreByCategoryId(req, callback) {
         let data = req.body;
         var matchQuery = [];

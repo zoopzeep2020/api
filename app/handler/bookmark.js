@@ -374,7 +374,8 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function (resolve, reject) {
                     BookmarkModel.aggregate(
-                        [{
+                        [
+                        {
                             "$match": { "userId": mongoose.Types.ObjectId(req.params.id) }
                         },
                         {

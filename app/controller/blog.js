@@ -35,7 +35,6 @@ class BlogController extends BaseController {
     }
 
     getBlogByUrl(req, res, next){
-        console.log("url")
         this.basicAuthenticate(req, res, () => {
             this._blogHandler.getBlogByUrl( req, this._responseManager.getDefaultResponseHandler(res));
         });

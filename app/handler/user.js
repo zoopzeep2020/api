@@ -430,7 +430,6 @@ class UserHandler {
             })
             .then((user) => {
                 return new Promise(function (resolve, reject) {
-                    console.log(data);
                     UserModel.findOne({ email: user.email }, function (err, docs) {
                         user.userImage = "";
                         // for result found or not 
@@ -492,7 +491,6 @@ class UserHandler {
                 });
             })
             .then((user) => {
-                console.log(user);
                 user.email = user.email.toLowerCase();
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());

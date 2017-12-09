@@ -87,7 +87,6 @@ class AuthHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }
-
     
     forgotRequest(req, callback) {
         // req.getValidationResult()

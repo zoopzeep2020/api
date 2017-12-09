@@ -668,7 +668,6 @@ class CatalogHandler extends BaseAutoBindedClass {
         var queryString = url.parse(req.url, true).search;
         let skip = 0;
         let limit = 10;
-        console.log(req.query, queryString);
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -690,7 +689,6 @@ class CatalogHandler extends BaseAutoBindedClass {
                         for (let i = 0; i < storesData.length; i++) {
                             stores[i] = storesData[i]._id;
                         }
-                        console.log(stores)
                         resolve(stores);
                     });
                 });
