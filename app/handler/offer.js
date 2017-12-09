@@ -973,6 +973,7 @@ class OfferHandler extends BaseAutoBindedClass {
                         offerName: 1,
                         offerPicture: 1,
                         offerDescription: 1,
+                        offerCode: 1,
                         aplicableForAll: 1,
                         discountTypePercentage: 1,
                         discountTypeFlat: 1,
