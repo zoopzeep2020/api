@@ -10,17 +10,17 @@ class AuthController extends BaseController {
         this._authHandler = new AuthHandler();
         this._passport = require('passport');
     }
-    
+
     // Request token by credentials
     create(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
         this.authenticate(req, res, next, (user) => {
             that._authHandler.issueNewToken(req, user, responseManager.getDefaultResponseHandler(res));
-        }); 
+        });
 
     }
-    
+
     forgot(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
@@ -59,7 +59,7 @@ class AuthController extends BaseController {
             }
         })(req, res, next);
     }
-    
+
     basicAuthenticate(req, res, callback) {
         let responseManager = this._responseManager;
         this._passport.authenticate('secret-key-auth', {
