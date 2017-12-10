@@ -1076,10 +1076,18 @@ class OfferHandler extends BaseAutoBindedClass {
                         offerName: 1,
                         offerPicture: 1,
                         offerDescription: 1,
+                        offerCode: 1,
                         aplicableForAll: 1,
                         discountTypePercentage: 1,
                         discountTypeFlat: 1,
                         storeId: 1,
+                        orderAbovePrice: 1,
+                        offerOnline: 1,
+                        offerOffline: 1,
+                        percentageDiscount: 1,
+                        flatDiscount: 1,
+                        startDate: 1,
+                        endDate: 1,
                     }
                 },
                 {
@@ -1092,7 +1100,7 @@ class OfferHandler extends BaseAutoBindedClass {
                         aplicableForAll: { $first: '$aplicableForAll' },
                         discountTypePercentage: { $first: '$discountTypePercentage' },
                         discountTypeFlat: { $first: '$discountTypeFlat' },
-                        dateModified: { $first: '$dateModified' },
+                        orderAbovePrice: { $first: '$orderAbovePrice' },
                         storeId: { $first: '$storeId' },
                         isSave: { $max: '$isSave' },
                         isClaimedByMe: { $max: '$isClaimedByMe' }

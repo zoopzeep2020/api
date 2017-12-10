@@ -1,4 +1,4 @@
-module.exports =  {    
-    userMail : 'hello@webrexstudio.com',
-    password : '\x53\x61\x6E\x6A\x61\x79\x2E\x31\x34\x33'
+module.exports = {
+    userMail: 'notification@zeepzoop.com',
+    password: '\x7A\x65\x65\x70\x7A\x6F\x6F\x70\x32\x30\x31\x37'
 };

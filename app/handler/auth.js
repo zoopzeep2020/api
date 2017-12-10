@@ -18,76 +18,77 @@ class AuthHandler extends BaseAutoBindedClass {
         this._jwtTokenHandler = require('jsonwebtoken');
         this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
-    
+
     issueNewToken(req, user, callback) {
         let that = this;
         user.cityName = ""
         req.getValidationResult()
-        .then(function (result) {
-            if (!result.isEmpty()) {
-                let errorMessages = result.array().map(function (elem) {
-                    return elem.msg;
-                });
-                throw new ValidationError(errorMessages);
-            }
-            for (var key in req.body) {
-                if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
-                    user[key] = req.body[key];
-                }
-                if (key == 'location') {
-                    var longitude = isNaN(parseFloat(req.body.location[0]))?0:parseFloat(req.body.location[0]);
-                    var lattitude = isNaN(parseFloat(req.body.location[1]))?0:parseFloat(req.body.location[1]);
-                    return new Promise(function (resolve, reject) {
-                        CityModel.aggregate(
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [longitude,lattitude]
-                                },
-                                "distanceField": "distance",
-                                "spherical": true,
-                                "maxDistance": 0
-                            }
-                        },
-                        { $limit: 1 }
-                        ).exec(function (err, results) {
-                            user['cityName'] = results[0]['cityName'];
-                            resolve(user);
-                        })
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
                     });
+                    throw new ValidationError(errorMessages);
                 }
-            } 
-        }).then((results) => {
-            if (user) {    
-                user.save();
-                let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
-                let data = {
-                    _id:user._id,
-                    token:userToken.token,
-                    name:user.name,
-                    email:user.email,  
-                    phone:user.phone,
-                    deviceToken:user.deviceToken,
-                    userLat:user.userLat,
-                    userLong:user.userLong,
-                    storeId:user.storeId,
-                    isStore:user.isStore,
-                    isUser:user.isUser,
-                    userImage:user.userImage,  
-                    deviceType:user.deviceType,
-                    isAdmin:user.isAdmin,
-                    cityName:user.cityName
-                };
-                callback.onSuccess(data);
-            } else {
-                callback.onError(new NotFoundError("User not found"));
-            }
-        }).catch((error) => {
-            callback.onError(error);
-        });
+                for (var key in req.body) {
+                    if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
+                        user[key] = req.body[key];
+                    }
+                    if (key == 'location') {
+                        var longitude = isNaN(parseFloat(req.body.location[0])) ? 0 : parseFloat(req.body.location[0]);
+                        var lattitude = isNaN(parseFloat(req.body.location[1])) ? 0 : parseFloat(req.body.location[1]);
+                        return new Promise(function (resolve, reject) {
+                            CityModel.aggregate(
+                                {
+                                    "$geoNear": {
+                                        "near": {
+                                            "type": "Point",
+                                            "coordinates": [longitude, lattitude]
+                                        },
+                                        "distanceField": "distance",
+                                        "spherical": true,
+                                        "maxDistance": 0
+                                    }
+                                },
+                                { $limit: 1 }
+                            ).exec(function (err, results) {
+                                user['cityName'] = results[0]['cityName'];
+                                resolve(user);
+                            })
+                        });
+                    }
+                }
+            }).then((results) => {
+                if (user) {
+                    user.save();
+                    let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
+                    let data = {
+                        _id: user._id,
+                        token: userToken.token,
+                        name: user.name,
+                        email: user.email,
+                        phone: user.phone,
+                        deviceToken: user.deviceToken,
+                        userLat: user.userLat,
+                        userLong: user.userLong,
+                        storeId: user.storeId,
+                        isStore: user.isStore,
+                        isUser: user.isUser,
+                        userImage: user.userImage,
+                        deviceType: user.deviceType,
+                        isAdmin: user.isAdmin,
+                        cityName: user.cityName
+                    };
+                    callback.onSuccess(data);
+                } else {
+                    callback.onError(new NotFoundError("User not found"));
+                }
+            }).catch((error) => {
+                callback.onError(error);
+            });
     }
-    
+
+
     forgotRequest(req, callback) {
         // req.getValidationResult()
         // .then(function(result) {
@@ -128,102 +129,102 @@ class AuthHandler extends BaseAutoBindedClass {
         // });
 
         async.waterfall([
-            function(done) {
-              crypto.randomBytes(20, function(err, buf) {
-                var token = buf.toString('hex');
-                done(err, token);
-              });
+            function (done) {
+                crypto.randomBytes(20, function (err, buf) {
+                    var token = buf.toString('hex');
+                    done(err, token);
+                });
             },
-            function(token, done) {
-                UserModel.findOne({ email: req.body.email }, function(err, user) {
+            function (token, done) {
+                UserModel.findOne({ email: req.body.email }, function (err, user) {
                     if (!user) {
                         return done(new NotFoundError("User is not found"));
                     }
                     user.resetPasswordToken = token;
                     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-                    user.save(function(err) {
+                    user.save(function (err) {
                         done(err, token, user);
                     });
-              });
-            },
-            function(token, user, done) {
-                var smtpTransport = nodemailer.createTransport(
-                {
-                    host: 'smtp.zoho.com',
-                    port: 465,
-                    secure: true, // use SSL
-                    auth: {
-                        user: global.config.constants.userMail,
-                        pass: utf8.decode(global.config.constants.password) 
-                    },
-                //     service: 'Gmail',
-                // //    host : 'smtpout.secureserver.net',
-                // //    port : 465,
-                // //    secureConnection : true,
-                //     auth: {
-                //         user: global.config.constants.userMail,
-                //         pass: utf8.decode(global.config.constants.password) 
-                //     },
-                    logger: true
                 });
+            },
+            function (token, user, done) {
+                var smtpTransport = nodemailer.createTransport(
+                    {
+                        host: 'smtp.zoho.com',
+                        port: 465,
+                        secure: true, // use SSL
+                        auth: {
+                            user: global.config.constants.userMail,
+                            pass: utf8.decode(global.config.constants.password)
+                        },
+                        //     service: 'Gmail',
+                        // //    host : 'smtpout.secureserver.net',
+                        // //    port : 465,
+                        // //    secureConnection : true,
+                        //     auth: {
+                        //         user: global.config.constants.userMail,
+                        //         pass: utf8.decode(global.config.constants.password) 
+                        //     },
+                        logger: true
+                    });
 
                 var mailOptions = {
                     to: user.email,
-                    from: '"ZeepZoop" <hello@webrexstudio.com>', 
+                    from: '"ZeepZoop" <notification@zeepzoop.com>',
                     subject: 'Password Reset',
                     text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-                    'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                    'http://' + req.headers.host + '/v1/auth/reset/' + token + '\n\n' +
-                    'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+                        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                        'http://localhost:3002/auth/reset/' + token + '\n\n' +
+                        'If you did not request this, please ignore this email and your password will remain unchanged.\n'
                 };
-                smtpTransport.sendMail(mailOptions, function(err) {
+                smtpTransport.sendMail(mailOptions, function (err) {
                     if (err) return done(new NotFoundError(err));
                     return callback.onSuccess('An e-mail has been sent to ' + user.email + ' with further instructions.');
                 });
             }
-          ], function(err, result) {
+        ], function (err, result) {
             if (err) return callback.onError(err);
             else return callback.onSuccess(result);
-          });
+        });
     }
 
     resetRequest(req, callback) {
         req.getValidationResult()
-        .then(function(result) {
-            if (!result.isEmpty()) {
-                var errorMessages = {};
-                result.array().map(function(elem) {
-                    return errorMessages[elem.param] = elem.msg;
-                });
-                throw new ValidationError(errorMessages);
-            }
-            return new Promise(function(resolve, reject) {
-                UserModel.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        if (!user) {
-                            reject(new NotFoundError("Password reset token is invalid or has expired."));
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    var errorMessages = {};
+                    result.array().map(function (elem) {
+                        return errorMessages[elem.param] = elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    UserModel.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+                        if (err !== null) {
+                            reject(err);
                         } else {
-                            resolve(user);
+                            if (!user) {
+                                reject(new NotFoundError("Password reset token is invalid or has expired."));
+                            } else {
+                                resolve(user);
+                            }
                         }
-                    }
+                    });
                 });
+            })
+            .then((user) => {
+                user.password = req.body.password;
+                user.resetPasswordToken = undefined;
+                user.resetPasswordExpires = undefined;
+                user.save();
+                return user;
+            })
+            .then((saved) => {
+                callback.onSuccess("Success! Your password has been changed.");
+            })
+            .catch((error) => {
+                callback.onError(error);
             });
-        })
-        .then((user) => {
-            user.password = req.body.password;
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined;
-            user.save();
-            return user;
-        })
-        .then((saved) => {
-            callback.onSuccess("Success! Your password has been changed.");
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
     }
 
     revokeToken(req, token, callback) {
@@ -232,7 +233,7 @@ class AuthHandler extends BaseAutoBindedClass {
         req.getValidationResult()
             .then((result) => {
                 if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function(elem) {
+                    let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ForbiddenError('Invalid token id :' + errorMessages.join(' && '));
@@ -266,25 +267,25 @@ class AuthHandler extends BaseAutoBindedClass {
     }
 
     _provideTokenPayload(user) {
-        if(user.storeId){
+        if (user.storeId) {
             return {
                 id: user.id,
-                storeId:user.storeId._id,
-                isAdmin:user.isAdmin,
-                isUser:user.isUser,
-                isStore:user.isStore,  
-                userImage:user.userImage,   
-                email:user.email,
+                storeId: user.storeId._id,
+                isAdmin: user.isAdmin,
+                isUser: user.isUser,
+                isStore: user.isStore,
+                userImage: user.userImage,
+                email: user.email,
                 scope: 'default'
             };
-        }else{
+        } else {
             return {
                 id: user.id,
-                isAdmin:user.isAdmin,
-                isUser:user.isUser,
-                isStore:user.isStore,
-                userImage:user.userImage,   
-                email:user.email,
+                isAdmin: user.isAdmin,
+                isUser: user.isUser,
+                isStore: user.isStore,
+                userImage: user.userImage,
+                email: user.email,
                 scope: 'default'
             };
         }
@@ -299,7 +300,7 @@ class AuthHandler extends BaseAutoBindedClass {
             algorithm: config.jwtOptions.algorithm
         };
     }
-    noNaN( n ) { return isNaN( parseFloat(n) ) ? 0 : n; }
+    noNaN(n) { return isNaN(parseFloat(n)) ? 0 : n; }
 }
 
 module.exports = AuthHandler;
