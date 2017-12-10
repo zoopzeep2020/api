@@ -1102,6 +1102,8 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypeFlat: { $first: '$discountTypeFlat' },
                         orderAbovePrice: { $first: '$orderAbovePrice' },
                         storeId: { $first: '$storeId' },
+                        startDate: { $first: '$startDate' },
+                        endDate: { $first: '$endDate' },
                         isSave: { $max: '$isSave' },
                         isClaimedByMe: { $max: '$isClaimedByMe' }
                     }
@@ -1180,6 +1182,8 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypeFlat: { $first: '$discountTypeFlat' },
                         dateModified: { $first: '$dateModified' },
                         storeId: { $first: '$storeId' },
+                        startDate: { $first: '$startDate' },
+                        endDate: { $first: '$endDate' },
                         isSave: { $max: '$isSave' },
                         isClaimedByMe: { $max: '$isClaimedByMe' }
                     }
@@ -1221,12 +1225,13 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
             );
         })
-            .then((offer) => {
-                callback.onSuccess(offer);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((offer) => {
+            callback.onSuccess(offer);
+        })
+        .catch((error) => {
+            console.log(error)
+            callback.onError(error);
+        });
     }
 
     objectify(array) {
