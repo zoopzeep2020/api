@@ -841,29 +841,12 @@ class OfferHandler extends BaseAutoBindedClass {
                     OfferModel.aggregate(
                         { "$match": { "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
                         {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storeId",
-                                "foreignField": "storeId",
-                                "as": "catalogsInfo"
+                            $unwind: {
+                                path: "$savedBy",
+                                preserveNullAndEmptyArrays: true
                             }
                         },
                         {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "storeId",
-                                "foreignField": "_id",
-                                "as": "storesInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storesInfo.featureCatalog",
-                                "foreignField": "_id",
-                                "as": "featureCatalog"
-                            }
-                        }, {
                             $unwind: {
                                 path: "$claimedOfferBy",
                                 preserveNullAndEmptyArrays: true
@@ -872,26 +855,12 @@ class OfferHandler extends BaseAutoBindedClass {
                         {
                             $project: {
                                 _id: 1,
-                                offerName: 1,
-                                offerPicture: 1,
-                                offerDescription: 1,
-                                aplicableForAll: 1,
-                                discountTypePercentage: 1,
-                                discountTypeFlat: 1,
-                                storesInfo: {
-                                    storeName: 1,
-                                    storeLogo: 1,
-                                    storeBanner: 1,
-                                    avgRating: 1,
-                                    address: 1,
-                                },
-                                featureCatalog: {
-                                    catalogUrl: 1,
-                                    catalogDescription: 1
-                                },
-                                catalogsInfo: {
-                                    catalogUrl: 1,
-                                    catalogDescription: 1
+                                isSave: {
+                                    $cond: {
+                                        if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
+                                        then: true,
+                                        else: false
+                                    }
                                 },
                                 isClaimedByMe: {
                                     $cond: {
@@ -900,40 +869,41 @@ class OfferHandler extends BaseAutoBindedClass {
                                         else: false
                                     }
                                 },
+                                offerName: 1,
+                                offerPicture: 1,
+                                offerDescription: 1,
+                                offerCode: 1,
+                                aplicableForAll: 1,
+                                discountTypePercentage: 1,
+                                discountTypeFlat: 1,
+                                storeId: 1,
+                                orderAbovePrice: 1,
+                                offerOnline: 1,
+                                offerOffline: 1,
+                                percentageDiscount: 1,
+                                flatDiscount: 1,
+                                startDate: 1,
+                                endDate: 1,
                             }
                         },
                         {
-                            $group:{
+                            $group: {
                                 _id: '$_id',
-                                offerName: { "$first": "$offerName" },
-                                offerPicture: { "$first": "$offerPicture" },
-                                offerDescription: { "$first": "$offerDescription" },
-                                aplicableForAll: { "$first": "$aplicableForAll" },
-                                discountTypePercentage: { "$first": "$discountTypePercentage" },
-                                discountTypeFlat: { "$first": "$discountTypeFlat" },
-                                storesInfo: { $addToSet: '$storesInfo' },
-                                featureCatalog: { $addToSet: '$featureCatalog' },
-                                catalogsInfo: { $addToSet: '$catalogsInfo' },
+                                offerName: { $first: '$offerName' },
+                                offerPicture: { $first: '$offerPicture' },
+                                offerDescription: { $first: '$offerDescription' },
+                                offerCode: { $first: '$offerCode' },
+                                aplicableForAll: { $first: '$aplicableForAll' },
+                                discountTypePercentage: { $first: '$discountTypePercentage' },
+                                discountTypeFlat: { $first: '$discountTypeFlat' },
+                                orderAbovePrice: { $first: '$orderAbovePrice' },
+                                storeId: { $first: '$storeId' },
+                                percentageDiscount: { $first: '$percentageDiscount' },
+                                flatDiscount: { $first: '$flatDiscount' },
+                                startDate: { $first: '$startDate' },
+                                endDate: { $first: '$endDate' },
+                                isSave: { $max: '$isSave' },
                                 isClaimedByMe: { $max: '$isClaimedByMe' }
-                                
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$featureCatalog",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storesInfo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$catalogsInfo",
-                                preserveNullAndEmptyArrays: true
                             }
                         },
                         function (err, offer) {
@@ -1102,6 +1072,8 @@ class OfferHandler extends BaseAutoBindedClass {
                         discountTypeFlat: { $first: '$discountTypeFlat' },
                         orderAbovePrice: { $first: '$orderAbovePrice' },
                         storeId: { $first: '$storeId' },
+                        percentageDiscount: { $first: '$percentageDiscount' },
+                        flatDiscount: { $first: '$flatDiscount' },
                         startDate: { $first: '$startDate' },
                         endDate: { $first: '$endDate' },
                         isSave: { $max: '$isSave' },
