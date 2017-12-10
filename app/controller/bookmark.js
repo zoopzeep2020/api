@@ -12,7 +12,7 @@ class BookmarkController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            this._bookmarkHandler.getAllBookmarks(req, this._responseManager.getDefaultResponseHandler(res));
+            this._bookmarkHandler.getAllBookmarks(user, req, this._responseManager.getDefaultResponseHandler(res));
         });
     }
 
@@ -21,7 +21,7 @@ class BookmarkController extends BaseController {
         this.authenticate(req, res, next, (token, user) => {
             this._bookmarkHandler.getSingleBookmark(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                 let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                responseManager.respondWithSuccess(user, res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
             })));
         });
     }
@@ -32,7 +32,7 @@ class BookmarkController extends BaseController {
             if(user.isAdmin || (user.isUser && user.id == req.params.id)){                
                 this._bookmarkHandler.getUserBookmark(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                    responseManager.respondWithSuccess(user, res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
                 })));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available");    
@@ -45,7 +45,7 @@ class BookmarkController extends BaseController {
             if(user.isAdmin || (user.isUser &&  (user.id == req.body.userId))){
                 this._bookmarkHandler.createNewBookmark(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
+                this._responseManager.respondWithError(user, res, 404, "access not available")                        
             } 
         });
     }
@@ -55,7 +55,7 @@ class BookmarkController extends BaseController {
             if(user.isAdmin || (user.isUser && (user.id == req.body.userId))){
                 this._bookmarkHandler.updateBookmark(req, this._responseManager.getDefaultResponseHandler(res));
             }else{
-                this._responseManager.respondWithError(res, 404, "access not available")                        
+                this._responseManager.respondWithError(user, res, 404, "access not available")                        
             } 
         });
     }
@@ -63,7 +63,7 @@ class BookmarkController extends BaseController {
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin){
-                this._bookmarkHandler.deleteBookmark(req, this._responseManager.getDefaultResponseHandler(res));
+                this._bookmarkHandler.deleteBookmark(user, req, this._responseManager.getDefaultResponseHandler(res));
             }else{
                 this._responseManager.respondWithError(res, 404, "access not available")                        
             } 

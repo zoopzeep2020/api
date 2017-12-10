@@ -414,6 +414,8 @@ class OfferHandler extends BaseAutoBindedClass {
      *         type: string
      */
     createNewOffer(req, callback) {
+        req.body.startDate = this.getDDMMMYYYY(req.body.startDate)
+        req.body.endDate = this.getDDMMMYYYY(req.body.endDate)
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
@@ -707,30 +709,30 @@ class OfferHandler extends BaseAutoBindedClass {
                 return new Promise(function (resolve, reject) {
                     OfferModel.aggregate(
                         { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storeId",
-                                "foreignField": "storeId",
-                                "as": "catalogsInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "storeId",
-                                "foreignField": "_id",
-                                "as": "storesInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storesInfo.featureCatalog",
-                                "foreignField": "_id",
-                                "as": "featureCatalog"
-                            }
-                        },
+                        // {
+                        //     "$lookup": {
+                        //         "from": 'catalogs',
+                        //         "localField": "storeId",
+                        //         "foreignField": "storeId",
+                        //         "as": "catalogsInfo"
+                        //     }
+                        // },
+                        // {
+                        //     "$lookup": {
+                        //         "from": 'stores',
+                        //         "localField": "storeId",
+                        //         "foreignField": "_id",
+                        //         "as": "storesInfo"
+                        //     }
+                        // },
+                        // {
+                        //     "$lookup": {
+                        //         "from": 'catalogs',
+                        //         "localField": "storesInfo.featureCatalog",
+                        //         "foreignField": "_id",
+                        //         "as": "featureCatalog"
+                        //     }
+                        // },
                         {
                             $unwind: {
                                 path: "$claimedOfferBy",
@@ -743,24 +745,33 @@ class OfferHandler extends BaseAutoBindedClass {
                                 offerName: 1,
                                 offerPicture: 1,
                                 offerDescription: 1,
+                                offerCode: 1,
                                 aplicableForAll: 1,
                                 discountTypePercentage: 1,
                                 discountTypeFlat: 1,
-                                storesInfo: {
-                                    storeName: 1,
-                                    storeLogo: 1,
-                                    storeBanner: 1,
-                                    avgRating: 1,
-                                    address: 1,
-                                },
-                                featureCatalog: {
-                                    catalogUrl: 1,
-                                    catalogDescription: 1
-                                },
-                                catalogsInfo: {
-                                    catalogUrl: 1,
-                                    catalogDescription: 1
-                                },
+                                storeId: 1,
+                                orderAbovePrice: 1,
+                                offerOnline: 1,
+                                offerOffline: 1,
+                                percentageDiscount: 1,
+                                flatDiscount: 1,
+                                startDate: 1,
+                                endDate: 1,
+                                // storesInfo: {
+                                //     storeName: 1,
+                                //     storeLogo: 1,
+                                //     storeBanner: 1,
+                                //     avgRating: 1,
+                                //     address: 1,
+                                // },
+                                // featureCatalog: {
+                                //     catalogUrl: 1,
+                                //     catalogDescription: 1
+                                // },
+                                // catalogsInfo: {
+                                //     catalogUrl: 1,
+                                //     catalogDescription: 1
+                                // },
                                 isClaimedByMe: {
                                     $cond: {
                                         if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
@@ -771,39 +782,43 @@ class OfferHandler extends BaseAutoBindedClass {
                             }
                         },
                         {
-                            $group:{
+                            $group: {
                                 _id: '$_id',
-                                offerName: { "$first": "$offerName" },
-                                offerPicture: { "$first": "$offerPicture" },
-                                offerDescription: { "$first": "$offerDescription" },
-                                aplicableForAll: { "$first": "$aplicableForAll" },
-                                discountTypePercentage: { "$first": "$discountTypePercentage" },
-                                discountTypeFlat: { "$first": "$discountTypeFlat" },
-                                storesInfo: { $addToSet: '$storesInfo' },
-                                featureCatalog: { $addToSet: '$featureCatalog' },
-                                catalogsInfo: { $addToSet: '$catalogsInfo' },
+                                offerName: { $first: '$offerName' },
+                                offerPicture: { $first: '$offerPicture' },
+                                offerDescription: { $first: '$offerDescription' },
+                                offerCode: { $first: '$offerCode' },
+                                aplicableForAll: { $first: '$aplicableForAll' },
+                                discountTypePercentage: { $first: '$discountTypePercentage' },
+                                discountTypeFlat: { $first: '$discountTypeFlat' },
+                                orderAbovePrice: { $first: '$orderAbovePrice' },
+                                storeId: { $first: '$storeId' },
+                                percentageDiscount: { $first: '$percentageDiscount' },
+                                flatDiscount: { $first: '$flatDiscount' },
+                                startDate: { $first: '$startDate' },
+                                endDate: { $first: '$endDate' },
+                                isSave: { $max: '$isSave' },
                                 isClaimedByMe: { $max: '$isClaimedByMe' }
-                                
                             }
                         },
-                        {
-                            $unwind: {
-                                path: "$featureCatalog",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storesInfo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$catalogsInfo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
+                        // {
+                        //     $unwind: {
+                        //         path: "$featureCatalog",
+                        //         preserveNullAndEmptyArrays: true
+                        //     }
+                        // },
+                        // {
+                        //     $unwind: {
+                        //         path: "$storesInfo",
+                        //         preserveNullAndEmptyArrays: true
+                        //     }
+                        // },
+                        // {
+                        //     $unwind: {
+                        //         path: "$catalogsInfo",
+                        //         preserveNullAndEmptyArrays: true
+                        //     }
+                        // },
                         function (err, offer) {
                             if (err !== null) {
                                 reject(err);
@@ -1211,6 +1226,16 @@ class OfferHandler extends BaseAutoBindedClass {
             p[c['fieldname']] = c;
             return p;
         }, {});
+    }
+
+    getDDMMMYYYY(date1){
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June", 
+        "July", "Aug","Sept", "Oct", "Nov", "Dec"];
+        var new_date = new Date(date1);
+        var dateStr = new_date.getDate() +' '
+                    + months[new_date.getMonth()] +' '
+                    + new_date.getFullYear();
+        return dateStr;
     }
 }
 

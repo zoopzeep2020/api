@@ -452,8 +452,10 @@ class BookmarkHandler extends BaseAutoBindedClass {
             });
     }
 
-    getAllBookmarks(req, callback) {
+    getAllBookmarks(user, req, callback) {
         let data = req.body;
+        console.log(user)
+        console.log(callback)
         new Promise(function (resolve, reject) {
             BookmarkModel.find({}).populate({ path: 'storeId', select: ['_id', 'storeName', 'storeLogo', 'storeBanner', 'address', 'featureCatalog', 'avgRating', 'storeDiscription'], model: 'Store' }).exec(function (err, bookmark) {
                 if (err !== null) {
