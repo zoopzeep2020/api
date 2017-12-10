@@ -169,7 +169,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
      *       - name: userId
      *         description: userId
      *         in: body
-     *         type: string
+     *         type: string.0
      *       - name: storeId
      *         description: storeId
      *         in: body
@@ -328,9 +328,9 @@ class BookmarkHandler extends BaseAutoBindedClass {
             });
     }
 
-    getSingleBookmark(req, callback) {
+    getSingleBookmark(user, req, callback) {
         let data = req.body;
-        req.checkParams('id', 'Invalid id provided').isMongoId();
+        // req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -347,6 +347,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                             if (!bookmark) {
                                 reject(new NotFoundError("Bookmark not found"));
                             } else {
+                
                                 resolve(bookmark);
                             }
                         }
@@ -354,6 +355,8 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 });
             })
             .then((bookmark) => {
+                bookmark.isBookmarked = (user.id==bookmark.userId)
+                bookmark.save()              
                 callback.onSuccess(bookmark);
             })
             .catch((error) => {
@@ -361,7 +364,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
             });
     }
 
-    getUserBookmark(req, callback) {
+    getUserBookmark(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -398,6 +401,7 @@ class BookmarkHandler extends BaseAutoBindedClass {
                             $project: {
                                 '_id': '$_id',
                                 'storeId': '$storeId',
+                                'userId': '$userId',
                                 'storeName': '$storesInfo.storeName',
                                 'address': '$storesInfo.address',
                                 'storeLogo': '$storesInfo.storeLogo',
@@ -445,6 +449,11 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 });
             })
             .then((bookmark) => {
+                console.log(bookmark)
+                for(var i=0;i<bookmark.length;i++){
+                    bookmark[i].isBookmarked = true
+                    // bookmark[i].save()
+                }
                 callback.onSuccess(bookmark);
             })
             .catch((error) => {
@@ -470,6 +479,11 @@ class BookmarkHandler extends BaseAutoBindedClass {
             })
         })
         .then((bookmark) => {
+            console.log(bookmark)
+            for(var i=0;i<bookmark.length;i++){
+                bookmark[i].isBookmarked = (user.id==bookmark[i].userId)
+                bookmark[i].save()
+            }
             callback.onSuccess(bookmark);
         })
         .catch((error) => {
