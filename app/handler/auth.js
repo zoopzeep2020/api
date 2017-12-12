@@ -8,6 +8,9 @@ const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 let crypto = require('crypto');
 var async = require('async');
+// var socket = require('socket');
+// var server = require('http').createServer();
+// var io = require('socket.io')(server)
 const utf8 = require('utf8');
 const nodemailer = require('nodemailer');
 const SHA_HASH_LENGTH = 64;
@@ -21,6 +24,26 @@ class AuthHandler extends BaseAutoBindedClass {
     }
 
     issueNewToken( user, req, callback) {
+        // var socket = io.connect('http://localhost:3000/');
+        // socket.on('news', function(data) {
+        //     console.log(data);
+        // });
+        // io.sockets.on("connection",function(socket){
+        //     console.log("connected")//var socket is the socket for the client who has connected.
+        //     })
+        // if ('serviceWorker' in navigator) {
+        //     console.log("serviceWorker")
+        //     navigator.serviceWorker
+        //         .register('sw.js')
+        //         .then((reg)=>{
+        //             reg.pushManager.subscribe({
+        //                 userVisibleOnly:true
+        //             }).then((sub) => {
+        //                 console.log('endPoint:',sub.endPoint.slice(40));
+        //                 socket.emit('new_user:',sub.endPoint.slice(40));
+        //             })
+        //         })
+        // }
         let that = this;
         if (user != null) {
             user.cityName = ""

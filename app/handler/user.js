@@ -15,6 +15,9 @@ const mkdirp = require('mkdirp');
 let crypto = require('crypto');
 var path = require('path');
 const mongoose = require('mongoose');
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
 
 /**
  * @swagger
@@ -683,6 +686,12 @@ class UserHandler {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['userImage'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['userImage'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.userImage = targetDir + fileName;
                             let data = req.body;
                             done(err, data);

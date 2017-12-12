@@ -13,6 +13,9 @@ const async = require('async');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const path = require('path');
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
 
 class FeedbackHandler extends BaseAutoBindedClass {
     constructor() {
@@ -224,6 +227,12 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function(err) {
                         var fileName = files['feedbackImage'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['feedbackImage'].path, targetDir + fileName, function(err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.feedbackImage = targetDir + fileName;
                             let data = req.body;   
                             done(err, data);   
@@ -322,6 +331,12 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function(err) {
                         var fileName = files['feedbackImage'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['feedbackImage'].path, targetDir + fileName, function(err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.feedbackImage = targetDir + fileName;
                             let data = req.body;   
                             done(err, data);   
@@ -337,6 +352,12 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function(err) {
                         var fileName = files['feedbackActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['feedbackActiveImage'].path, targetDir + fileName, function(err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.feedbackActiveImage = targetDir + fileName;
                             let data = req.body;   
                             done(err, data);   

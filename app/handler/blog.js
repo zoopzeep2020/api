@@ -11,6 +11,9 @@ const fs = require('fs');
 const async = require('async');
 const mkdirp = require('mkdirp');
 const path = require('path');
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
 
 /**
  * @swagger
@@ -330,6 +333,12 @@ class BlogHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['blogPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['blogPicture'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.blogPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -345,6 +354,12 @@ class BlogHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['authorImage'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['authorImage'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.authorImage = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -453,6 +468,12 @@ class BlogHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['blogPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['blogPicture'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.blogPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);

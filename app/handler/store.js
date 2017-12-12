@@ -537,14 +537,12 @@ class StoreHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeLogo'].path, targetDir + fileName, function (err) {
-                            // imagemin([targetDir + fileName], targetDir, {
-                            //     plugins: [
-                            //         imageminMozjpeg(),
-                            //         imageminPngquant({ quality: '65-80' })
-                            //     ]
-                            // }).then(files => {
-                            //     console.log("files",files);
-                            // });
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.storeLogo = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -559,6 +557,12 @@ class StoreHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['storeBanner'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeBanner'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.storeBanner = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -1847,88 +1851,88 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
-    getStoreBySearch(req, callback) {
-        let data = req.body;
-        var matchQuery = [];
-        var ObjectID = require('mongodb').ObjectID;
-        var qString = {};
+    // getStoreBySearch(req, callback) {
+    //     let data = req.body;
+    //     var matchQuery = [];
+    //     var ObjectID = require('mongodb').ObjectID;
+    //     var qString = {};
 
-        for (var param in req.query) {
-            qString = {};
-            if (param == "buisnessOnline" || param == "buisnessOffline") {
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
-                matchQuery.push(qString);
-            }
-        }
-        req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    KeywordModel.aggregate(
-                        { "$match": { title: { '$regex': req.query.search, '$options': 'i' } } },
-                        {
-                            $project: {
-                                _id: 1,
-                            }
-                        }
-                    )
-                        .exec(function (err, results) {
-                            resolve(results);
-                        })
-                });
-            }).then((keywords) => {
-                let objectAray = [];
-                for (var i = 0; i < keywords.length; i++) {
-                    objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
-                }
-                var longitude = this.noNaN(parseFloat(req.query.lng));
-                var lattitude = this.noNaN(parseFloat(req.query.lat));
-                return new Promise(function (resolve, reject) {
-                    StoreModel.aggregate(
-                        // {
-                        //     "$geoNear": {
-                        //         "near": {
-                        //             "type": "Point",
-                        //             "coordinates": [longitude, lattitude]
-                        //         },
-                        //         "distanceField": "distance",
-                        //         "spherical": true,
-                        //         "maxDistance": 0
-                        //     }
-                        // },
-                        { $sort: { maxDistance: -1 } },
-                        {
-                            $match: {
-                                $and: [
-                                    {
-                                        $or: [
-                                            { "storeName": { $regex: req.query.search, '$options': 'i' } },
-                                            { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
-                                            { "keyword": { "$in": objectAray } },
-                                            { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] } },
+    //     for (var param in req.query) {
+    //         qString = {};
+    //         if (param == "buisnessOnline" || param == "buisnessOffline") {
+    //             qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
+    //             matchQuery.push(qString);
+    //         }
+    //     }
+    //     req.getValidationResult()
+    //         .then(function (result) {
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+    //             return new Promise(function (resolve, reject) {
+    //                 KeywordModel.aggregate(
+    //                     { "$match": { title: { '$regex': req.query.search, '$options': 'i' } } },
+    //                     {
+    //                         $project: {
+    //                             _id: 1,
+    //                         }
+    //                     }
+    //                 )
+    //                     .exec(function (err, results) {
+    //                         resolve(results);
+    //                     })
+    //             });
+    //         }).then((keywords) => {
+    //             let objectAray = [];
+    //             for (var i = 0; i < keywords.length; i++) {
+    //                 objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
+    //             }
+    //             var longitude = this.noNaN(parseFloat(req.query.lng));
+    //             var lattitude = this.noNaN(parseFloat(req.query.lat));
+    //             return new Promise(function (resolve, reject) {
+    //                 StoreModel.aggregate(
+    //                     // {
+    //                     //     "$geoNear": {
+    //                     //         "near": {
+    //                     //             "type": "Point",
+    //                     //             "coordinates": [longitude, lattitude]
+    //                     //         },
+    //                     //         "distanceField": "distance",
+    //                     //         "spherical": true,
+    //                     //         "maxDistance": 0
+    //                     //     }
+    //                     // },
+    //                     { $sort: { maxDistance: -1 } },
+    //                     {
+    //                         $match: {
+    //                             $and: [
+    //                                 {
+    //                                     $or: [
+    //                                         { "storeName": { $regex: req.query.search, '$options': 'i' } },
+    //                                         { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
+    //                                         { "keyword": { "$in": objectAray } },
+    //                                         { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] } },
 
-                                        ]
-                                    },
-                                    { $and: matchQuery }
-                                ]
-                            }
-                        }).exec(function (err, results) {
-                            resolve(results);
-                        })
-                });
-            })
-            .then((stores) => {
-                callback.onSuccess(stores);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
+    //                                     ]
+    //                                 },
+    //                                 { $and: matchQuery }
+    //                             ]
+    //                         }
+    //                     }).exec(function (err, results) {
+    //                         resolve(results);
+    //                     })
+    //             });
+    //         })
+    //         .then((stores) => {
+    //             callback.onSuccess(stores);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
 
     getStoreCatalog(i, storeId) {
         return new Promise(function (resolve, reject) {

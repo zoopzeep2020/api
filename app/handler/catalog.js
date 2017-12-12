@@ -505,6 +505,16 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     getFeatureCatalog(req, callback) {
         let data = req.body;
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
+        for (var param in req.query) {
+            if ((param !== "lng" && param !== "lat") && (param == "buisnessOnline" || param == "buisnessOffline")) {
+                qString = {};
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
+                matchQuery.push(qString);
+            }
+        }
         var longitude = this.noNaN(parseFloat(req.query.lng));
         var lattitude = this.noNaN(parseFloat(req.query.lat));
         req.getValidationResult()
@@ -528,6 +538,12 @@ class CatalogHandler extends BaseAutoBindedClass {
                         //         "maxDistance": 0
                         //     }
                         // },
+                        {
+                            "$match": { "isActive": 1 == 1 }
+                        },
+                        {
+                            "$match": { $and: matchQuery }
+                        },
                         {
                             $project: {
                                 finalTotal: {
@@ -570,7 +586,8 @@ class CatalogHandler extends BaseAutoBindedClass {
                         },
                         {
                             $project: {
-                                storeId: '$catalogInfo.storeId',
+                                _id: '$catalogInfo._id',
+                                storeId: '$_id',
                                 featureCatalog: '$catalogInfo.featureCatalog',
                                 catalogUrl: '$catalogInfo.catalogUrl',
                                 catalogDescription: '$catalogInfo.catalogDescription',

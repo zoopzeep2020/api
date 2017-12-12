@@ -12,6 +12,9 @@ const async = require('async');
 const mkdirp = require('mkdirp');
 const path = require('path');
 const mongoose = require('mongoose');
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
 
 class CollectionHandler extends BaseAutoBindedClass {
     constructor() {
@@ -295,6 +298,12 @@ class CollectionHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['collectionPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['collectionPicture'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.collectionPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -401,6 +410,12 @@ class CollectionHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['collectionPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['collectionPicture'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
                             req.body.collectionPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
