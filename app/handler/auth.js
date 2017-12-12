@@ -19,9 +19,11 @@ class AuthHandler extends BaseAutoBindedClass {
         this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
 
-    issueNewToken(req, user, callback) {
+    issueNewToken( user, req, callback) {
         let that = this;
-        user.cityName = ""
+        if (user != null) {
+            user.cityName = ""
+        }
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -59,8 +61,97 @@ class AuthHandler extends BaseAutoBindedClass {
                     }
                 }
             }).then((results) => {
+                
                 if (user) {
-                    user.save();
+                    // if (user != null)
+                        // user.save();
+                    let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
+                    let data = {
+                        _id: user._id,
+                        token: userToken.token,
+                        name: user.name,
+                        email: user.email,
+                        phone: user.phone,
+                        deviceToken: user.deviceToken,
+                        userLat: user.userLat,
+                        userLong: user.userLong,
+                        storeId: user.storeId,
+                        isStore: user.isStore,
+                        isUser: user.isUser,
+                        userImage: user.userImage,
+                        deviceType: user.deviceType,
+                        isAdmin: user.isAdmin,
+                        cityName: user.cityName
+                    };
+                    callback.onSuccess(data);
+                } else {
+                    console.log("user12")
+                    callback.onError(new NotFoundError("User not found"));
+                }
+            }).catch((error) => {
+                callback.onError(error);
+            });
+    }
+    issueNewTokenWithFbToken(req, callback) {
+        let that = this;
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    UserModel.findOne({ fbToken: req.body.fbToken }, function (err, user) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!user) {
+                                reject(new NotFoundError("user not found"));
+                            } else {
+                                resolve(user);
+                            }
+                        }
+                    })
+                });
+            }).then((user) => {
+                if (user != null) {
+                    user.cityName = ""
+                }
+                for (var key in req.body) {
+                    if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
+                        user[key] = req.body[key];
+                    }
+                    if (key == 'location') {
+                        var longitude = isNaN(parseFloat(req.body.location[0])) ? 0 : parseFloat(req.body.location[0]);
+                        var lattitude = isNaN(parseFloat(req.body.location[1])) ? 0 : parseFloat(req.body.location[1]);
+                        return new Promise(function (resolve, reject) {
+                            CityModel.aggregate(
+                                {
+                                    "$geoNear": {
+                                        "near": {
+                                            "type": "Point",
+                                            "coordinates": [longitude, lattitude]
+                                        },
+                                        "distanceField": "distance",
+                                        "spherical": true,
+                                        "maxDistance": 0
+                                    }
+                                },
+                                { $limit: 1 }
+                            ).exec(function (err, results) {
+                                user['cityName'] = results[0]['cityName'];
+                                resolve(user);
+                            })
+                        });
+                    }
+                }
+                return user;
+            }).then((user) => {
+                if (user) {
+                    // if (user != null)
+                        // user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,
@@ -87,7 +178,6 @@ class AuthHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
 
     forgotRequest(req, callback) {
         // req.getValidationResult()

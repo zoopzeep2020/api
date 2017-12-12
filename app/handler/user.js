@@ -407,14 +407,49 @@ class UserHandler {
             }
         };
     }
+    static get USER_FB_VALIDATION_SCHEME() {
+        return {
+            'name': {
+                isLength: {
+                    options: [{ min: 2 }],
+                    errorMessage: 'Name must be 2 characters long'
+                },
+                notEmpty: true,
+                errorMessage: 'Name is required'
+            },
+            'email': {
+                isEmail: {
+                    errorMessage: 'Email is invalid'
+                },
+                notEmpty: true,
+                errorMessage: "Email is required"
+
+            },
+            'fbToken': {
+                notEmpty: true,
+                errorMessage: 'fbToken is required'
+            },
+            'phone': {
+                isLength: {
+                    options: [{ min: 10, max: 10 }],
+                    errorMessage: 'Phone is invalid'
+                },
+                notEmpty: true,
+                errorMessage: 'Phone is required'
+            }
+        };
+    }
 
     createNewUser(req, callback) {
         let data = req.body;
         let validator = this._validator;
         let storeHandler = this._storeHandler;
         let request = req;
-
-        req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
+        if (req.body.fbToken == undefined) {
+            req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
+        } else {
+            req.checkBody(UserHandler.USER_FB_VALIDATION_SCHEME);
+        }
         req.checkBody('isStore', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
         req.checkBody('isUser', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
         req.getValidationResult()
@@ -495,7 +530,7 @@ class UserHandler {
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
-                    token: userToken.token,
+                   token: userToken.token,
                     _id: user._id,
                     name: user.name,
                     userId: user.name,

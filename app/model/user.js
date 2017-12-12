@@ -24,21 +24,16 @@ let UserSchema = new Schema({
     },
     salt: {
         type: String,
-        required: true
+        // required: true
     },
-    facebook         : {
-        id           : String,
-        token        : String,
-        email        : String,
-        name         : String
-    },
+    fbToken:String,
     dateCreated: { type: Date, default: Date.now },
     email: String,
     resetPasswordToken: String,
     resetPasswordExpires : { type: Date },
     hashedPassword: {
         type: String,
-        required: true,
+        // required: true,
     },
     isAdmin:{ type: Boolean }
 });

@@ -3,6 +3,7 @@
  */
 const BaseController = require(APP_CONTROLLER_PATH + 'base');
 const AuthHandler = require(APP_HANDLER_PATH + 'auth');
+const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 
 class AuthController extends BaseController {
     constructor() {
@@ -15,9 +16,13 @@ class AuthController extends BaseController {
     create(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
-        this.authenticate(req, res, next, (user) => {
-            that._authHandler.issueNewToken(req, user, responseManager.getDefaultResponseHandler(res));
-        });
+        if (req.body.fbToken == undefined) {
+            this.authenticate(req, res, next, (user) => {
+                that._authHandler.issueNewToken(user, req, responseManager.getDefaultResponseHandler(res));
+            });
+        } else {
+            that._authHandler.issueNewTokenWithFbToken(req, responseManager.getDefaultResponseHandler(res));
+        }
 
     }
 
@@ -46,7 +51,6 @@ class AuthController extends BaseController {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
-
     }
 
     authenticate(req, res, next, callback) {

@@ -18,7 +18,10 @@ const mkdirp = require('mkdirp');
 var path = require('path');
 var request = require('request');
 var ObjectId = require('mongodb').ObjectID;
-
+// const imagemin = require('imagemin');
+// const imageminMozjpeg = require('imagemin-mozjpeg');
+// const imageminPngquant = require('imagemin-pngquant');
+// const imageminJpegtran = require('imagemin-jpegtran');
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -534,6 +537,17 @@ class StoreHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeLogo'].path, targetDir + fileName, function (err) {
+                            // imagemin([targetDir + fileName], 'build/'+targetDir, {
+                            //     plugins: [
+                            //         imageminMozjpeg(),
+                            //         imageminPngquant({ quality: '65-80' })
+                            //     ]
+                            // }).then(files => {
+                            //     console.log("files",files);
+                            // });
+                            // imagemin(['/Volumes/Webrex/Client Project/ZeepZoop/zeepzoop-api/public/2017/12/img_0024.jpg'], targetDir, {use: [imageminJpegtran()]}).then((files) => {
+                            //     console.log('Images optimized',files);
+                            // });
                             req.body.storeLogo = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -1153,6 +1167,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 });
             })
             .then((result) => {
+                console.log(result)
                 StoreModel.findOne({ _id: req.params.id }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
@@ -1228,7 +1243,6 @@ class StoreHandler extends BaseAutoBindedClass {
                                 ]
                             }
                         },
-
                         // { "$match": { "categoriesIds": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
                         {
                             "$lookup": {
@@ -1607,10 +1621,11 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
+    
     getTrendingStore(req, callback) {
         let data = req.body;
         var matchQuery = [];
+        var max = this.getMaxViewCount().viewCount;
         var ObjectID = require('mongodb').ObjectID;
         var longitude = this.noNaN(parseFloat(req.query.lng));
         var lattitude = this.noNaN(parseFloat(req.query.lat));
@@ -1633,17 +1648,17 @@ class StoreHandler extends BaseAutoBindedClass {
                 new Promise(function (resolve, reject) {
                     if (req.query.buisnessOffline == "true") {
                         StoreModel.aggregate([
-                            {
-                                "$geoNear": {
-                                    "near": {
-                                        "type": "Point",
-                                        "coordinates": [longitude, lattitude]
-                                    },
-                                    "distanceField": "distance",
-                                    "spherical": true,
-                                    "maxDistance": 0
-                                }
-                            },
+                            // {
+                            //     "$geoNear": {
+                            //         "near": {
+                            //             "type": "Point",
+                            //             "coordinates": [longitude, lattitude]
+                            //         },
+                            //         "distanceField": "distance",
+                            //         "spherical": true,
+                            //         "maxDistance": 0
+                            //     }
+                            // },
                             {
                                 "$match": { "isActive": 1 == 1 }
                             },
@@ -1834,89 +1849,89 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
+    getStoreBySearch(req, callback) {
+        let data = req.body;
+        var matchQuery = [];
+        var ObjectID = require('mongodb').ObjectID;
+        var qString = {};
 
-    // getStoreBySearch(req, callback) {
-    //     let data = req.body;
-    //     var matchQuery = [];
-    //     var ObjectID = require('mongodb').ObjectID;
-    //     var qString = {};
+        for (var param in req.query) {
+            qString = {};
+            if (param == "buisnessOnline" || param == "buisnessOffline") {
+                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
+                matchQuery.push(qString);
+            }
+        }
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
+                }
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.aggregate(
+                        { "$match": { title: { '$regex': req.query.search, '$options': 'i' } } },
+                        {
+                            $project: {
+                                _id: 1,
+                            }
+                        }
+                    )
+                        .exec(function (err, results) {
+                            resolve(results);
+                        })
+                });
+            }).then((keywords) => {
+                let objectAray = [];
+                for (var i = 0; i < keywords.length; i++) {
+                    objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
+                }
+                var longitude = this.noNaN(parseFloat(req.query.lng));
+                var lattitude = this.noNaN(parseFloat(req.query.lat));
+                return new Promise(function (resolve, reject) {
+                    StoreModel.aggregate(
+                        // {
+                        //     "$geoNear": {
+                        //         "near": {
+                        //             "type": "Point",
+                        //             "coordinates": [longitude, lattitude]
+                        //         },
+                        //         "distanceField": "distance",
+                        //         "spherical": true,
+                        //         "maxDistance": 0
+                        //     }
+                        // },
+                        { $sort: { maxDistance: -1 } },
+                        {
+                            $match: {
+                                $and: [
+                                    {
+                                        $or: [
+                                            { "storeName": { $regex: req.query.search, '$options': 'i' } },
+                                            { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
+                                            { "keyword": { "$in": objectAray } },
+                                            { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] } },
 
-    //     for (var param in req.query) {
-    //         qString = {};
-    //         if (param == "buisnessOnline" || param == "buisnessOffline") {
-    //             qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
-    //             matchQuery.push(qString);
-    //         }
-    //     }
-    //     req.getValidationResult()
-    //         .then(function (result) {
-    //             if (!result.isEmpty()) {
-    //                 let errorMessages = result.array().map(function (elem) {
-    //                     return elem.msg;
-    //                 });
-    //                 throw new ValidationError(errorMessages);
-    //             }
-    //             return new Promise(function (resolve, reject) {
-    //                 KeywordModel.aggregate(
-    //                     { "$match": { title: { '$regex': req.query.search, '$options': 'i' } } },
-    //                     {
-    //                         $project: {
-    //                             _id: 1,
-    //                         }
-    //                     }
-    //                 )
-    //                     .exec(function (err, results) {
-    //                         resolve(results);
-    //                     })
-    //             });
-    //         }).then((keywords) => {
-    //             let objectAray = [];
-    //             for (var i = 0; i < keywords.length; i++) {
-    //                 objectAray[i] = mongoose.Types.ObjectId(keywords[i]._id);
-    //             }
-    //             var longitude = this.noNaN(parseFloat(req.query.lng));
-    //             var lattitude = this.noNaN(parseFloat(req.query.lat));
-    //             return new Promise(function (resolve, reject) {
-    //                 StoreModel.aggregate(
-    //                     // {
-    //                     //     "$geoNear": {
-    //                     //         "near": {
-    //                     //             "type": "Point",
-    //                     //             "coordinates": [longitude, lattitude]
-    //                     //         },
-    //                     //         "distanceField": "distance",
-    //                     //         "spherical": true,
-    //                     //         "maxDistance": 0
-    //                     //     }
-    //                     // },
-    //                     { $sort: { maxDistance: -1 } },
-    //                     {
-    //                         $match: {
-    //                             $and: [
-    //                                 {
-    //                                     $or: [
-    //                                         { "storeName": { $regex: req.query.search, '$options': 'i' } },
-    //                                         { "storeDescription": { $regex: req.query.search, '$options': 'i' } },
-    //                                         { "keyword": { "$in": objectAray } },
-    //                                         { "keyword": { "$in": [mongoose.Types.ObjectId(req.query.keywordId)] } },
-
-    //                                     ]
-    //                                 },
-    //                                 { $and: matchQuery }
-    //                             ]
-    //                         }
-    //                     }).exec(function (err, results) {
-    //                         resolve(results);
-    //                     })
-    //             });
-    //         })
-    //         .then((stores) => {
-    //             callback.onSuccess(stores);
-    //         })
-    //         .catch((error) => {
-    //             callback.onError(error);
-    //         });
-    // }
+                                        ]
+                                    },
+                                    { $and: matchQuery }
+                                ]
+                            }
+                        }).exec(function (err, results) {
+                            resolve(results);
+                        })
+                });
+            })
+            .then((stores) => {
+                callback.onSuccess(stores);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
 
     getStoreCatalog(i, storeId) {
         return new Promise(function (resolve, reject) {
@@ -1925,20 +1940,31 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
-   
+    getMaxViewCount(i, storeId) {
+        return new Promise(function (resolve, reject) {
+            StoreModel.findOne({ }).select('viewCount').sort({viewCount: -1}).limit(1).exec(function (err, store) {
+                console.log(store)
+                return resolve([i, store]);
+            })
+        });
+    }
     getStoreBySearch(req, callback) {
         let data = req.body;
         var ObjectID = require('mongodb').ObjectID;
         let query = req.query;
         let mongoQuery = { isActive: true };
+        let mainObj = [];
         let skip = 0;
         let limit = 10;
-
+        var maxviewcount = 1;
+        var trendingResult = 10;
+        var arrayFinal = [];
+        
         for (var key in query) {
             if (key == "search") {
                 mongoQuery['$or'] = [
-                    { 'storeName': { $regex: new RegExp(query[key], 'i') } },
-                    { 'storeDiscription': { $regex: new RegExp(query[key], 'i') } }
+                    { 'storeName': { $regex: new RegExp(query[key].trim(), 'i') } },
+                    { 'storeDiscription': { $regex: new RegExp(query[key].trim(), 'i') } }
                 ]
                 // mongoQuery['$text'] = { '$search': 'Sanjay' }                
             } else if (key == "location") {
@@ -1961,9 +1987,10 @@ class StoreHandler extends BaseAutoBindedClass {
                 skip = parseInt(query[key]);
             } else if (key == "endStores") {
                 limit = parseInt(query[key]) - skip + 1;
+            } else if (key == "trendingResult") {
+                trendingResult = parseInt(req.query.trendingResult)
             }
         }
-
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -1977,8 +2004,45 @@ class StoreHandler extends BaseAutoBindedClass {
                         resolve(results);
                     })
                 });
-            })
-            .then((results) => {
+            }).then((results) => {
+                if(req.query.trending == 'true')
+                {    
+                    return new Promise(function (resolve, reject) {
+                        StoreModel.findOne({ }).select('viewCount').sort({viewCount: -1}).limit(1).exec(function (err, store) {
+                            resolve(store);
+                        })
+                    }).then((maxview)=>{
+                        maxviewcount = maxview.viewCount
+                        if (results.length < trendingResult) {
+                            trendingResult = results.length
+                        }
+
+                        for (let i = 0; i < results.length; i++) {
+                            var finalTotal = (((5*results[i].viewCount))/maxviewcount) + results[i].avgRating;
+                            arrayFinal.push([finalTotal, i]);
+                        }
+
+                        arrayFinal.sort(sortFunction);
+
+                        function sortFunction(a, b) {
+                            if (a[0] === b[0]) {
+                                return 0;
+                            }
+                            else {
+                                return (a[0] > b[0]) ? -1 : 1;
+                            }
+                        }
+                        var items = arrayFinal.slice(0, trendingResult);
+
+                        for (var i=0;i<trendingResult;i++) {
+                            mainObj[i]=results[items[i][1]]
+                        }
+                        return mainObj;
+                    })
+                } else {
+                    return results;
+                }
+            }).then((results) => {
                 if (query['search'] || query['category']) {
                     if (results != undefined) {
                         var promises = [];
@@ -1997,8 +2061,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 } else {
                     return results;
                 }
-            })
-            .then((stores) => {
+            }).then((stores) => {
                 callback.onSuccess(stores);
             })
             .catch((error) => {
