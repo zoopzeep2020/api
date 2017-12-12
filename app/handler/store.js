@@ -18,10 +18,10 @@ const mkdirp = require('mkdirp');
 var path = require('path');
 var request = require('request');
 var ObjectId = require('mongodb').ObjectID;
-// const imagemin = require('imagemin');
-// const imageminMozjpeg = require('imagemin-mozjpeg');
-// const imageminPngquant = require('imagemin-pngquant');
-// const imageminJpegtran = require('imagemin-jpegtran');
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
+
 class StoreHandler extends BaseAutoBindedClass {
     constructor() {
         super();
@@ -214,7 +214,7 @@ class StoreHandler extends BaseAutoBindedClass {
      *         description: object of activity".     
      */
 
-    /**
+   /**
     * @swagger
     * /stores/searchbyCategoryId/{categoryId}:
     *   get:
@@ -238,7 +238,7 @@ class StoreHandler extends BaseAutoBindedClass {
     *     responses:
     *       200:
     *         description: object of activity".     
-    */
+   */
     /**
      * @swagger
      * /stores/{storeId}:
@@ -351,76 +351,76 @@ class StoreHandler extends BaseAutoBindedClass {
      *       200:
      *         description: object of activity".     
      */
-    /**
-* @swagger
-* definition:
-*   UpdateActivitiesObj:
-*     properties:
-*       storeName:
-*         type: string
-*       storeLogo:
-*         type: string
-*       storeBanner:
-*         type: string
-*       categoriesIds:
-*         type: array
-*         items:
-*          type: string
-*       buisnessOnline:
-*         type: boolean
-*       buisnessOffline:
-*         type: boolean
-*       buisnessBoth:
-*         type: boolean
-*       address:
-*         type: string
-*       storePhone:
-*         type: number
-*       storeDiscription:
-*         type: string
-*       featureCatalog:
-*         type: number
-*       webAddress:
-*         type: string
-*       keyword:
-*         type: array
-*         items:
-*          type: string
-*       otherKeyword:
-*         type: array
-*         items:
-*          type: string
-*       countries:
-*         type: array
-*         items:
-*          type: string
-*       dispatchDayMin:
-*         type: number
-*       dispatchDayMax:
-*         type: number
-*       customization:
-*         type: boolean
-*       giftWrap:
-*         type: boolean
-*       cod:
-*         type: boolean
-*       freeShiping:
-*         type: boolean
-*       returnandreplace:
-*         type: string
-*       viewCount:
-*         type: number
-*       reviewCount:
-*         type: number
-*       avgRating:
-*         type: number
-*       isActive:
-*         type: boolean
-*       location:
-*         type: array
-*         items:
-*          type: number
-*/
+   /**
+    * @swagger
+    * definition:
+    *   UpdateActivitiesObj:
+    *     properties:
+    *       storeName:
+    *         type: string
+    *       storeLogo:
+    *         type: string
+    *       storeBanner:
+    *         type: string
+    *       categoriesIds:
+    *         type: array
+    *         items:
+    *          type: string
+    *       buisnessOnline:
+    *         type: boolean
+    *       buisnessOffline:
+    *         type: boolean
+    *       buisnessBoth:
+    *         type: boolean
+    *       address:
+    *         type: string
+    *       storePhone:
+    *         type: number
+    *       storeDiscription:
+    *         type: string
+    *       featureCatalog:
+    *         type: number
+    *       webAddress:
+    *         type: string
+    *       keyword:
+    *         type: array
+    *         items:
+    *          type: string
+    *       otherKeyword:
+    *         type: array
+    *         items:
+    *          type: string
+    *       countries:
+    *         type: array
+    *         items:
+    *          type: string
+    *       dispatchDayMin:
+    *         type: number
+    *       dispatchDayMax:
+    *         type: number
+    *       customization:
+    *         type: boolean
+    *       giftWrap:
+    *         type: boolean
+    *       cod:
+    *         type: boolean
+    *       freeShiping:
+    *         type: boolean
+    *       returnandreplace:
+    *         type: string
+    *       viewCount:
+    *         type: number
+    *       reviewCount:
+    *         type: number
+    *       avgRating:
+    *         type: number
+    *       isActive:
+    *         type: boolean
+    *       location:
+    *         type: array
+    *         items:
+    *          type: number
+   */
     static get STORE_VALIDATION_SCHEME() {
         return {
             'storeName': {
@@ -537,16 +537,13 @@ class StoreHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeLogo'].path, targetDir + fileName, function (err) {
-                            // imagemin([targetDir + fileName], 'build/'+targetDir, {
+                            // imagemin([targetDir + fileName], targetDir, {
                             //     plugins: [
                             //         imageminMozjpeg(),
                             //         imageminPngquant({ quality: '65-80' })
                             //     ]
                             // }).then(files => {
                             //     console.log("files",files);
-                            // });
-                            // imagemin(['/Volumes/Webrex/Client Project/ZeepZoop/zeepzoop-api/public/2017/12/img_0024.jpg'], targetDir, {use: [imageminJpegtran()]}).then((files) => {
-                            //     console.log('Images optimized',files);
                             // });
                             req.body.storeLogo = targetDir + fileName;
                             let data = req.body;
@@ -1849,7 +1846,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     getStoreBySearch(req, callback) {
         let data = req.body;
         var matchQuery = [];

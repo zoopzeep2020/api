@@ -12,6 +12,7 @@ const utf8 = require('utf8');
 const nodemailer = require('nodemailer');
 const SHA_HASH_LENGTH = 64;
 const ForbiddenError = require(APP_ERROR_PATH + 'forbidden');
+
 class AuthHandler extends BaseAutoBindedClass {
     constructor() {
         super();

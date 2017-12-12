@@ -16,6 +16,9 @@ const mkdirp = require('mkdirp');
 const path = require('path');
 const url = require('url');
 var request = require('request');
+const imagemin = require('imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
+const imageminPngquant = require('imagemin-pngquant');
 
 class CatalogHandler extends BaseAutoBindedClass {
     constructor() {
@@ -293,6 +296,14 @@ class CatalogHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['catalogUrl'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {
+                                console.log("files",files);
+                            });
                             req.body.catalogUrl = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -415,6 +426,14 @@ class CatalogHandler extends BaseAutoBindedClass {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['catalogUrl'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {
+                                console.log("files",files);
+                            });
                             req.body.catalogUrl = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
