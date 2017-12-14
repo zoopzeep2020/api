@@ -688,6 +688,7 @@ class StoreHandler extends BaseAutoBindedClass {
             else return data;
         });
     }
+
     getStoreOffer(i, storeId) {
         return new Promise(function (resolve, reject) {
             OfferModel.find({ storeId: storeId }).limit(1).sort({dateCreated:-1}).exec(function (err, offer) {
@@ -941,6 +942,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 'freeShiping': '$storesInfo.freeShiping',
                                 'returnandreplace': '$storesInfo.returnandreplace',
                                 'bookmarkCount': '$storesInfo.bookmarkCount',
+                                'location': '$storesInfo.location',
                                 'avgRating': { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
                                 reviews: {
                                     $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },
@@ -1079,6 +1081,12 @@ class StoreHandler extends BaseAutoBindedClass {
                         {
                             $unwind: {
                                 path: "$countries",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$location",
                                 preserveNullAndEmptyArrays: true
                             }
                         },
