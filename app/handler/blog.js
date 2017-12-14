@@ -484,9 +484,34 @@ class BlogHandler extends BaseAutoBindedClass {
                     done(err, data);
                 }
             },
+            function (data, done, err) {
+                console.log(files['authorImage'] )
+                if (files != undefined && typeof files['authorImage'] !== "undefined") {
+                    mkdirp(targetDir, function (err) {
+                        var fileName = files['authorImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        fs.rename(files['authorImage'].path, targetDir + fileName, function (err) {
+                            imagemin([targetDir + fileName], targetDir, {
+                                plugins: [
+                                    imageminMozjpeg(),
+                                    imageminPngquant({ quality: '65-80' })
+                                ]
+                            }).then(files => {});
+                            req.body.authorImage = targetDir + fileName;
+                            let data = req.body;
+                            done(err, data);
+                        });
+                    });
+                } else {
+                    let data = req.body;
+                    done(err, data);
+                }
+            },
             function (data, done) {
                 if (req.body.blogPicture != undefined) {
                     req.checkBody('blogPicture', 'blogPicture is required').isImage(req.body.blogPicture);
+                }
+                if (req.body.authorImage != undefined) {
+                    req.checkBody('authorImage', 'authorImage is required').isImage(req.body.authorImage);
                 }
                 if (req.body.title != undefined) {
                     req.checkBody('title', 'title is required').notEmpty();

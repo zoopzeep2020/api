@@ -134,11 +134,12 @@ app.get('/swagger', function (req, res) {
     // res.setHeader('Content-Type', 'text/html');
     res.sendFile(path.join(__dirname + '/swagger/api-docs/index.html'));
 });
-app.get('/auth/facebook', this._passport.authenticate('facebook', {
+// app.get('/auth/facebook', this._passport.authenticate('facebook', {
 
-    scope: ['public_profile', 'email']
-}));
-
+//     scope: ['public_profile', 'email']
+// }));
+var http = require('http');
+var serverExpress = http.createServer(app)
 app.use(express.static(__dirname + '/swagger'));
 app.use('/public', express.static(path.join(__dirname + '/public')));
 app.use('/', routes);
@@ -146,4 +147,10 @@ var server = app.listen(global.config.server.PORT, function () {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);
 });
-
+// var socket = require('socket.io').listen(server);
+// socket.on('connection', function(client){
+//     console.log("client connected");
+//     client.on('disconnected',function(){
+//         console.log('client is disconnected');
+//     });
+// });

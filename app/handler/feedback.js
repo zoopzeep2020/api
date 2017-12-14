@@ -322,6 +322,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
     updateFeedback(req, callback) {
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);        
@@ -347,27 +348,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     done(err, data);
                 }
             },
-            function(data, done, err) {
-                if(typeof files['feedbackActiveImage'] !== "undefined"){
-                    mkdirp(targetDir, function(err) {
-                        var fileName = files['feedbackActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
-                        fs.rename(files['feedbackActiveImage'].path, targetDir + fileName, function(err) {
-                            imagemin([targetDir + fileName], targetDir, {
-                                plugins: [
-                                    imageminMozjpeg(),
-                                    imageminPngquant({ quality: '65-80' })
-                                ]
-                            }).then(files => {});
-                            req.body.feedbackActiveImage = targetDir + fileName;
-                            let data = req.body;   
-                            done(err, data);   
-                        });
-                    });
-                }else{
-                    let data = req.body;        
-                    done(err, data);
-                }
-            },
             function(data, done){
                 if(req.body.feedback != undefined){
                     req.checkBody('feedback', 'feedback is required').notEmpty();
@@ -376,9 +356,6 @@ class FeedbackHandler extends BaseAutoBindedClass {
                     req.checkBody('feedbackImage', 'feedbackImage is required').isImage(req.body.feedbackImage);
                 }
 
-                if(req.body.feedbackActiveImage != undefined){
-                    req.checkBody('feedbackActiveImage', 'feedbackActiveImage is required').isImage(req.body.feedbackActiveImage);
-                }
                 req.getValidationResult()
                 .then(function(result) {
                     if (!result.isEmpty()) {
@@ -481,6 +458,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     objectify(array) {
         return array.reduce(function(p, c) {
              p[c['fieldname']] = c;

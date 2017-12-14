@@ -311,11 +311,13 @@ class MylistHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
-        if(req.body.categoriesIds != undefined){
-            req.checkBody('list', 'minimum one list is required').notEmpty();
+        if(req.body.stores != undefined){
+            req.checkBody('stores', 'minimum one list is required').notEmpty();
         }
+        if(req.body.title != undefined){
+        req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
         
+        }
         req.getValidationResult()
             .then(function(result) {
                 if (!result.isEmpty()) {
@@ -340,8 +342,18 @@ class MylistHandler extends BaseAutoBindedClass {
                 });
             })
             .then((mylist) => {
+                console.log('mylist',mylist)
+                var temp = []
                 for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
+                    if (key == 'stores') {
+                        var concatedArray = mylist[key].concat(data[key])
+                        for (var i=0;i<concatedArray.length;i++) {
+                            if (temp.indexOf(concatedArray[i].toString()) == -1) {
+                                temp.push(concatedArray[i].toString()); 
+                            }
+                        }
+                        mylist[key] = temp
+                    } else if (data.hasOwnProperty(key)) {
                         mylist[key] = data[key];
                     }
                 }  

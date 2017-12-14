@@ -13,7 +13,6 @@ router.get('/', offerController.getAll);
 router.get('/withfilter', offerController.getAllWithFilter);
 router.get('/search', offerController.getOfferBySearch);
 router.put('/save', offerController.saveOffer);
-
 router.get('/:id', offerController.get);
 router.get('/store/:id', offerController.getStoreOffer);
 router.post('/', upload.any(), offerController.create);

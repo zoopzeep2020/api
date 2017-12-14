@@ -293,7 +293,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 };
                 smtpTransport.sendMail(mailOptions, function (err) {
                     if (err) return done(new NotFoundError(err));
-                    return callback.onSuccess('An e-mail has been sent to ' + user.email + ' with further instructions.');
+                    return callback.onSuccess({
+                        "response" : 'An e-mail has been sent to ' + user.email + ' with further instructions.'});
                 });
             }
         ], function (err, result) {
