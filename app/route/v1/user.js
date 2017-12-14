@@ -9,6 +9,7 @@ var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
 router.get('/:id', userController.get);
+router.post('/existuser', upload.any(), userController.createNewExistingUser);
 router.post('/', upload.any(), userController.create);
 router.put('/claimoffer/:id', userController.claimOffer);
 router.put('/:id', upload.any(), userController.update);

@@ -482,7 +482,7 @@ class UserHandler {
                             } else {
 
                                 if (user.isStore) {
-                                    if (user.isStore && docs.isUser && !docs.isStore && !(req.query.continuewithexistinguser == "true")) {
+                                    if (user.isStore && docs.isUser && !docs.isStore ) {
                                         reject(new AlreadyExistsError("user already exists with this email. Would you like to continue?"));
                                     } else if (!docs.isStore) {
                                         storeHandler.createNewStore(request, {
@@ -499,7 +499,7 @@ class UserHandler {
                                         reject(new AlreadyExistsError("Store already exists"));
                                     }
                                 } else {
-                                    if (user.isUser && docs.isStore && !docs.isUser && !(req.query.continuewithexistingstore == "true")) {
+                                    if (user.isUser && docs.isStore && !docs.isUser) {
                                         reject(new AlreadyExistsError("store already exists with this email. Would you like to continue?"));
                                     } else if (!docs.isUser) {
                                         docs.isUser = true;
@@ -511,6 +511,119 @@ class UserHandler {
                             }
                         } else {
                             if (user.isStore) {
+                                storeHandler.createNewStore(request, {
+                                    onSuccess: function (data) {
+                                        user.storeId = data._id;
+                                        resolve(new UserModel(user));
+                                    },
+                                    onError: function (data) {
+                                        reject(new AlreadyExistsError("Somthing happend wrong"));
+                                    },
+                                });
+                            } else {
+                                let userModel = new UserModel(user);
+                                resolve(userModel);
+                            }
+                        }
+                    });
+                });
+            })
+            .then((user) => {
+                user.email = user.email.toLowerCase();
+                user.save();
+                let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
+                let data = {
+                   token: userToken.token,
+                    _id: user._id,
+                    name: user.name,
+                    userId: user.name,
+                    email: user.email.toLowerCase(),
+                    phone: user.phone,
+                    latLong: user.latLong,
+                    userImage: user.userImage,
+                    deviceToken: user.deviceToken,
+                    storeId: { _id: user.storeId },
+                    isStore: user.isStore,
+                    isUser: user.isUser,
+                };
+                return data;
+            })
+            .then((user) => {
+                callback.onSuccess(user);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+    createNewExistingUser(user, req, callback) {
+        let data = req.body;
+        let validator = this._validator;
+        let storeHandler = this._storeHandler;
+        let request = req;
+        // if (req.body.fbToken == undefined) {
+        //     req.checkBody(UserHandler.USER_VALIDATION_SCHEME);
+        // } else {
+        //     req.checkBody(UserHandler.USER_FB_VALIDATION_SCHEME);
+        // }
+        // req.checkBody('isStore', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
+        // req.checkBody('isUser', 'Either isStore is true or isUser is true').isOneTrue(req.body.isStore, req.body.isUser);
+        req.getValidationResult()
+            .then(function (result) {
+                var errorMessages = {};
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages.join(' && ')); ValidationError(errorMessages);
+                }
+                return data;
+            })
+            .then((data) => {
+                return new Promise(function (resolve, reject) {
+                    UserModel.findOne({ email: user.email }, function (err, docs) {
+                        user.userImage = "";
+                        // for result found or not 
+                        if (docs != null) { 
+                            // check user already exists
+                            if (docs.isStore && docs.isUser) {
+                                
+                                if (data.isStore) {
+                                    reject(new AlreadyExistsError("Store already exists"));
+                                } else {
+                                    reject(new AlreadyExistsError("User already exists"));
+                                }
+                            } else {
+                                if (data.isStore) {
+                                    if (!docs.isStore) {
+                                        storeHandler.createNewStore(request, {
+                                            onSuccess: function (data) {
+                                                docs.isStore = true;
+                                                docs.storeId = data._id;
+                                                resolve(docs);
+                                            },
+                                            onError: function (data) {
+                                                reject(new AlreadyExistsError("Somthing happend wrong"));
+                                            },
+                                        });
+                                    } else {
+                                        reject(new AlreadyExistsError("Store already exists"));
+                                    }
+                                } else {
+                                    if (!docs.isUser) {
+                                        if (data.isUser) {
+                                            docs.isUser = true;
+                                            resolve(docs);
+                                        } else {
+                                            reject(new AlreadyExistsError("Somthing happend wrong"));
+                                        }
+                                    } else {
+                                        reject(new AlreadyExistsError("User already exists"));
+                                    }
+                                }
+                            }
+                        } else {
+                            if (data.isStore) {
                                 storeHandler.createNewStore(request, {
                                     onSuccess: function (data) {
                                         user.storeId = data._id;

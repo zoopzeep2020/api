@@ -47,7 +47,12 @@ class UserController extends BaseController {
             this._authHandler.createNewUser(req, responseManager.getDefaultResponseHandler(res));
         });
     }
-
+    createNewExistingUser(req, res, next) {
+        let responseManager = this._responseManager;
+        this.userAuthenticate(req, res, next, (token, user) => {
+            this._authHandler.createNewExistingUser(user, req, responseManager.getDefaultResponseHandler(res));
+        });
+    }
     createAdmin(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
