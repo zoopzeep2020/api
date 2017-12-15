@@ -486,6 +486,7 @@ class MylistHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     getSingleMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();

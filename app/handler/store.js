@@ -2,6 +2,7 @@
  * Created by WebrexStudio on 5/13/17.
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
@@ -696,7 +697,7 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
-    getStoreReview(i, storeId) {
+    getStoreReview(i, storeId) {    
         return new Promise(function (resolve, reject) {
             ReviewModel.find({ storeId: storeId }).limit(1).sort({dateCreated:-1}).exec(function (err, review) {
                 return resolve([i, review]);
@@ -794,7 +795,7 @@ class StoreHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }*/
-    getSingleStore(req, callback) {
+    getSingleStore(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult()
@@ -943,6 +944,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 'returnandreplace': '$storesInfo.returnandreplace',
                                 'bookmarkCount': '$storesInfo.bookmarkCount',
                                 'location': '$storesInfo.location',
+                                'bookmarkBy': '$storesInfo.bookmarkBy',
                                 'avgRating': { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
                                 reviews: {
                                     $filter: { input: "$reviews", as: "a", cond: { $ifNull: ["$$a._id", false] } },
@@ -1125,6 +1127,11 @@ class StoreHandler extends BaseAutoBindedClass {
                                 path: "$bookmarkCount",
                                 preserveNullAndEmptyArrays: true
                             }
+                        },{
+                            $unwind: {
+                                path: "$bookmarkBy",
+                                preserveNullAndEmptyArrays: true
+                            }
                         },
                         {
                             $project: {
@@ -1171,12 +1178,18 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         },
                     ]).exec(function (err, results) {
+                        if (results[0].bookmarkBy == undefined) {
+                            results[0].bookmarkBy = [];
+                        }
+                        for (var j = 0; j < results[0].bookmarkBy.length; j++) {
+                        console.log(results[0].bookmarkBy)
+                            results[0].isBookmarked = (results[0].bookmarkBy[j]).toString()==(user.id)?true:false;
+                        }
                         resolve(results);
                     })
                 });
             })
             .then((result) => {
-                console.log(result)
                 StoreModel.findOne({ _id: req.params.id }, function (err, store) {
                     if (err !== null) {
                         new NotFoundError("store not found");
@@ -1949,6 +1962,14 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
+    checkBookmark(stores, userId) {
+        return new Promise(function (resolve, reject) {
+            BookmarkModel.find({$and:[{ userId: userId },{storeId:{$in:stores}}]}).exec(function (err, bookmark) {
+                console.log(bookmark)
+                return resolve( bookmark);
+            })
+        });
+    }
     getMaxViewCount(i, storeId) {
         return new Promise(function (resolve, reject) {
             StoreModel.findOne({ }).select('viewCount').sort({viewCount: -1}).limit(1).exec(function (err, store) {
@@ -1957,12 +1978,13 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
-    getStoreBySearch(req, callback) {
+    getStoreBySearch(user, req, callback) {
         let data = req.body;
         var ObjectID = require('mongodb').ObjectID;
         let query = req.query;
         let mongoQuery = { isActive: true };
         let mainObj = [];
+        var storeIds = [];
         let skip = 0;
         let limit = 10;
         var maxviewcount = 1;
@@ -2049,13 +2071,21 @@ class StoreHandler extends BaseAutoBindedClass {
                         return mainObj;
                     })
                 } else {
+                    for (var i = 0; i < results.length; i++) {
+                        if (results[i].bookmarkBy == undefined) {
+                            results[i].bookmarkBy = [];
+                        }
+                        for (var j = 0; j < results[i].bookmarkBy.length; j++) {
+                            results[i].isBookmarked = (results[i].bookmarkBy[j]).toString()==(user.id)?true:false;
+                        }
+                    }                    
                     return results;
                 }
             }).then((results) => {
                 if (query['search'] || query['category']) {
                     if (results != undefined) {
                         var promises = [];
-                        for (let i = 0; i < results.length; i++) {
+                        for (var i = 0; i < results.length; i++) {
                             promises.push(this.getStoreCatalog(i, results[i]._id));
                         }
                     }
@@ -2072,8 +2102,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             }).then((stores) => {
                 callback.onSuccess(stores);
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 callback.onError(error);
             });
     }

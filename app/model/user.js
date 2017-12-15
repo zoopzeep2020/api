@@ -22,6 +22,10 @@ let UserSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Store'
     },
+    bookmarkStores: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'store'
+    }],
     salt: {
         type: String,
         // required: true

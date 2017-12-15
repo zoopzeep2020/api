@@ -1,8 +1,10 @@
+
 /**
  * Created by WebrexStudio on 5/13/17.
  */
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -223,15 +225,28 @@ class BookmarkHandler extends BaseAutoBindedClass {
                         if (!store) {
                             new NotFoundError("store not found");
                         } else {
+                            store.bookmarkBy.push(req.body.userId);
                             store.bookmarkCount = store.bookmarkCount + 1;
                             store.save();
+                        }
+                    }
+                })
+                UserModel.findOne({ _id: req.body.userId }, function (err, user) {
+                    if (err !== null) {
+                        new NotFoundError("user not found");
+                    } else {
+                        if (!user) {
+                            new NotFoundError("user not found");
+                        } else {
+                            user.bookmarkStores.push(req.body.storeId);
+                            user.save();
                         }
                     }
                 })
                 callback.onSuccess(saved);
             })
             .catch((error) => {
-                callback.onError(error);
+                callback.onError(error); 
             });
     }
 

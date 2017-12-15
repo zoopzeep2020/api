@@ -22,6 +22,10 @@ let StoreSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'keyword'
     }],
+    bookmarkBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
+    }],
     featureCatalog: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'catalog'
