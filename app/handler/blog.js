@@ -485,7 +485,6 @@ class BlogHandler extends BaseAutoBindedClass {
                 }
             },
             function (data, done, err) {
-                console.log(files['authorImage'] )
                 if (files != undefined && typeof files['authorImage'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
                         var fileName = files['authorImage'].originalname.replace(/\s+/g, '-').toLowerCase();
@@ -591,7 +590,6 @@ class BlogHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function (resolve, reject) {
                     var like = req.body.like;
-                    console.log(like)
                     if (like) {
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),

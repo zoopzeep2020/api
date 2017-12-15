@@ -39,34 +39,6 @@ class HomeHandler extends BaseAutoBindedClass {
 
 
     getHome(req, callback) {
-        // var socket ;
-        // // socket.on('news', function(data) {
-        // //     console.log(data);
-        // // });
-        // io.on('connection', function(socket) {
-        //         console.log('Client connected.');
-        //         // Disconnect listener
-        //         socket.on('disconnect', function() {
-        //             console.log('Client disconnected.');
-        //         });
-        //     });
-        // if( 'serviceWorker' in navigator){
-        //     navigator.serviceWorker
-        //     .register('sw.js')
-        //     .then((reg)=>{
-        //         console.log('Hello there !',reg)
-        //         reg.pushManager.subscribe({
-        //             userVisibleOnly:true
-        //         }).then((sub)=>{
-        //             io.on('connection', function (socket) {
-        //                 socket.emit('news', { hello: 'world' });
-        //                 socket.on('my other event', function (data) {
-        //                     console.log(data);
-        //                 });
-        //             }); 
-        //         })
-        //     })
-        // }
         let data = req.body;
         var queryString = url.parse(req.url, true).search;
         var matchQuery = [];

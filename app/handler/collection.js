@@ -494,7 +494,7 @@ class CollectionHandler extends BaseAutoBindedClass {
         });
     }
 
-    getSingleCollection(req, callback) {
+    getSingleCollection(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -662,6 +662,14 @@ class CollectionHandler extends BaseAutoBindedClass {
                         //     }
                         // },
                     ]).exec(function (err, results) {
+                        for (var i = 0; i < results[0].storesInfo.length; i++) {
+                            if (results[0].storesInfo[i].bookmarkBy == undefined) {
+                                results[0].storesInfo[i].bookmarkBy = [];
+                            }
+                            for (var j = 0; j < results[0].storesInfo[i].bookmarkBy.length; j++) {
+                                results[0].storesInfo[i].isBookmarked = (results[0].storesInfo[i].bookmarkBy[j]).toString()==(user.id)?true:false;
+                            }
+                        }   
                         resolve(results[0]);
 
                     })
@@ -698,7 +706,6 @@ class CollectionHandler extends BaseAutoBindedClass {
         let mongoQuery = {};
         let skip = 0;
         let limit = 10;
-
         for (var key in query) {
             if (key == "searchCollection") {
                 mongoQuery['$or'] = [
@@ -721,27 +728,27 @@ class CollectionHandler extends BaseAutoBindedClass {
             }
         }
         req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    CollectionModel.find(
-                        mongoQuery
-                    ).skip(skip).limit(limit).sort().exec(function (err, results) {
-                        resolve(results);
-                    })
+        .then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            })
-            .then((collections) => {
-                callback.onSuccess(collections);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
+                CollectionModel.find(
+                    mongoQuery
+                ).skip(skip).limit(limit).sort().exec(function (err, results) {
+                    resolve(results);
+                })
             });
+        })
+        .then((collections) => {
+            callback.onSuccess(collections);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     // getSearchByQuery(req, callback) {
@@ -1052,6 +1059,7 @@ class CollectionHandler extends BaseAutoBindedClass {
             return p;
         }, {});
     }
+
     noNaN(n) { return isNaN(n) ? 0 : n; }
 }
 

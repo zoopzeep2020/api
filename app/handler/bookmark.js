@@ -464,7 +464,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
                 });
             })
             .then((bookmark) => {
-                console.log(bookmark)
                 for(var i=0;i<bookmark.length;i++){
                     bookmark[i].isBookmarked = true
                     // bookmark[i].save()
@@ -492,7 +491,6 @@ class BookmarkHandler extends BaseAutoBindedClass {
             })
         })
         .then((bookmark) => {
-            console.log(bookmark)
             for(var i=0;i<bookmark.length;i++){
                 bookmark[i].isBookmarked = (user.id==bookmark[i].userId)
                 bookmark[i].save()

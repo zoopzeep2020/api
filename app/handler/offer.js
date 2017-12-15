@@ -1231,7 +1231,6 @@ class OfferHandler extends BaseAutoBindedClass {
             callback.onSuccess(offer);
         })
         .catch((error) => {
-            console.log(error)
             callback.onError(error);
         });
     }

@@ -342,12 +342,11 @@ class MylistHandler extends BaseAutoBindedClass {
                 });
             })
             .then((mylist) => {
-                console.log('mylist',mylist)
                 var temp = []
                 for (var key in data) {
                     if (key == 'stores') {
                         var concatedArray = mylist[key].concat(data[key])
-                        for (var i=0;i<concatedArray.length;i++) {
+                        for (var i=0 ; i < concatedArray.length ; i++) {
                             if (temp.indexOf(concatedArray[i].toString()) == -1) {
                                 temp.push(concatedArray[i].toString()); 
                             }
@@ -444,7 +443,7 @@ class MylistHandler extends BaseAutoBindedClass {
                     },
                     ]).exec(function(err, results){
                         for (var i = 0; i < results[0]['storesInfo'].length; i++) {
-                            if(results[0]['storesInfo'][i][0]==undefined)
+                            if(results[0]['storesInfo'][i][0] == undefined)
                             {
                                 results[0]['storesInfo'][i][0] = {}
                             }

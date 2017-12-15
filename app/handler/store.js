@@ -1182,7 +1182,6 @@ class StoreHandler extends BaseAutoBindedClass {
                             results[0].bookmarkBy = [];
                         }
                         for (var j = 0; j < results[0].bookmarkBy.length; j++) {
-                        console.log(results[0].bookmarkBy)
                             results[0].isBookmarked = (results[0].bookmarkBy[j]).toString()==(user.id)?true:false;
                         }
                         resolve(results);
@@ -1962,22 +1961,23 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
+    
     checkBookmark(stores, userId) {
         return new Promise(function (resolve, reject) {
             BookmarkModel.find({$and:[{ userId: userId },{storeId:{$in:stores}}]}).exec(function (err, bookmark) {
-                console.log(bookmark)
                 return resolve( bookmark);
             })
         });
     }
+
     getMaxViewCount(i, storeId) {
         return new Promise(function (resolve, reject) {
             StoreModel.findOne({ }).select('viewCount').sort({viewCount: -1}).limit(1).exec(function (err, store) {
-                console.log(store)
                 return resolve([i, store]);
             })
         });
     }
+
     getStoreBySearch(user, req, callback) {
         let data = req.body;
         var ObjectID = require('mongodb').ObjectID;

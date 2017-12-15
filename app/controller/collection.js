@@ -18,12 +18,21 @@ class CollectionController extends BaseController {
 
     get(req, res, next) {
         let responseManager = this._responseManager;
-        this.basicAuthenticate(req, res, () => {
-            this._collectionHandler.getSingleCollection(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-            })));
-        });
+        if (req.headers['authorization']=="maximumvsminimumsecurity") {
+            this.basicAuthenticate(req, res, () => {
+                this._collectionHandler.getSingleCollection("userisnotsdefined", req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                })));
+            });
+        } else {
+            this.authenticate(req, res, next, (token, user) => {
+                this._collectionHandler.getSingleCollection(user, req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                })));
+            });
+        }
     }
 
     getCollectionBySearch(req, res, next) {

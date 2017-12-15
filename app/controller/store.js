@@ -36,7 +36,6 @@ class StoreController extends BaseController {
                 })));
             });
         }
-        
     }
     getStoreByCategoryId(req, res, next) {
         let responseManager = this._responseManager;
@@ -47,6 +46,7 @@ class StoreController extends BaseController {
             })));
         });
     }
+
     getStoreBySearch(req, res, next) {
         let responseManager = this._responseManager;
         if (req.headers['authorization']=="maximumvsminimumsecurity") {
@@ -88,9 +88,9 @@ class StoreController extends BaseController {
 
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && (user.storeId == req.body.storeId) && (user.storeId == req.params.id))){  
+            if (user.isAdmin || (user.isStore && (user.storeId == req.body.storeId) && (user.storeId == req.params.id))) {  
                 this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));
-            }else{
+            } else {
                 this._responseManager.respondWithError(res, 404, "access not allow");
             } 
         });        
@@ -98,9 +98,9 @@ class StoreController extends BaseController {
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin || (user.isStore && user.storeId == req.params.id)){  
+            if (user.isAdmin || (user.isStore && user.storeId == req.params.id)) {  
                 this._storeHandler.deleteStore(req, this._responseManager.getDefaultResponseHandler(res));            
-            }else{
+            } else {
                 this._responseManager.respondWithError(res, 404, "access not allow")                        
             } 
         });

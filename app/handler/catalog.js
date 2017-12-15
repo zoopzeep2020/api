@@ -301,9 +301,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {
-                                console.log("files",files);
-                            });
+                            }).then(files => {});
                             req.body.catalogUrl = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -431,9 +429,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {
-                                console.log("files",files);
-                            });
+                            }).then(files => {});
                             req.body.catalogUrl = targetDir + fileName;
                             let data = req.body;
                             done(err, data);

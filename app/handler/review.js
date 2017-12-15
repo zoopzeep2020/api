@@ -6,6 +6,7 @@ const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+const AlreadyExistsError = require(APP_ERROR_PATH + 'already-exists');
 
 class ReviewHandler extends BaseAutoBindedClass {
     constructor() {
@@ -263,7 +264,15 @@ class ReviewHandler extends BaseAutoBindedClass {
                 return new ReviewModel(ModelData);
             })
             .then((ModelData) => {
-                return ModelData;
+                return new Promise(function (resolve, reject) {
+                    ReviewModel.findOne({$and:[{ userId: req.body.userId },{ storeId: req.body.storeId }]}, function (err, review) {
+                        if (review) {
+                            reject(new AlreadyExistsError("you have already reviewed this store"));
+                        } else {
+                            resolve(ModelData);
+                        }
+                    })
+                });
             })
             .then((saved) => {
                 ReviewModel.findOne({ _id: req.params.id }, function (err, review) {

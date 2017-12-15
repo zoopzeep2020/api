@@ -510,7 +510,6 @@ class CityHandler extends BaseAutoBindedClass {
                 //         object['location']=location
                 //         cityUdated.push(object)
                 // }
-                // console.log(cityUdated)
                 callback.onSuccess(city);
             })
             .catch((error) => {
