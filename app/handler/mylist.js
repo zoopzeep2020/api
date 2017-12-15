@@ -424,6 +424,7 @@ class MylistHandler extends BaseAutoBindedClass {
                                 storeBanner:1,
                                 avgRating:1,
                                 address:1,      
+                                bookmarkBy:1,      
                                 catalogsInfo: {
                                     $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
                                 },  
@@ -442,6 +443,18 @@ class MylistHandler extends BaseAutoBindedClass {
                         },
                     },
                     ]).exec(function(err, results){
+                        for (var i = 0; i < results[0]['storesInfo'].length; i++) {
+                            if(results[0]['storesInfo'][i][0]==undefined)
+                            {
+                                results[0]['storesInfo'][i][0] = {}
+                            }
+                            if (results[0]['storesInfo'][i][0].bookmarkBy == undefined) {
+                                results[0]['storesInfo'][i][0].bookmarkBy = [];
+                            }
+                            for (var j = 0; j < results[0]['storesInfo'][i][0].bookmarkBy.length; j++) {
+                                results[0]['storesInfo'][i][0].isBookmarked = (results[0]['storesInfo'][i][0].bookmarkBy[j]).toString()==(req.params.id)?true:false;
+                            }
+                        }   
                         resolve(results);
                     })
                 });
@@ -486,7 +499,7 @@ class MylistHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     getSingleMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
@@ -500,76 +513,76 @@ class MylistHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function(resolve, reject) {
                     MylistModel.aggregate(
-                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
-                        {
-                            $unwind: {
-                                path: "$stores",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "stores",
-                                "foreignField": "_id",
-                                "as": "storesInfo"
-                            }
-                        }, 
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "stores",
-                                "foreignField": "storeId",
-                                "as": "catalogsInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storesInfo.featureCatalog",
-                                "foreignField": "_id",
-                                "as": "featureCatalog"
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: 1,
-                                listName: 1,
-                                userId: 1,
-                                storesInfo:{
-                                     _id: 1,
-                                    storeName:1,
-                                    storeLogo:1,
-                                    storeBanner:1,
-                                    avgRating:1,
-                                    address:1,      
-                                    catalogsInfo: {
-                                        $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
-                                    },  
-                                    featureCatalog: {
-                                        $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
-                                    },                 
-                                },
-                            }
-                        },
-                        {
-                            $group: {
-                                _id : "$_id",
-                                listName : { $first : "$listName"},
-                                userId : { $first : "$userId"},
-                                storesInfo:{ $addToSet: '$storesInfo' },
+                    { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                    {
+                        $unwind: {
+                            path: "$stores",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'stores',
+                            "localField": "stores",
+                            "foreignField": "_id",
+                            "as": "storesInfo"
+                        }
+                    }, 
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "stores",
+                            "foreignField": "storeId",
+                            "as": "catalogsInfo"
+                        }
+                    },
+                    {
+                        "$lookup": {
+                            "from": 'catalogs',
+                            "localField": "storesInfo.featureCatalog",
+                            "foreignField": "_id",
+                            "as": "featureCatalog"
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            listName: 1,
+                            userId: 1,
+                            storesInfo:{
+                                    _id: 1,
+                                storeName:1,
+                                storeLogo:1,
+                                storeBanner:1,
+                                avgRating:1,
+                                address:1,      
+                                catalogsInfo: {
+                                    $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
+                                },  
+                                featureCatalog: {
+                                    $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
+                                },                 
                             },
+                        }
+                    },
+                    {
+                        $group: {
+                            _id : "$_id",
+                            listName : { $first : "$listName"},
+                            userId : { $first : "$userId"},
+                            storesInfo:{ $addToSet: '$storesInfo' },
                         },
-                        function(err, mylist) {
-                            if (err !== null) {
-                                reject(err);
+                    },
+                    function(err, mylist) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!mylist) {
+                                reject(new NotFoundError("mylist not found"));
                             } else {
-                                if (!mylist) {
-                                    reject(new NotFoundError("mylist not found"));
-                                } else {
-                                    resolve(mylist);
-                                }
+                                resolve(mylist);
                             }
+                        }
                     })
                 });
             })
