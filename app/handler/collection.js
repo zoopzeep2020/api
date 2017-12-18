@@ -605,6 +605,7 @@ class CollectionHandler extends BaseAutoBindedClass {
                                 cityName : { $first : "$collectionInfo.cityName"},
                                 buisnessOnline : { $first : "$collectionInfo.buisnessOnline"},
                                 buisnessOffline : { $first : "$collectionInfo.buisnessOffline"},
+                                collectionPicture : { $first : "$collectionInfo.collectionPicture"},
                                 storesInfo: { $addToSet: '$storesInfo' },
                                 offerInfo: { $addToSet: '$offerInfo' },
                                 //     catalogInfo: { $addToSet: '$catalogInfo' },
