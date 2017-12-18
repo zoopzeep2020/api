@@ -296,7 +296,7 @@ class CollectionHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['collectionPicture'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['collectionPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['collectionPicture'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['collectionPicture'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -408,7 +408,7 @@ class CollectionHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['collectionPicture'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['collectionPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['collectionPicture'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['collectionPicture'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -558,14 +558,14 @@ class CollectionHandler extends BaseAutoBindedClass {
                         //         "as": "featureCatalogInfo"
                         //     }
                         // },
-                        // {
-                        //     "$lookup": {
-                        //         "from": 'collections',
-                        //         "localField": "_id",
-                        //         "foreignField": "_id",
-                        //         "as": "collectionInfo"
-                        //     }
-                        // },
+                        {
+                            "$lookup": {
+                                "from": 'collections',
+                                "localField": "_id",
+                                "foreignField": "_id",
+                                "as": "collectionInfo"
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$storesInfo",
@@ -584,12 +584,12 @@ class CollectionHandler extends BaseAutoBindedClass {
                         //         preserveNullAndEmptyArrays: true
                         //     }
                         // },
-                        // {
-                        //     $unwind: {
-                        //         path: "$collectionInfo",
-                        //         preserveNullAndEmptyArrays: false
-                        //     }
-                        // },
+                        {
+                            $unwind: {
+                                path: "$collectionInfo",
+                                preserveNullAndEmptyArrays: false
+                            }
+                        },
                         // {
                         //     $unwind: {
                         //         path: "$featureCatalogInfo",
@@ -599,7 +599,12 @@ class CollectionHandler extends BaseAutoBindedClass {
                         {
                             $group: {
                                 _id: "$_id",
-                                //   collectionInfo: { $addToSet: '$collectionInfo' },
+                                collectionName: "$_id",
+                                collectionName : { $first : "$collectionInfo.collectionName"},
+                                collectionType : { $first : "$collectionInfo.collectionType"},
+                                cityName : { $first : "$collectionInfo.cityName"},
+                                buisnessOnline : { $first : "$collectionInfo.buisnessOnline"},
+                                buisnessOffline : { $first : "$collectionInfo.buisnessOffline"},
                                 storesInfo: { $addToSet: '$storesInfo' },
                                 offerInfo: { $addToSet: '$offerInfo' },
                                 //     catalogInfo: { $addToSet: '$catalogInfo' },

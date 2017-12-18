@@ -211,7 +211,7 @@ class CategoryHandler extends BaseAutoBindedClass {
             function(done, err) {
                 if(typeof files['categoryImage'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['categoryImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['categoryImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['categoryImage'].path, targetDir + fileName, function(err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -232,7 +232,7 @@ class CategoryHandler extends BaseAutoBindedClass {
             function(data, done, err) {
                 if(typeof files['categoryActiveImage'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['categoryActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['categoryActiveImage'].originalname.replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['categoryActiveImage'].path, targetDir + fileName, function(err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -343,7 +343,7 @@ class CategoryHandler extends BaseAutoBindedClass {
             function(done, err) {
                 if(typeof files['categoryImage'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['categoryImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['categoryImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['categoryImage'].path, targetDir + fileName, function(err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -364,7 +364,7 @@ class CategoryHandler extends BaseAutoBindedClass {
             function(data, done, err) {
                 if(typeof files['categoryActiveImage'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['categoryActiveImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['categoryActiveImage'].originalname.replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['categoryActiveImage'].path, targetDir + fileName, function(err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [

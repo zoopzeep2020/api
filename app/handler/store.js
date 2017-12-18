@@ -536,7 +536,7 @@ class StoreHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (files != undefined && typeof files['storeLogo'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['storeLogo'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['storeLogo'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeLogo'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -556,7 +556,7 @@ class StoreHandler extends BaseAutoBindedClass {
             function (data, done, err) {
                 if (files != undefined && typeof files['storeBanner'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['storeBanner'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['storeBanner'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['storeBanner'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [

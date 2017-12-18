@@ -225,7 +225,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
             function(done, err) {
                 if(typeof files['feedbackImage'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['feedbackImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['feedbackImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['feedbackImage'].path, targetDir + fileName, function(err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -330,7 +330,7 @@ class FeedbackHandler extends BaseAutoBindedClass {
             function(done, err) {
                 if(typeof files['feedbackImage'] !== "undefined"){
                     mkdirp(targetDir, function(err) {
-                        var fileName = files['feedbackImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['feedbackImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['feedbackImage'].path, targetDir + fileName, function(err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [

@@ -426,7 +426,7 @@ class OfferHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['offerPicture'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['offerPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['offerPicture'].originalname.trim().replace(/[^\w\.]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['offerPicture'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -610,7 +610,7 @@ class OfferHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['offerPicture'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['offerPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['offerPicture'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['offerPicture'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -1106,6 +1106,8 @@ class OfferHandler extends BaseAutoBindedClass {
                         flatDiscount: { $first: '$flatDiscount' },
                         startDate: { $first: '$startDate' },
                         endDate: { $first: '$endDate' },
+                        offerOffline: { $first: '$offerOffline' },
+                        offerOnline: { $first: '$offerOnline' },
                         isSave: { $max: '$isSave' },
                         isClaimedByMe: { $max: '$isClaimedByMe' }
                     }

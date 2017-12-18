@@ -294,7 +294,7 @@ class CatalogHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['catalogUrl'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['catalogUrl'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['catalogUrl'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -422,7 +422,7 @@ class CatalogHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['catalogUrl'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['catalogUrl'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['catalogUrl'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['catalogUrl'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [

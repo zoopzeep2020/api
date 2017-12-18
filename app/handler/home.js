@@ -21,8 +21,6 @@ class HomeHandler extends BaseAutoBindedClass {
         this._validator = require('validator');
     }
 
-
-
     requestAsync(req, url, type) {
         return new Promise(function (resolve, reject) {
             var URLStore = url;
@@ -36,7 +34,6 @@ class HomeHandler extends BaseAutoBindedClass {
             });
         });
     }
-
 
     getHome(req, callback) {
         let data = req.body;

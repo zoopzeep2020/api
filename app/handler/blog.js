@@ -331,7 +331,7 @@ class BlogHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['blogPicture'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['blogPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['blogPicture'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['blogPicture'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -352,7 +352,7 @@ class BlogHandler extends BaseAutoBindedClass {
             function (data, done, err) {
                 if (typeof files['authorImage'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['authorImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['authorImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['authorImage'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -393,7 +393,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         return new BlogModel(data);
                     })
                     .then((blog) => {
-                        blog.URL = req.body.title.trim().toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
+                        blog.URL = req.body.title.trim().toLowerCase().replace(/[^\w\. ]+/g, '').replace(/ +/g, '-');
                         blog.likeCount = 0
                         blog.saveCount = 0
                         blog.save();
@@ -466,7 +466,7 @@ class BlogHandler extends BaseAutoBindedClass {
             function (done, err) {
                 if (typeof files['blogPicture'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['blogPicture'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['blogPicture'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['blogPicture'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
@@ -487,7 +487,7 @@ class BlogHandler extends BaseAutoBindedClass {
             function (data, done, err) {
                 if (files != undefined && typeof files['authorImage'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['authorImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['authorImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['authorImage'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [

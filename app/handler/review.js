@@ -290,7 +290,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                             }
                         }
                     })
-                })
+                })  
 
                 saved.save();
                 callback.onSuccess(saved);

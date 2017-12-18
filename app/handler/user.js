@@ -797,7 +797,7 @@ class UserHandler {
             function (done, err) {
                 if (files != undefined && typeof files['userImage'] !== "undefined") {
                     mkdirp(targetDir, function (err) {
-                        var fileName = files['userImage'].originalname.replace(/\s+/g, '-').toLowerCase();
+                        var fileName = files['userImage'].originalname.trim().replace(/[^\w\. ]+/g, '').replace(/\s+/g, '-').toLowerCase();
                         fs.rename(files['userImage'].path, targetDir + fileName, function (err) {
                             imagemin([targetDir + fileName], targetDir, {
                                 plugins: [
