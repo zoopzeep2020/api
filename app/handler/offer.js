@@ -433,7 +433,7 @@ class OfferHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.offerPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -617,7 +617,7 @@ class OfferHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.offerPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -1007,14 +1007,14 @@ class OfferHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.offerId),
                             'savedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                        {
-                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        }, { 'new': true, 'multi': true }).exec(function (err, offer) {
-                            offer.saveCount = offer.saveCount - 1;
-                            offer.isSave = save;
-                            offer.save()
-                            resolve(offer);
-                        })
+                            {
+                                "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                            }, { 'new': true, 'multi': true }).exec(function (err, offer) {
+                                offer.saveCount = offer.saveCount - 1;
+                                offer.isSave = save;
+                                offer.save()
+                                resolve(offer);
+                            })
                     }
 
                 });
@@ -1213,28 +1213,66 @@ class OfferHandler extends BaseAutoBindedClass {
             });
     }
 
-    getAllWithoutLogin(user, req, callback) {
-        new Promise(function (resolve, reject) {
-            OfferModel.find({},
-                function (err, offer) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        if (!offer) {
-                            reject(new NotFoundError("Offer not found"));
-                        } else {
-                            resolve(offer);
-                        }
-                    }
+    getAllWithoutLogin(req, callback) {
+        let query = req.query;
+        let mongoQuery = {};
+        let skip = 0;
+        let limit = 10;
+
+        for (var key in query) {
+            if (key == "offerOnline") {
+                mongoQuery['offerOnline'] = ('true' === query[key]);
+            } else if (key == "offerOffline") {
+                mongoQuery['offerOffline'] = ('true' === query[key]);
+            } else if (key == "startOffers") {
+                skip = parseInt(query[key]);
+            } else if (key == "endOffers") {
+                limit = parseInt(query[key]) - skip + 1;
+            }
+        }
+
+        console.log(mongoQuery);
+
+        req.getValidationResult()
+            .then(function (result) {
+                if (!result.isEmpty()) {
+                    let errorMessages = result.array().map(function (elem) {
+                        return elem.msg;
+                    });
+                    throw new ValidationError(errorMessages);
                 }
-            );
-        })
-        .then((offer) => {
-            callback.onSuccess(offer);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+                return new Promise(function (resolve, reject) {
+                    OfferModel.find(mongoQuery).skip(skip).limit(limit).sort().lean().exec(function (err, results) {
+                        resolve(results);
+                    })
+                });
+            }).then((Offers) => {
+                callback.onSuccess(Offers);
+            }).catch((error) => {
+                callback.onError(error);
+            });
+
+        // new Promise(function (resolve, reject) {
+        //     OfferModel.find({},
+        //         function (err, offer) {
+        //             if (err !== null) {
+        //                 reject(err);
+        //             } else {
+        //                 if (!offer) {
+        //                     reject(new NotFoundError("Offer not found"));
+        //                 } else {
+        //                     resolve(offer);
+        //                 }
+        //             }
+        //         }
+        //     );
+        // })
+        //     .then((offer) => {
+        //         callback.onSuccess(offer);
+        //     })
+        //     .catch((error) => {
+        //         callback.onError(error);
+        //     });
     }
 
     objectify(array) {
@@ -1244,13 +1282,13 @@ class OfferHandler extends BaseAutoBindedClass {
         }, {});
     }
 
-    getDDMMMYYYY(date1){
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June", 
-        "July", "Aug","Sept", "Oct", "Nov", "Dec"];
+    getDDMMMYYYY(date1) {
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
         var new_date = new Date(date1);
-        var dateStr = new_date.getDate() +' '
-                    + months[new_date.getMonth()] +' '
-                    + new_date.getFullYear();
+        var dateStr = new_date.getDate() + ' '
+            + months[new_date.getMonth()] + ' '
+            + new_date.getFullYear();
         return dateStr;
     }
 }

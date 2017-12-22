@@ -246,7 +246,7 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         let ModelData = {};
-        req.checkBody('ratingScale', 'rating Scale should be between 1 to 5').notEmpty().checkNumberRange(req.body.ratingScale, 1, 5);
+        req.checkBody('ratingScale', 'rating Scale required').notEmpty();
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -265,7 +265,7 @@ class ReviewHandler extends BaseAutoBindedClass {
             })
             .then((ModelData) => {
                 return new Promise(function (resolve, reject) {
-                    ReviewModel.findOne({$and:[{ userId: req.body.userId },{ storeId: req.body.storeId }]}, function (err, review) {
+                    ReviewModel.findOne({ $and: [{ userId: req.body.userId }, { storeId: req.body.storeId }] }, function (err, review) {
                         if (review) {
                             reject(new AlreadyExistsError("you have already reviewed this store"));
                         } else {
@@ -290,7 +290,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                             }
                         }
                     })
-                })  
+                })
 
                 saved.save();
                 callback.onSuccess(saved);
@@ -360,10 +360,7 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        if (req.body.ratingScale != undefined) {
-            req.checkBody('ratingScale', 'rating Scale should be between 1 to 5').notEmpty().checkNumberRange(req.body.ratingScale, 1, 5);
-        }
-        
+        req.checkBody(ReviewHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -452,7 +449,7 @@ class ReviewHandler extends BaseAutoBindedClass {
             .then((review) => {
                 var datecreated;
                 datecreated = review.dateCreated;
-                review.timeDifference = this.timeago(datecreated)
+                review.timeDifference = this.getDDMMMYYYY(datecreated)
                 review.save();
                 callback.onSuccess(review);
             })
@@ -492,7 +489,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                 var datecreated;
                 for (var i = 0; i < review.length; i++) {
                     datecreated = review[i].dateCreated;
-                    review[i].timeDifference = this.timeago(datecreated)
+                    review[i].timeDifference = this.getDDMMMYYYY(datecreated)
                     review[i].save();
                 }
                 callback.onSuccess(review);
@@ -534,7 +531,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                 var datecreated;
                 for (var i = 0; i < review.length; i++) {
                     datecreated = review[i].dateCreated;
-                    review[i].timeDifference = this.timeago(datecreated)
+                    review[i].timeDifference = this.getDDMMMYYYY(datecreated)
                     review[i].save();
                 }
                 callback.onSuccess(review);
@@ -565,7 +562,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                 var datecreated;
                 for (var i = 0; i < review.length; i++) {
                     datecreated = review[i].dateCreated;
-                    review[i].timeDifference = this.timeago(datecreated)
+                    review[i].timeDifference = this.getDDMMMYYYY(datecreated)
                     review[i].save();
                 }
                 callback.onSuccess(review);
@@ -573,6 +570,16 @@ class ReviewHandler extends BaseAutoBindedClass {
             .catch((error) => {
                 callback.onError(error);
             });
+    }
+
+    getDDMMMYYYY(date1) {
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+        var new_date = new Date(date1);
+        var dateStr = new_date.getDate() + ' '
+            + months[new_date.getMonth()] + ' '
+            + new_date.getFullYear();
+        return dateStr;
     }
 
     timeago(nd, s) {
