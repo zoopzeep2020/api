@@ -246,7 +246,7 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         let ModelData = {};
-        req.checkBody('ratingScale', 'rating Scale required').notEmpty();
+        req.checkBody('ratingScale', 'rating Scale should be between 1 to 5').notEmpty().checkNumberRange(req.body.ratingScale, 1, 5);
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -360,7 +360,10 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.checkBody(ReviewHandler.KEYWORD_VALIDATION_SCHEME);
+        if (req.body.ratingScale != undefined) {
+            req.checkBody('ratingScale', 'rating Scale should be between 1 to 5').notEmpty().checkNumberRange(req.body.ratingScale, 1, 5);
+        }
+        
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {

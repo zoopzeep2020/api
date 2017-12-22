@@ -810,9 +810,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     StoreModel.aggregate([
                         { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
                         {
-                            "$match": { "isActive": 1 == 1 }
-                        },
-                        {
                             "$lookup": {
                                 "from": 'stores',
                                 "localField": "_id",
@@ -1178,30 +1175,36 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         },
                     ]).exec(function (err, results) {
-                        if (results[0].bookmarkBy == undefined) {
-                            results[0].bookmarkBy = [];
-                        }
-                        for (var j = 0; j < results[0].bookmarkBy.length; j++) {
-                            results[0].isBookmarked = (results[0].bookmarkBy[j]).toString()==(user.id)?true:false;
+                        if(results.length > 0)
+                        {    
+                            if (results[0].bookmarkBy == undefined) {
+                                results[0].bookmarkBy = [];
+                            }
+                            for (var j = 0; j < results[0].bookmarkBy.length; j++) {
+                                results[0].isBookmarked = (results[0].bookmarkBy[j]).toString()==(user.id)?true:false;
+                            }
                         }
                         resolve(results);
                     })
                 });
             })
             .then((result) => {
-                StoreModel.findOne({ _id: req.params.id }, function (err, store) {
-                    if (err !== null) {
-                        new NotFoundError("store not found");
-                    } else {
-                        if (!store) {
+                if(result.length > 0) { 
+                    StoreModel.findOne({ _id: req.params.id }, function (err, store) {
+                        if (err !== null) {
                             new NotFoundError("store not found");
                         } else {
-                            store.viewCount = store.viewCount + 1;
-                            store.avgRating = result[0].avgRating;
-                            store.save();
+                            if (!store) {
+                                new NotFoundError("store not found");
+                            } else {
+                                
+                                store.viewCount = store.viewCount + 1;
+                                store.avgRating = result[0].avgRating;
+                                store.save();
+                            }
                         }
-                    }
-                })
+                    })
+                }
                 callback.onSuccess(result);
             })
             .catch((error) => {
@@ -1695,7 +1698,9 @@ class StoreHandler extends BaseAutoBindedClass {
                                             },
                                             in: { $add: ["$avgRating", "$$total"] }
                                         }
-                                    }
+                                    },
+                                    avgRating: { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
+                                    
                                 }
                             },
                             {
@@ -1709,7 +1714,8 @@ class StoreHandler extends BaseAutoBindedClass {
                             {
                                 $project: {
                                     storeName: '$storesInfo.storeName',
-                                    avgRating: '$storesInfo.avgRating',
+                                    avgRating: '$avgRating',
+                                    // avgRating: { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
                                     storeBanner: '$storesInfo.storeBanner',
                                     storeDiscription: '$storesInfo.storeDiscription',
                                     storeLogo: '$storesInfo.storeLogo',
@@ -1787,7 +1793,9 @@ class StoreHandler extends BaseAutoBindedClass {
                                             },
                                             in: { $add: ["$avgRating", "$$total"] }
                                         }
-                                    }
+                                    },
+                                    avgRating: { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
+                                    
                                 }
                             },
                             {
@@ -1801,7 +1809,8 @@ class StoreHandler extends BaseAutoBindedClass {
                             {
                                 $project: {
                                     storeName: '$storesInfo.storeName',
-                                    avgRating: '$storesInfo.avgRating',
+                                    avgRating: '$avgRating',
+                                    // avgRating: { $divide: [{ $subtract: [{ $multiply: ['$storesInfo.avgRating', 10] }, { $mod: [{ $multiply: ["$storesInfo.avgRating", 10] }, 1] },] }, 10] },
                                     storeBanner: '$storesInfo.storeBanner',
                                     storeDiscription: '$storesInfo.storeDiscription',
                                     storeLogo: '$storesInfo.storeLogo',

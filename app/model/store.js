@@ -59,7 +59,6 @@ let StoreSchema = new Schema({
     dateModified: { type: Date, default: Date.now },
 });
 
-
 StoreSchema.index({ storeDiscription: 'text', storeName: 'text' });
 
 StoreSchema.pre('update', function (next, done) {
