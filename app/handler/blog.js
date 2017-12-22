@@ -338,7 +338,7 @@ class BlogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.blogPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -359,7 +359,7 @@ class BlogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.authorImage = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -473,7 +473,7 @@ class BlogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.blogPicture = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -494,7 +494,7 @@ class BlogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.authorImage = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -819,6 +819,9 @@ class BlogHandler extends BaseAutoBindedClass {
                 });
             })
             .then((blog) => {
+                for (var i = 0; i < blogs.length; i++) {
+                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+                }
                 callback.onSuccess(blog);
             })
             .catch((error) => {
@@ -900,6 +903,9 @@ class BlogHandler extends BaseAutoBindedClass {
                 });
         })
             .then((blogs) => {
+                for (var i = 0; i < blogs.length; i++) {
+                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+                }
                 callback.onSuccess(blogs);
             })
             .catch((error) => {
@@ -965,6 +971,9 @@ class BlogHandler extends BaseAutoBindedClass {
                 });
         })
             .then((blogs) => {
+                for (var i = 0; i < blogs.length; i++) {
+                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+                }
                 callback.onSuccess(blogs);
             })
             .catch((error) => {
@@ -986,6 +995,9 @@ class BlogHandler extends BaseAutoBindedClass {
                 });
         })
             .then((blogs) => {
+                for (var i = 0; i < blogs.length; i++) {
+                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+                }
                 callback.onSuccess(blogs);
             })
             .catch((error) => {
@@ -1041,7 +1053,7 @@ class BlogHandler extends BaseAutoBindedClass {
             })
             .then((results) => {
                 for (var i = 0; i < results.length; i++) {
-                    results[i].time = this.timeago(results[i].dateCreated)
+                    results[i].time = this.getDDMMMYYYY(results[i].dateCreated)
                 }
                 callback.onSuccess(results);
             })
@@ -1071,7 +1083,7 @@ class BlogHandler extends BaseAutoBindedClass {
             })
             .then((results) => {
                 for (var i = 0; i < results.length; i++) {
-                    results[i].time = this.timeago(results[i].dateCreated)
+                    results[i].time = this.getDDMMMYYYY(results[i].dateCreated)
                 }
                 callback.onSuccess(results);
             })
@@ -1090,6 +1102,16 @@ class BlogHandler extends BaseAutoBindedClass {
     }
 
     noNaN(n) { return isNaN(n) ? 0 : n; }
+
+    getDDMMMYYYY(date1) {
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+        var new_date = new Date(date1);
+        var dateStr = new_date.getDate() + ' '
+            + months[new_date.getMonth()] + ' '
+            + new_date.getFullYear();
+        return dateStr;
+    }
 
     timeago(nd, s) {
         var o = {

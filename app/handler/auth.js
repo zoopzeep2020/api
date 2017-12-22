@@ -23,11 +23,11 @@ class AuthHandler extends BaseAutoBindedClass {
         this._authManager = require(APP_MANAGER_PATH + 'auth');
     }
 
-    issueNewToken( user, req, callback) {
+    issueNewToken(user, req, callback) {
         let that = this;
-        if (user != null) {
-            user.cityName = ""
-        }
+        // if (user != null) {
+        //     user.cityName = "";
+        // }
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -65,10 +65,10 @@ class AuthHandler extends BaseAutoBindedClass {
                     }
                 }
             }).then((results) => {
-                
+
                 if (user) {
                     // if (user != null)
-                        // user.save();
+                    // user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,
@@ -154,7 +154,7 @@ class AuthHandler extends BaseAutoBindedClass {
             }).then((user) => {
                 if (user) {
                     // if (user != null)
-                        // user.save();
+                    // user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,
@@ -220,7 +220,7 @@ class AuthHandler extends BaseAutoBindedClass {
         // .catch((error) => {
         //     callback.onError(error);
         // });
-
+        console.log(req.body.email);
         async.waterfall([
             function (done) {
                 crypto.randomBytes(20, function (err, buf) {
@@ -273,7 +273,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 smtpTransport.sendMail(mailOptions, function (err) {
                     if (err) return done(new NotFoundError(err));
                     return callback.onSuccess({
-                        "response" : 'An e-mail has been sent to ' + user.email + ' with further instructions.'});
+                        "response": 'An e-mail has been sent to ' + user.email + ' with further instructions.'
+                    });
                 });
             }
         ], function (err, result) {
