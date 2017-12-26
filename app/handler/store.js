@@ -1211,7 +1211,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 return result;
             })
             .then((result) => {
-                if(result.length > 0 ) { 
+                if((user != "userisnotdefined") && (result.length > 0) ) { 
                     return new Promise(function (resolve, reject) {
                         BookmarkModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, bookmark) {
                             if (err !== null) {
@@ -1225,8 +1225,8 @@ class StoreHandler extends BaseAutoBindedClass {
                 )}
                 return result;                
             })
-            .then((result) => {                
-                if(result.length > 0 ) { 
+            .then((result) => {
+                if((user != "userisnotdefined") && (result.length > 0) ) {                 
                     result[0].isRatedByMe = false
                     return new Promise(function (resolve, reject) {
                         ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
@@ -1245,7 +1245,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 
             })
             .then((result) => {
-                if(result.length > 0 ) { 
+                if((user != "userisnotdefined") && (result.length > 0) ) { 
                     result[0].isRatedByMe = false
                     return new Promise(function (resolve, reject) {
                         ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
@@ -1262,7 +1262,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 return result;                    
             })
             .then((result) => {
-                if(result.length > 0 ) { 
+                if((user != "userisnotdefined") && (result.length > 0) ) { 
                     result[0].isAddedToList = false
                     return new Promise(function (resolve, reject) {
                         MylistModel.find({$and:[{ userId: user.id },{stores:{$in:[req.params.id]}}]}, function (err, mylist) {
