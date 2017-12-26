@@ -1217,8 +1217,13 @@ class StoreHandler extends BaseAutoBindedClass {
                             if (err !== null) {
                                 reject(err);
                             } else {
-                                result[0].bookmarkId = bookmark.id
-                                resolve(result);
+                                if(bookmark == null){
+                                    result[0].bookmarkId = null
+                                    resolve(result);
+                                } else {
+                                    result[0].bookmarkId = bookmark.id
+                                    resolve(result);   
+                                }
                             }
                         })
                     }
@@ -1236,9 +1241,15 @@ class StoreHandler extends BaseAutoBindedClass {
                             if (err !== null) {
                                 reject(err);
                             } else {
-                                result[0].isRatedByMe = true
-                                result[0].ratingScale = review.ratingScale
-                                resolve(result);
+                                if(review != null){
+                                    result[0].isRatedByMe = true
+                                    result[0].ratingScale = review.ratingScale
+                                    resolve(result);
+                                } else {
+                                    result[0].isRatedByMe = false
+                                    result[0].ratingScale = null
+                                    resolve(result);  
+                                }
                             }
                             resolve(result);
                         })
@@ -1266,6 +1277,9 @@ class StoreHandler extends BaseAutoBindedClass {
                                         // result[0].listName.push(mylist[0].listName)
                                         result[0].listDetails.push(mylist[0])
                                     }
+                                }else{
+                                    result[0].isAddedToList = false
+                                    result[0].listDetails = []
                                 }
                                 resolve(result);
                             }
