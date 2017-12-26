@@ -1231,8 +1231,6 @@ class OfferHandler extends BaseAutoBindedClass {
             }
         }
 
-        console.log(mongoQuery);
-
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -1242,7 +1240,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    OfferModel.find(mongoQuery).skip(skip).limit(limit).sort().lean().exec(function (err, results) {
+                    OfferModel.find(mongoQuery).skip(skip).limit(limit).sort().lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, results) {
                         resolve(results);
                     })
                 });

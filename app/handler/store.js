@@ -3,6 +3,8 @@
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
+const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
+
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
@@ -711,6 +713,7 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
+
     /*getSingleStore(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
@@ -795,6 +798,7 @@ class StoreHandler extends BaseAutoBindedClass {
             callback.onError(error);
         });
     }*/
+
     getSingleStore(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
@@ -1175,8 +1179,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         },
                     ]).exec(function (err, results) {
-                        if(results.length > 0)
-                        {    
+                        if(results.length > 0) {    
                             if (results[0].bookmarkBy == undefined) {
                                 results[0].bookmarkBy = [];
                             }
@@ -1197,7 +1200,6 @@ class StoreHandler extends BaseAutoBindedClass {
                             if (!store) {
                                 new NotFoundError("store not found");
                             } else {
-                                
                                 store.viewCount = store.viewCount + 1;
                                 store.avgRating = result[0].avgRating;
                                 store.save();
@@ -1205,7 +1207,79 @@ class StoreHandler extends BaseAutoBindedClass {
                         }
                     })
                 }
-                callback.onSuccess(result);
+                return result;
+            })
+            .then((result) => {
+                if(result.length > 0) { 
+                    return new Promise(function (resolve, reject) {
+                        BookmarkModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, bookmark) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                result[0].bookmarkId = bookmark.id
+                                resolve(result);
+                            }
+                        })
+                    }
+                )}
+            })
+            .then((result) => {
+                if(result.length > 0) { 
+                    result[0].isRatedByMe = false
+                    return new Promise(function (resolve, reject) {
+                        ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                result[0].isRatedByMe = true
+                                result[0].ratingScale = review.ratingScale
+                                resolve(result);
+                            }
+                        })
+                    }
+                )}
+            })
+            .then((result) => {
+                if(result.length > 0) { 
+                    result[0].isRatedByMe = false
+                    return new Promise(function (resolve, reject) {
+                        ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                result[0].isRatedByMe = true
+                                result[0].ratingScale = review.ratingScale
+                                resolve(result);
+                            }
+                        })
+                    }
+                )}
+            })
+            .then((result) => {
+                if(result.length > 0) { 
+                    result[0].isAddedToList = false
+                    return new Promise(function (resolve, reject) {
+                        MylistModel.find({$and:[{ userId: user.id },{stores:{$in:[req.params.id]}}]}, function (err, mylist) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if(mylist[0]) {
+                                    // result[0].listName = []
+                                    result[0].listId = []
+                                    result[0].isAddedToList = true
+                                    for (var i=0;i<mylist.length;i++) {
+                                        // result[0].listName.push(mylist[0].listName)
+                                        result[0].listId.push(mylist)
+                                    }
+                                }
+                                resolve(result);
+                            }
+                        })
+                    }
+                )}
+            })
+            .then((result) => {
+                callback.onSuccess(result);                
             })
             .catch((error) => {
                 callback.onError(error);
@@ -1258,7 +1332,6 @@ class StoreHandler extends BaseAutoBindedClass {
                                 preserveNullAndEmptyArrays: true
                             }
                         },
-
                         {
                             $match: {
                                 $and: [

@@ -220,7 +220,6 @@ class AuthHandler extends BaseAutoBindedClass {
         // .catch((error) => {
         //     callback.onError(error);
         // });
-        console.log(req.body.email);
         async.waterfall([
             function (done) {
                 crypto.randomBytes(20, function (err, buf) {
