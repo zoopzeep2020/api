@@ -1222,12 +1222,15 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         })
                     }
-                )}
-                return result;                
+                )} else {
+                    result[0].bookmarkId = null;
+                    return result;                
+                }
             })
             .then((result) => {
                 if((user != "userisnotdefined") && (result.length > 0) ) {                 
                     result[0].isRatedByMe = false
+                    result[0].ratingScale = null
                     return new Promise(function (resolve, reject) {
                         ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
                             if (err !== null) {
@@ -1240,30 +1243,17 @@ class StoreHandler extends BaseAutoBindedClass {
                             resolve(result);
                         })
                     }
-                )}
-                return result;                
+                )} else {
+                    result[0].isRatedByMe = false
+                    result[0].ratingScale = null
+                    return result;                
+                }                
                 
             })
             .then((result) => {
                 if((user != "userisnotdefined") && (result.length > 0) ) { 
-                    result[0].isRatedByMe = false
-                    return new Promise(function (resolve, reject) {
-                        ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                result[0].isRatedByMe = true
-                                result[0].ratingScale = review.ratingScale
-                                resolve(result);
-                            }
-                        })
-                    }
-                )}
-                return result;                    
-            })
-            .then((result) => {
-                if((user != "userisnotdefined") && (result.length > 0) ) { 
                     result[0].isAddedToList = false
+                    result[0].listDetails = []
                     return new Promise(function (resolve, reject) {
                         MylistModel.find({$and:[{ userId: user.id },{stores:{$in:[req.params.id]}}]}, function (err, mylist) {
                             if (err !== null) {
@@ -1271,7 +1261,6 @@ class StoreHandler extends BaseAutoBindedClass {
                             } else {
                                 if(mylist[0]) {
                                     // result[0].listName = []
-                                    result[0].listDetails = []
                                     result[0].isAddedToList = true
                                     for (var i=0;i<mylist.length;i++) {
                                         // result[0].listName.push(mylist[0].listName)
@@ -1282,8 +1271,11 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         })
                     }
-                )}
-                return result;                
+                )} else {
+                    result[0].listDetails = []
+                    result[0].isAddedToList = false
+                    return result;                
+                }                  
             })
             .then((result) => {
                 callback.onSuccess(result);                
