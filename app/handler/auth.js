@@ -25,9 +25,10 @@ class AuthHandler extends BaseAutoBindedClass {
 
     issueNewToken(user, req, callback) {
         let that = this;
-        // if (user != null) {
-        //     user.cityName = "";
-        // }
+        if (user != null && user) {
+            
+            user.cityName = "";
+        }
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -65,10 +66,9 @@ class AuthHandler extends BaseAutoBindedClass {
                     }
                 }
             }).then((results) => {
-
                 if (user) {
-                    // if (user != null)
-                    // user.save();
+                    if (user != null)
+                    user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,
@@ -153,8 +153,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 return user;
             }).then((user) => {
                 if (user) {
-                    // if (user != null)
-                    // user.save();
+                    if (user != null)
+                    user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,

@@ -21,9 +21,10 @@ class AuthController extends BaseController {
                 that._authHandler.issueNewToken(user, req, responseManager.getDefaultResponseHandler(res));
             });
         } else {
-            that._authHandler.issueNewTokenWithFbToken(req, responseManager.getDefaultResponseHandler(res));
+            this.authenticate(req, res, next, (user) => {
+                that._authHandler.issueNewTokenWithFbToken(req, responseManager.getDefaultResponseHandler(res));
+            });
         }
-
     }
 
     forgot(req, res, next) {
