@@ -1179,6 +1179,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         },
                     ]).exec(function (err, results) {
+                        
                         if(results.length > 0) {    
                             if (results[0].bookmarkBy == undefined) {
                                 results[0].bookmarkBy = [];
@@ -1210,7 +1211,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 return result;
             })
             .then((result) => {
-                if(result.length > 0) { 
+                if(result.length > 0 ) { 
                     return new Promise(function (resolve, reject) {
                         BookmarkModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, bookmark) {
                             if (err !== null) {
@@ -1222,9 +1223,29 @@ class StoreHandler extends BaseAutoBindedClass {
                         })
                     }
                 )}
+                return result;                
+            })
+            .then((result) => {                
+                if(result.length > 0 ) { 
+                    result[0].isRatedByMe = false
+                    return new Promise(function (resolve, reject) {
+                        ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                result[0].isRatedByMe = true
+                                result[0].ratingScale = review.ratingScale
+                                resolve(result);
+                            }
+                            resolve(result);
+                        })
+                    }
+                )}
+                return result;                
+                
             })
             .then((result) => {
-                if(result.length > 0) { 
+                if(result.length > 0 ) { 
                     result[0].isRatedByMe = false
                     return new Promise(function (resolve, reject) {
                         ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
@@ -1238,25 +1259,10 @@ class StoreHandler extends BaseAutoBindedClass {
                         })
                     }
                 )}
+                return result;                    
             })
             .then((result) => {
-                if(result.length > 0) { 
-                    result[0].isRatedByMe = false
-                    return new Promise(function (resolve, reject) {
-                        ReviewModel.findOne({$and:[{ userId: user.id },{storeId:req.params.id}]}, function (err, review) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                result[0].isRatedByMe = true
-                                result[0].ratingScale = review.ratingScale
-                                resolve(result);
-                            }
-                        })
-                    }
-                )}
-            })
-            .then((result) => {
-                if(result.length > 0) { 
+                if(result.length > 0 ) { 
                     result[0].isAddedToList = false
                     return new Promise(function (resolve, reject) {
                         MylistModel.find({$and:[{ userId: user.id },{stores:{$in:[req.params.id]}}]}, function (err, mylist) {
@@ -1265,11 +1271,11 @@ class StoreHandler extends BaseAutoBindedClass {
                             } else {
                                 if(mylist[0]) {
                                     // result[0].listName = []
-                                    result[0].listId = []
+                                    result[0].listDetails = []
                                     result[0].isAddedToList = true
                                     for (var i=0;i<mylist.length;i++) {
                                         // result[0].listName.push(mylist[0].listName)
-                                        result[0].listId.push(mylist)
+                                        result[0].listDetails.push(mylist[0])
                                     }
                                 }
                                 resolve(result);
@@ -1277,6 +1283,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         })
                     }
                 )}
+                return result;                
             })
             .then((result) => {
                 callback.onSuccess(result);                
