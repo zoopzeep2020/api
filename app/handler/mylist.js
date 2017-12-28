@@ -369,7 +369,6 @@ class MylistHandler extends BaseAutoBindedClass {
             });
     }
 
-
     getUserMylist(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
@@ -399,6 +398,20 @@ class MylistHandler extends BaseAutoBindedClass {
                 var promises = [];
                 for (var i = 0; i < results.length; i++) {
                     for (var j = 0; j < results[i].stores.length; j++) {
+
+                        if (results[i].stores[j].bookmarkBy == undefined) {
+                            results[i].stores[j].bookmarkBy = [];
+                        }
+                        results[i].stores[j].is_bookmarked_by_me = false;
+                        results[i].stores[j].bookmarkCount = results[i].stores[j].bookmarkBy.length;
+
+                        for (var k = 0; k < results[i].stores[j].bookmarkBy.length; k++) {
+                            if (results[i].stores[j].bookmarkBy[k] == user.id) {
+                                results[i].stores[j].is_bookmarked_by_me = true;
+                                break;
+                            }
+                        }
+
                         promises.push(this.getStoreCatalog(i, j, results[i].stores[j]._id));
                     }
                 }

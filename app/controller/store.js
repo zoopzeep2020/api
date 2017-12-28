@@ -12,16 +12,16 @@ class StoreController extends BaseController {
 
     getAll(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if(user.isAdmin){  
-                this._storeHandler.getAllStores(req, this._responseManager.getDefaultResponseHandler(res));            
-            }else{
-                this._responseManager.respondWithError(res, 404, "access not allow")                        
-            } 
+            if (user.isAdmin) {
+                this._storeHandler.getAllStores(req, this._responseManager.getDefaultResponseHandler(res));
+            } else {
+                this._responseManager.respondWithError(res, 404, "access not allow")
+            }
         });
     }
     get(req, res, next) {
         let responseManager = this._responseManager;
-        if (req.headers['authorization']=="maximumvsminimumsecurity") {
+        if (req.headers['authorization'] == "maximumvsminimumsecurity") {
             this.basicAuthenticate(req, res, () => {
                 this._storeHandler.getSingleStore("userisnotdefined", req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
@@ -37,19 +37,10 @@ class StoreController extends BaseController {
             });
         }
     }
-    getStoreByCategoryId(req, res, next) {
-        let responseManager = this._responseManager;
-        this.basicAuthenticate(req, res, () => {
-            this._storeHandler.getStoreByCategoryId(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-            })));
-        });
-    }
 
     getStoreBySearch(req, res, next) {
         let responseManager = this._responseManager;
-        if (req.headers['authorization']=="maximumvsminimumsecurity") {
+        if (req.headers['authorization'] == "maximumvsminimumsecurity") {
             this.basicAuthenticate(req, res, () => {
                 this._storeHandler.getStoreBySearch("userisnotdefined", req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
@@ -64,17 +55,8 @@ class StoreController extends BaseController {
                 })));
             });
         }
-    }  
+    }
 
-    getStoreByKeywordCategory(req, res, next) {
-        let responseManager = this._responseManager;
-        this.basicAuthenticate(req, res, () => {
-            this._storeHandler.getStoreByKeywordCategory(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
-                let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
-                responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
-            })));
-        });
-    }   
 
     getTrendingStore(req, res, next) {
         let responseManager = this._responseManager;
@@ -86,29 +68,35 @@ class StoreController extends BaseController {
         });
     }
 
+    bookmarkByUser(req, res, next) {
+        this.authenticate(req, res, next, (token, user) => {
+            this._storeHandler.bookmarkByUser(user, req, this._responseManager.getDefaultResponseHandler(res));
+        });
+    }
+
     update(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if (user.isAdmin || (user.isStore && (user.storeId == req.body.storeId) && (user.storeId == req.params.id))) {  
+            if (user.isAdmin || (user.isStore && (user.storeId == req.body.storeId) && (user.storeId == req.params.id))) {
                 this._storeHandler.updateStore(req, this._responseManager.getDefaultResponseHandler(res));
             } else {
                 this._responseManager.respondWithError(res, 404, "access not allow");
-            } 
-        });        
+            }
+        });
     }
 
     bookmarkStore(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             this._storeHandler.bookmarkStore(user, req, this._responseManager.getDefaultResponseHandler(res));
-        });        
+        });
     }
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if (user.isAdmin || (user.isStore && user.storeId == req.params.id)) {  
-                this._storeHandler.deleteStore(req, this._responseManager.getDefaultResponseHandler(res));            
+            if (user.isAdmin || (user.isStore && user.storeId == req.params.id)) {
+                this._storeHandler.deleteStore(req, this._responseManager.getDefaultResponseHandler(res));
             } else {
-                this._responseManager.respondWithError(res, 404, "access not allow")                        
-            } 
+                this._responseManager.respondWithError(res, 404, "access not allow")
+            }
         });
     }
 
@@ -116,7 +104,7 @@ class StoreController extends BaseController {
         let responseManager = this._responseManager;
         this._passport.authenticate('jwt-rs-auth', {
             onVerified: callback,
-            onFailure: function(error) {
+            onFailure: function (error) {
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);
