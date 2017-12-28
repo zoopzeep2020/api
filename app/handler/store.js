@@ -217,31 +217,31 @@ class StoreHandler extends BaseAutoBindedClass {
      *         description: object of activity".     
      */
 
-   /**
-    * @swagger
-    * /stores/searchbyCategoryId/{categoryId}:
-    *   get:
-    *     tags:
-    *       - Store
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: basic authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *         default: maximumvsminimumsecurity
-    *       - name: categoryId
-    *         description: ID of Category
-    *         in: path
-    *         required: true
-    *         type: string
-    *     responses:
-    *       200:
-    *         description: object of activity".     
-   */
+    /**
+     * @swagger
+     * /stores/searchbyCategoryId/{categoryId}:
+     *   get:
+     *     tags:
+     *       - Store
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: basic authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: maximumvsminimumsecurity
+     *       - name: categoryId
+     *         description: ID of Category
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".     
+    */
     /**
      * @swagger
      * /stores/{storeId}:
@@ -354,76 +354,76 @@ class StoreHandler extends BaseAutoBindedClass {
      *       200:
      *         description: object of activity".     
      */
-   /**
-    * @swagger
-    * definition:
-    *   UpdateActivitiesObj:
-    *     properties:
-    *       storeName:
-    *         type: string
-    *       storeLogo:
-    *         type: string
-    *       storeBanner:
-    *         type: string
-    *       categoriesIds:
-    *         type: array
-    *         items:
-    *          type: string
-    *       buisnessOnline:
-    *         type: boolean
-    *       buisnessOffline:
-    *         type: boolean
-    *       buisnessBoth:
-    *         type: boolean
-    *       address:
-    *         type: string
-    *       storePhone:
-    *         type: number
-    *       storeDiscription:
-    *         type: string
-    *       featureCatalog:
-    *         type: number
-    *       webAddress:
-    *         type: string
-    *       keyword:
-    *         type: array
-    *         items:
-    *          type: string
-    *       otherKeyword:
-    *         type: array
-    *         items:
-    *          type: string
-    *       countries:
-    *         type: array
-    *         items:
-    *          type: string
-    *       dispatchDayMin:
-    *         type: number
-    *       dispatchDayMax:
-    *         type: number
-    *       customization:
-    *         type: boolean
-    *       giftWrap:
-    *         type: boolean
-    *       cod:
-    *         type: boolean
-    *       freeShiping:
-    *         type: boolean
-    *       returnandreplace:
-    *         type: string
-    *       viewCount:
-    *         type: number
-    *       reviewCount:
-    *         type: number
-    *       avgRating:
-    *         type: number
-    *       isActive:
-    *         type: boolean
-    *       location:
-    *         type: array
-    *         items:
-    *          type: number
-   */
+    /**
+     * @swagger
+     * definition:
+     *   UpdateActivitiesObj:
+     *     properties:
+     *       storeName:
+     *         type: string
+     *       storeLogo:
+     *         type: string
+     *       storeBanner:
+     *         type: string
+     *       categoriesIds:
+     *         type: array
+     *         items:
+     *          type: string
+     *       buisnessOnline:
+     *         type: boolean
+     *       buisnessOffline:
+     *         type: boolean
+     *       buisnessBoth:
+     *         type: boolean
+     *       address:
+     *         type: string
+     *       storePhone:
+     *         type: number
+     *       storeDiscription:
+     *         type: string
+     *       featureCatalog:
+     *         type: number
+     *       webAddress:
+     *         type: string
+     *       keyword:
+     *         type: array
+     *         items:
+     *          type: string
+     *       otherKeyword:
+     *         type: array
+     *         items:
+     *          type: string
+     *       countries:
+     *         type: array
+     *         items:
+     *          type: string
+     *       dispatchDayMin:
+     *         type: number
+     *       dispatchDayMax:
+     *         type: number
+     *       customization:
+     *         type: boolean
+     *       giftWrap:
+     *         type: boolean
+     *       cod:
+     *         type: boolean
+     *       freeShiping:
+     *         type: boolean
+     *       returnandreplace:
+     *         type: string
+     *       viewCount:
+     *         type: number
+     *       reviewCount:
+     *         type: number
+     *       avgRating:
+     *         type: number
+     *       isActive:
+     *         type: boolean
+     *       location:
+     *         type: array
+     *         items:
+     *          type: number
+    */
     static get STORE_VALIDATION_SCHEME() {
         return {
             'storeName': {
@@ -545,7 +545,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.storeLogo = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -565,7 +565,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.storeBanner = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -694,15 +694,15 @@ class StoreHandler extends BaseAutoBindedClass {
 
     getStoreOffer(i, storeId) {
         return new Promise(function (resolve, reject) {
-            OfferModel.find({ storeId: storeId }).limit(1).sort({dateCreated:-1}).exec(function (err, offer) {
+            OfferModel.find({ storeId: storeId }).limit(1).sort({ dateCreated: -1 }).exec(function (err, offer) {
                 return resolve([i, offer]);
             })
         });
     }
-    
-    getStoreReview(i, storeId) {    
+
+    getStoreReview(i, storeId) {
         return new Promise(function (resolve, reject) {
-            ReviewModel.find({ storeId: storeId }).limit(1).sort({dateCreated:-1}).exec(function (err, review) {
+            ReviewModel.find({ storeId: storeId }).limit(1).sort({ dateCreated: -1 }).exec(function (err, review) {
                 return resolve([i, review]);
             })
         });
@@ -801,7 +801,7 @@ class StoreHandler extends BaseAutoBindedClass {
         });
     }*/
 
-    getSingleStore(user, req, callback){
+    getSingleStore(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult().then(function (result) {
@@ -812,7 +812,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function (resolve, reject) {
-                StoreModel.findById(req.params.id).populate({ path: 'categoriesIds'}).populate({ path: 'featureCatalog'}).populate({ path: 'keyword'}).lean().exec(function (err, store) {
+                StoreModel.findById(req.params.id).populate({ path: 'categoriesIds' }).populate({ path: 'featureCatalog' }).populate({ path: 'keyword' }).lean().exec(function (err, store) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -820,37 +820,17 @@ class StoreHandler extends BaseAutoBindedClass {
                             reject(new NotFoundError("store not found"));
                         } else {
                             // check store is bookmarked by user or not
-                            store.isBookmarked = false;
+                            store.is_bookmarked_by_me = false;
                             store.bookmarkCount = store.bookmarkBy.length;
-                            for (var i=0;i<store.bookmarkBy.length;i++) {
+                            for (var i = 0; i < store.bookmarkBy.length; i++) {
                                 if (store.bookmarkBy[i] == user.id) {
-                                    store.isBookmarked = true;
+                                    store.is_bookmarked_by_me = true;
                                     break;
                                 }
                             }
 
                             // convert avgRating to 1 decimal point
-                            store.avgRating = ((store.avgRating*10)-((store.avgRating*10)%1))/10
-                            resolve(store);
-                        }
-                    }                   
-                })
-            });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
-                ReviewModel.findOne({storeId:req.params.id,userId:user.id}).populate({path: 'userId'}).sort({'dateCreated' : -1 }).limit(1).lean().exec(function (err, review) {
-                    if (err !== null) {
-                        resolve(store);
-                    } else {
-                        if (!review) {  
-                            store.isRatedByMe = false;  
-                            store.userReview = null;  
-                            store.userRating = null;  
-                            resolve(store);
-                        } else {
-                            store.isRatedByMe = true;  
-                            store.userRating = review.ratingScale;  
-                            store.userReview = review;  
+                            store.avgRating = ((store.avgRating * 10) - ((store.avgRating * 10) % 1)) / 10
                             resolve(store);
                         }
                     }
@@ -858,49 +838,19 @@ class StoreHandler extends BaseAutoBindedClass {
             });
         }).then((store) => {
             return new Promise(function (resolve, reject) {
-                MylistModel.find({stores:{$in:[req.params.id]},userId:user.id}).sort({'dateCreated' : -1 }).limit(1).lean().exec(function (err, mylist) {
-                    if (err !== null) {
-                        resolve(store);
-                    } else {
-                        if (mylist.length == 0) {  
-                            store.isAddedToList = false;  
-                            store.listDetails = [];  
-                            resolve(store);
-                        } else {
-                            store.isAddedToList = true;  
-                            store.listDetails = mylist;  
-                            resolve(store);
-                        }
-                    }
-                })
-            });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
-                OfferModel.find({storeId:req.params.id}).sort({'dateCreated' : -1 }).limit(1).lean().exec(function (err, offer) {
-                    if (err !== null) {
-                        resolve(store);
-                    } else {
-                        if (!offer) {
-                            store.storeOffers = [];  
-                            resolve(store);
-                        } else {
-                            store.storeOffers = offer;  
-                            resolve(store);
-                        }
-                    }                    
-                })
-            });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
-                ReviewModel.find({storeId:req.params.id}).sort({'dateCreated' : -1 }).populate({path: 'userId'}).limit(1).lean().exec(function (err, review) {
+                ReviewModel.findOne({ storeId: req.params.id, userId: user.id }).populate({ path: 'userId' }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, review) {
                     if (err !== null) {
                         resolve(store);
                     } else {
                         if (!review) {
-                            store.reviews = [];  
+                            store.is_rated_by_me = false;
+                            store.rate_given_by_me = null;
+                            store.userReview = null;
                             resolve(store);
                         } else {
-                            store.reviews = review;  
+                            store.is_rated_by_me = true;
+                            store.rate_given_by_me = review.ratingScale;
+                            store.userReview = review;
                             resolve(store);
                         }
                     }
@@ -908,27 +858,80 @@ class StoreHandler extends BaseAutoBindedClass {
             });
         }).then((store) => {
             return new Promise(function (resolve, reject) {
-                CatalogModel.find({storeId:req.params.id}).sort({'dateCreated' : -1 }).lean().exec(function (err, catalogs) {
+                MylistModel.find({ stores: { $in: [req.params.id] }, userId: user.id }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, mylist) {
                     if (err !== null) {
                         resolve(store);
                     } else {
-                        if (!catalogs) {
-                            store.storeCatalogs = [];  
+                        if (mylist.length == 0) {
+                            store.is_added_to_my_list = false;
+                            store.mylist = [];
                             resolve(store);
                         } else {
-                            store.storeCatalogs = catalogs;  
+                            store.is_added_to_my_list = true;
+                            store.mylist = mylist;
                             resolve(store);
                         }
                     }
                 })
             });
         }).then((store) => {
+            return new Promise(function (resolve, reject) {
+                OfferModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, offer) {
+                    if (err !== null) {
+                        resolve(store);
+                    } else {
+                        if (!offer) {
+                            store.storeOffers = [];
+                            resolve(store);
+                        } else {
+                            store.storeOffers = offer;
+                            resolve(store);
+                        }
+                    }
+                })
+            });
+        }).then((store) => {
+            return new Promise(function (resolve, reject) {
+                ReviewModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).populate({ path: 'userId' }).limit(1).lean().exec(function (err, review) {
+                    if (err !== null) {
+                        resolve(store);
+                    } else {
+                        if (!review) {
+                            store.reviews = [];
+                            resolve(store);
+                        } else {
+                            store.reviews = review;
+                            resolve(store);
+                        }
+                    }
+                })
+            });
+        }).then((store) => {
+            return new Promise(function (resolve, reject) {
+                CatalogModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).lean().exec(function (err, catalogs) {
+                    if (err !== null) {
+                        resolve(store);
+                    } else {
+                        if (!catalogs) {
+                            store.storeCatalogs = [];
+                            resolve(store);
+                        } else {
+                            store.storeCatalogs = catalogs;
+                            resolve(store);
+                        }
+                    }
+                })
+            });
+        }).then((store) => {
+            store.featureCatalog = [store.featureCatalog];
             callback.onSuccess([store]);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
+
+
 
     // getSingleStore(user, req, callback) {
     //     let data = req.body;
@@ -1394,7 +1397,7 @@ class StoreHandler extends BaseAutoBindedClass {
     //                 result[0].ratingScale = null
     //                 return result;                
     //             }                
-                
+
     //         })
     //         .then((result) => {
     //             if((user != "userisnotdefined") && (result.length > 0) ) { 
@@ -1434,17 +1437,17 @@ class StoreHandler extends BaseAutoBindedClass {
     //         });
     // }
 
-    
+
 
 
     bookmarkStore(user, req, callback) {
         let data = req.body;
         var bookmark = req.body.bookmark;
         let query = {};
-        if(bookmark){
-            query['$addToSet']= { bookmarkBy:  mongoose.Types.ObjectId(user.id)}
-        }else{
-            query['$pull']= { bookmarkBy:  mongoose.Types.ObjectId(user.id)}
+        if (bookmark) {
+            query['$addToSet'] = { bookmarkBy: mongoose.Types.ObjectId(user.id) }
+        } else {
+            query['$pull'] = { bookmarkBy: mongoose.Types.ObjectId(user.id) }
         }
 
         req.getValidationResult().then(function (result) {
@@ -1456,18 +1459,18 @@ class StoreHandler extends BaseAutoBindedClass {
             }
             return new Promise(function (resolve, reject) {
                 StoreModel.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.storeId), query, { 'new': true, 'multi': true }).select("bookmarkBy").lean().exec(function (err, store) {
-                    store.bookmarkCount = store.bookmarkBy.length;  
+                    store.bookmarkCount = store.bookmarkBy.length;
                     store.isBookmarked = bookmark;
                     resolve(store);
                 })
             });
         })
-        .then((store) => {
-            callback.onSuccess(store);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((store) => {
+                callback.onSuccess(store);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
     getStoreByCategoryId(req, callback) {
         let data = req.body;
@@ -1901,7 +1904,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     getTrendingStore(req, callback) {
         let data = req.body;
         var matchQuery = [];
@@ -1956,7 +1959,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                         }
                                     },
                                     avgRating: { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
-                                    
+
                                 }
                             },
                             {
@@ -2051,7 +2054,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                         }
                                     },
                                     avgRating: { $divide: [{ $subtract: [{ $multiply: ['$avgRating', 10] }, { $mod: [{ $multiply: ["$avgRating", 10] }, 1] },] }, 10] },
-                                    
+
                                 }
                             },
                             {
@@ -2226,18 +2229,18 @@ class StoreHandler extends BaseAutoBindedClass {
             })
         });
     }
-    
+
     checkBookmark(i, stores, userId) {
         return new Promise(function (resolve, reject) {
-            BookmarkModel.find({$and:[{ userId: userId },{storeId:{$in:stores}}]}).exec(function (err, bookmark) {
-                return resolve( [i, bookmark]);
+            BookmarkModel.find({ $and: [{ userId: userId }, { storeId: { $in: stores } }] }).exec(function (err, bookmark) {
+                return resolve([i, bookmark]);
             })
         });
     }
 
     getMaxViewCount(i, storeId) {
         return new Promise(function (resolve, reject) {
-            StoreModel.findOne({ }).select('viewCount').sort({viewCount: -1}).limit(1).exec(function (err, store) {
+            StoreModel.findOne({}).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
                 return resolve([i, store]);
             })
         });
@@ -2300,20 +2303,19 @@ class StoreHandler extends BaseAutoBindedClass {
                     })
                 });
             }).then((results) => {
-                if(req.query.trending == 'true')
-                {    
+                if (req.query.trending == 'true') {
                     return new Promise(function (resolve, reject) {
-                        StoreModel.findOne({ }).select('viewCount').sort({viewCount: -1}).limit(1).exec(function (err, store) {
+                        StoreModel.findOne({}).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
                             resolve(store);
                         })
-                    }).then((maxview)=>{
+                    }).then((maxview) => {
                         maxviewcount = maxview.viewCount
                         if (results.length < trendingResult) {
                             trendingResult = results.length
                         }
 
                         for (let i = 0; i < results.length; i++) {
-                            var finalTotal = (((5*results[i].viewCount))/maxviewcount) + results[i].avgRating;
+                            var finalTotal = (((5 * results[i].viewCount)) / maxviewcount) + results[i].avgRating;
                             arrayFinal.push([finalTotal, i]);
                         }
 
@@ -2329,28 +2331,28 @@ class StoreHandler extends BaseAutoBindedClass {
                         }
                         var items = arrayFinal.slice(0, trendingResult);
 
-                        for (var i=0;i<trendingResult;i++) {
-                            mainObj[i]=results[items[i][1]]
+                        for (var i = 0; i < trendingResult; i++) {
+                            mainObj[i] = results[items[i][1]]
                         }
                         return mainObj;
                     })
-                } else {                   
+                } else {
                     return results;
                 }
             }).then((results) => {
                 //extra parameter
                 return new Promise(function (resolve, reject) {
                     for (var i = 0; i < results.length; i++) {
-                        results[i].avgRating = ((results[i].avgRating*10)-((results[i].avgRating*10)%1))/10
-                        
+                        results[i].avgRating = ((results[i].avgRating * 10) - ((results[i].avgRating * 10) % 1)) / 10
+
                         if (results[i].bookmarkBy == undefined) {
                             results[i].bookmarkBy = [];
                             results[i].isBookmarked = false
                         }
                         for (var j = 0; j < results[i].bookmarkBy.length; j++) {
-                            results[i].isBookmarked = (results[i].bookmarkBy[j]).toString()==(user.id)?true:false;
+                            results[i].isBookmarked = (results[i].bookmarkBy[j]).toString() == (user.id) ? true : false;
                         }
-                    } 
+                    }
                     resolve(results)
                 })
             }).then((results) => {
@@ -2366,7 +2368,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             for (let i = 0; i < catalogInfo.length; i++) {
                                 results[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
                             };
-                        
+
                             resolve(results);
                         });
                     });
@@ -2375,7 +2377,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             }).then((results) => {
                 callback.onSuccess(results);
-                
+
             }).catch((error) => {
                 callback.onError(error);
             });
@@ -2414,9 +2416,9 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         }
                     )
-                    .exec(function (err, results) {
-                        resolve(results);
-                    })
+                        .exec(function (err, results) {
+                            resolve(results);
+                        })
                 });
             }).then((keywords) => {
                 for (var i = 0; i < keywords.length; i++) {
@@ -2492,12 +2494,12 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             });
         })
-        .then((store) => {
-            callback.onSuccess(store);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((store) => {
+                callback.onSuccess(store);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     objectify(array) {
