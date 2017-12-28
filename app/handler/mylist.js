@@ -14,225 +14,225 @@ class MylistHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-     /**
- * @swagger
- * /mylists:
- *   post:
- *     tags:
- *       - Mylist
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: listName
- *         description: listName
- *         in: body
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: body
- *         required: true
- *         type: string
- *       - name: stores
- *         description: offerId
- *         in: body
- *         required: true
- *         type: array
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
+    /**
+* @swagger
+* /mylists:
+*   post:
+*     tags:
+*       - Mylist
+*     description: activity object
+*     produces:
+*       - application/json
+*     parameters:
+*       - name: Authorization
+*         description: token authorization
+*         in: header
+*         required: true
+*         type: string
+*       - name: Content-Type
+*         description: content-type
+*         in: header
+*         required: true
+*         type: string
+*         default: application/json
+*       - name: listName
+*         description: listName
+*         in: body
+*         required: true
+*         type: string
+*       - name: userId
+*         description: userId
+*         in: body
+*         required: true
+*         type: string
+*       - name: stores
+*         description: offerId
+*         in: body
+*         required: true
+*         type: array
+*         schema:
+*          $ref: '#/definitions/UpdateActivitiesObj'
+*     responses:
+*       200:
+*         description: object of activity".
+*/
 
-/**
- * @swagger
- * /mylists/{mylistId}:
- *   put:
- *     tags:
- *       - Mylist
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: listName
- *         description: listName
- *         in: body
- *         type: string
- *       - name: mylistId
- *         description: mylistId
- *         in: path
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: body
- *         type: string
- *       - name: stores
- *         description: stores
- *         in: body
- *         type: array
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /mylists/{mylistId}:
- *   get:
- *     tags:
- *       - Mylist
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: mylistId
- *         description: mylistId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /mylists:
- *   get:
- *     tags:
- *       - Mylist
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /mylists/user/{userId}:
- *   get:
- *     tags:
- *       - Mylist
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: userId
- *         description: userId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /mylists/{mylistId}:
- *   delete:
- *     tags:
- *       - Mylist
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: mylistId
- *         description: mylistId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
+    /**
+     * @swagger
+     * /mylists/{mylistId}:
+     *   put:
+     *     tags:
+     *       - Mylist
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *       - name: listName
+     *         description: listName
+     *         in: body
+     *         type: string
+     *       - name: mylistId
+     *         description: mylistId
+     *         in: path
+     *         required: true
+     *         type: string
+     *       - name: userId
+     *         description: userId
+     *         in: body
+     *         type: string
+     *       - name: stores
+     *         description: stores
+     *         in: body
+     *         type: array
+     *         schema:
+     *          $ref: '#/definitions/UpdateActivitiesObj'
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
+    /**
+     * @swagger
+     * /mylists/{mylistId}:
+     *   get:
+     *     tags:
+     *       - Mylist
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *       - name: mylistId
+     *         description: mylistId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
+    /**
+     * @swagger
+     * /mylists:
+     *   get:
+     *     tags:
+     *       - Mylist
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
+    /**
+     * @swagger
+     * /mylists/user/{userId}:
+     *   get:
+     *     tags:
+     *       - Mylist
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *       - name: userId
+     *         description: userId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
+    /**
+     * @swagger
+     * /mylists/{mylistId}:
+     *   delete:
+     *     tags:
+     *       - Mylist
+     *     description: activity object
+     *     produces:
+     *       - application/json
+     *     parameters:
+     *       - name: Authorization
+     *         description: token authorization
+     *         in: header
+     *         required: true
+     *         type: string
+     *       - name: Content-Type
+     *         description: content-type
+     *         in: header
+     *         required: true
+     *         type: string
+     *         default: application/json
+     *       - name: mylistId
+     *         description: mylistId
+     *         in: path
+     *         required: true
+     *         type: string
+     *     responses:
+     *       200:
+     *         description: object of activity".
+     */
 
- /**
- * @swagger
- * definition:
- *   UpdateActivitiesObj:
- *     properties:
- *       listName:
- *         type: string
- *         required: true
- *       userId:
- *         type: string
- *         required: true
- *       stores:
- *         type: array
- *         items:
- *          type: string
- */
+    /**
+    * @swagger
+    * definition:
+    *   UpdateActivitiesObj:
+    *     properties:
+    *       listName:
+    *         type: string
+    *         required: true
+    *       userId:
+    *         type: string
+    *         required: true
+    *       stores:
+    *         type: array
+    *         items:
+    *          type: string
+    */
     static get MYLIST_VALIDATION_SCHEME() {
         return {
             'listName': {
@@ -250,7 +250,7 @@ class MylistHandler extends BaseAutoBindedClass {
         req.checkBody('userId', 'userId is required').notEmpty();
         req.checkBody('userId', 'Invalid userId provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -260,7 +260,7 @@ class MylistHandler extends BaseAutoBindedClass {
                 return new MylistModel(data);
             })
             .then((mylist) => {
-                mylist.save();  
+                mylist.save();
                 return mylist;
             })
             .then((saved) => {
@@ -274,17 +274,17 @@ class MylistHandler extends BaseAutoBindedClass {
     deleteMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        
+
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    MylistModel.findOne({ _id: req.params.id }, function(err, mylist) {
+                return new Promise(function (resolve, reject) {
+                    MylistModel.findOne({ _id: req.params.id }, function (err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -313,15 +313,15 @@ class MylistHandler extends BaseAutoBindedClass {
         let data = req.body;
         let validator = this._validator;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        if(req.body.stores != undefined){
+        if (req.body.stores != undefined) {
             req.checkBody('stores', 'minimum one list is required').notEmpty();
         }
-        if(req.body.title != undefined){
-        req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
-        
+        if (req.body.title != undefined) {
+            req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
+
         }
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -329,8 +329,8 @@ class MylistHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
 
-                return new Promise(function(resolve, reject) {
-                    MylistModel.findOne({ _id: req.params.id }, function(err, mylist) {
+                return new Promise(function (resolve, reject) {
+                    MylistModel.findOne({ _id: req.params.id }, function (err, mylist) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -348,16 +348,16 @@ class MylistHandler extends BaseAutoBindedClass {
                 for (var key in data) {
                     if (key == 'stores') {
                         var concatedArray = mylist[key].concat(data[key])
-                        for (var i=0 ; i < concatedArray.length ; i++) {
+                        for (var i = 0; i < concatedArray.length; i++) {
                             if (temp.indexOf(concatedArray[i].toString()) == -1) {
-                                temp.push(concatedArray[i].toString()); 
+                                temp.push(concatedArray[i].toString());
                             }
                         }
                         mylist[key] = temp
                     } else if (data.hasOwnProperty(key)) {
                         mylist[key] = data[key];
                     }
-                }  
+                }
                 mylist.save();
                 return mylist;
             })
@@ -369,11 +369,11 @@ class MylistHandler extends BaseAutoBindedClass {
             });
     }
 
-   
+
     getUserMylist(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.getValidationResult().then(function(result) {
+        req.getValidationResult().then(function (result) {
             if (!result.isEmpty()) {
                 let errorMessages = result.array().map(function (elem) {
                     return elem.msg;
@@ -381,49 +381,50 @@ class MylistHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
 
-            return new Promise(function(resolve, reject) {
-                MylistModel.find({userId:req.params.id}).populate('stores').lean().exec(function(err, mylist){
+            return new Promise(function (resolve, reject) {
+                MylistModel.find({ userId: req.params.id }).populate('stores').lean().exec(function (err, mylist) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        if (!mylist) { 
+                        if (!mylist) {
                             reject('my list not found');
-                        } else {  
+                        } else {
                             resolve(mylist);
                         }
                     }
                 })
             });
         }).then((results) => {
-            console.log(results)
-            if (results[1].stores != undefined) {
+            if (results != undefined) {
                 var promises = [];
-                for (var i = 0; i < results[1].stores.length; i++) {
-                    promises.push(this.getStoreCatalog(i, results[1].stores[i]._id));
+                for (var i = 0; i < results.length; i++) {
+                    for (var j = 0; j < results[i].stores.length; j++) {
+                        promises.push(this.getStoreCatalog(i, j, results[i].stores[j]._id));
+                    }
                 }
             }
+
             return new Promise(function (resolve, reject) {
                 Promise.all(promises).then(function (catalogInfo) {
-                    console.log(catalogInfo)
                     for (let i = 0; i < catalogInfo.length; i++) {
-                        results[1].stores[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
+                        results[catalogInfo[i][0]].stores[catalogInfo[i][1]]['catalogInfo'] = catalogInfo[i][2];
                     };
-                
+
                     resolve(results);
                 });
             });
         }).then((mylist) => {
             callback.onSuccess(mylist);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
-    getStoreCatalog(i, storeId) {
+    getStoreCatalog(i, j, storeId) {
         return new Promise(function (resolve, reject) {
-            CatalogModel.find({ storeId: storeId }).limit(3).exec(function (err, catalog) {
-                return resolve([i, catalog]);
+            CatalogModel.find({ storeId: storeId }).limit(3).lean().exec(function (err, catalog) {
+                return resolve([i, j, catalog]);
             })
         });
     }
@@ -548,28 +549,27 @@ class MylistHandler extends BaseAutoBindedClass {
     getUserOnlyMylist(req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) {
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
                 MylistModel.aggregate([
-                    { "$match": { "userId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+                    { "$match": { "userId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
                     {
-                        $project:{
-                            _id:1,
-                            listName:1
+                        $project: {
+                            _id: 1,
+                            listName: 1
                         }
                     }
-                    ]).exec(function(err, results){
-                        resolve(results);
-                    })
-                });
-            })
+                ]).exec(function (err, results) {
+                    resolve(results);
+                })
+            });
+        })
             .then((mylist) => {
                 callback.onSuccess(mylist);
             })
@@ -582,86 +582,86 @@ class MylistHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     MylistModel.aggregate(
-                    { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
-                    {
-                        $unwind: {
-                            path: "$stores",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'stores',
-                            "localField": "stores",
-                            "foreignField": "_id",
-                            "as": "storesInfo"
-                        }
-                    }, 
-                    {
-                        "$lookup": {
-                            "from": 'catalogs',
-                            "localField": "stores",
-                            "foreignField": "storeId",
-                            "as": "catalogsInfo"
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'catalogs',
-                            "localField": "storesInfo.featureCatalog",
-                            "foreignField": "_id",
-                            "as": "featureCatalog"
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            listName: 1,
-                            userId: 1,
-                            storesInfo:{
-                                    _id: 1,
-                                storeName:1,
-                                storeLogo:1,
-                                storeBanner:1,
-                                avgRating:1,
-                                address:1,      
-                                catalogsInfo: {
-                                    $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
-                                },  
-                                featureCatalog: {
-                                    $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
-                                },                 
-                            },
-                        }
-                    },
-                    {
-                        $group: {
-                            _id : "$_id",
-                            listName : { $first : "$listName"},
-                            userId : { $first : "$userId"},
-                            storesInfo:{ $addToSet: '$storesInfo' },
-                        },
-                    },
-                    function(err, mylist) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!mylist) {
-                                reject(new NotFoundError("mylist not found"));
-                            } else {
-                                resolve(mylist);
+                        { "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
+                        {
+                            $unwind: {
+                                path: "$stores",
+                                preserveNullAndEmptyArrays: true
                             }
-                        }
-                    })
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'stores',
+                                "localField": "stores",
+                                "foreignField": "_id",
+                                "as": "storesInfo"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "stores",
+                                "foreignField": "storeId",
+                                "as": "catalogsInfo"
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                "from": 'catalogs',
+                                "localField": "storesInfo.featureCatalog",
+                                "foreignField": "_id",
+                                "as": "featureCatalog"
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                listName: 1,
+                                userId: 1,
+                                storesInfo: {
+                                    _id: 1,
+                                    storeName: 1,
+                                    storeLogo: 1,
+                                    storeBanner: 1,
+                                    avgRating: 1,
+                                    address: 1,
+                                    catalogsInfo: {
+                                        $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },
+                                    },
+                                    featureCatalog: {
+                                        $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },
+                                    },
+                                },
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$_id",
+                                listName: { $first: "$listName" },
+                                userId: { $first: "$userId" },
+                                storesInfo: { $addToSet: '$storesInfo' },
+                            },
+                        },
+                        function (err, mylist) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!mylist) {
+                                    reject(new NotFoundError("mylist not found"));
+                                } else {
+                                    resolve(mylist);
+                                }
+                            }
+                        })
                 });
             })
             .then((mylist) => {
@@ -674,7 +674,7 @@ class MylistHandler extends BaseAutoBindedClass {
 
     getAllMylists(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
+        new Promise(function (resolve, reject) {
             MylistModel.aggregate(
                 {
                     $unwind: {
@@ -689,7 +689,7 @@ class MylistHandler extends BaseAutoBindedClass {
                         "foreignField": "_id",
                         "as": "storesInfo"
                     }
-                }, 
+                },
                 {
                     "$lookup": {
                         "from": 'catalogs',
@@ -711,48 +711,48 @@ class MylistHandler extends BaseAutoBindedClass {
                         _id: 1,
                         listName: 1,
                         userId: 1,
-                        storesInfo:{
+                        storesInfo: {
                             _id: 1,
-                            storeName:1,
-                            storeLogo:1,
-                            storeBanner:1,
-                            avgRating:1,
-                            address:1,      
+                            storeName: 1,
+                            storeLogo: 1,
+                            storeBanner: 1,
+                            avgRating: 1,
+                            address: 1,
                             catalogsInfo: {
-                                $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
-                            },  
+                                $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } },
+                            },
                             featureCatalog: {
-                                $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
-                            },                 
+                                $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },
+                            },
                         },
                     }
                 },
                 {
                     $group: {
-                        _id : "$_id",
-                        listName : { $first : "$listName"},
-                        userId : { $first : "$userId"},
-                        storesInfo:{ $addToSet: '$storesInfo' },
+                        _id: "$_id",
+                        listName: { $first: "$listName" },
+                        userId: { $first: "$userId" },
+                        storesInfo: { $addToSet: '$storesInfo' },
                     },
                 },
-                function(err, mylist) {
-                if (err !== null) {
-                    reject(err);
-                } else {
-                    if (!mylist) {
-                        reject(new NotFoundError("mylist not found"));
+                function (err, mylist) {
+                    if (err !== null) {
+                        reject(err);
                     } else {
-                        resolve(mylist);
+                        if (!mylist) {
+                            reject(new NotFoundError("mylist not found"));
+                        } else {
+                            resolve(mylist);
+                        }
                     }
-                }
+                });
+        })
+            .then((mylist) => {
+                callback.onSuccess(mylist);
+            })
+            .catch((error) => {
+                callback.onError(error);
             });
-        })
-        .then((mylist) => {
-            callback.onSuccess(mylist);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
     }
 }
 
