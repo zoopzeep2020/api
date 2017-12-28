@@ -20,15 +20,15 @@ let StoreSchema = new Schema({
     storeDiscription: String,
     keyword: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'keyword'
+        ref: 'Keyword'
     }],
     bookmarkBy: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
+        ref: 'User'
     }],
     featureCatalog: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'catalog'
+        ref: 'Catalog'
     },
     otherKeyword: [],
     webAddress: String,
@@ -36,7 +36,7 @@ let StoreSchema = new Schema({
     storeCity: String,
     storeCityID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'city'
+        ref: 'City'
     },
     countries: [],
     dispatchDayMin: Number,

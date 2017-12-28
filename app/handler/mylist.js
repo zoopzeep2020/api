@@ -2,6 +2,8 @@
  * Created by WebrexStudio on 5/13/17.
  */
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
+const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
+const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -366,105 +368,182 @@ class MylistHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
-    getUserMylist(req, callback) {
+
+   
+    getUserMylist(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
-        req.getValidationResult()
-            .then(function(result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function(resolve, reject) {
-                MylistModel.aggregate([
-                    { "$match": { "userId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
-                    {
-                        $unwind: {
-                            path: "$stores",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'stores',
-                            "localField": "stores",
-                            "foreignField": "_id",
-                            "as": "storesInfo"
-                        }
-                    }, 
-                    {
-                        "$lookup": {
-                            "from": 'catalogs',
-                            "localField": "stores",
-                            "foreignField": "storeId",
-                            "as": "catalogsInfo"
-                        }
-                    },
-                    {
-                        "$lookup": {
-                            "from": 'catalogs',
-                            "localField": "storesInfo.featureCatalog",
-                            "foreignField": "_id",
-                            "as": "featureCatalog"
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            listName: 1,
-                            userId: 1,
-                            storesInfo:{
-                                _id: 1,
-                                storeName:1,
-                                storeLogo:1,
-                                storeBanner:1,
-                                avgRating:1,
-                                address:1,      
-                                bookmarkBy:1,      
-                                catalogsInfo: {
-                                    $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
-                                },  
-                                featureCatalog: {
-                                    $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
-                                },                 
-                            },
-                        }
-                    },
-                    {
-                        $group: {
-                            _id : "$_id",
-                            listName : { $first : "$listName"},
-                            userId : { $first : "$userId"},
-                            storesInfo:{ $addToSet: '$storesInfo' },
-                        },
-                    },
-                    ]).exec(function(err, results){
-                        for (var i = 0; i < results[0]['storesInfo'].length; i++) {
-                            if(results[0]['storesInfo'][i][0] == undefined)
-                            {
-                                results[0]['storesInfo'][i][0] = {}
-                            }
-                            if (results[0]['storesInfo'][i][0].bookmarkBy == undefined) {
-                                results[0]['storesInfo'][i][0].bookmarkBy = [];
-                            }
-                            for (var j = 0; j < results[0]['storesInfo'][i][0].bookmarkBy.length; j++) {
-                                results[0]['storesInfo'][i][0].isBookmarked = (results[0]['storesInfo'][i][0].bookmarkBy[j]).toString()==(req.params.id)?true:false;
-                            }
-                        }   
-                        resolve(results);
-                    })
+        req.getValidationResult().then(function(result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            })
-            .then((mylist) => {
-                callback.onSuccess(mylist);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+
+            return new Promise(function(resolve, reject) {
+                MylistModel.find({userId:req.params.id}).populate('stores').lean().exec(function(err, mylist){
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!mylist) { 
+                            reject('my list not found');
+                        } else {  
+                            resolve(mylist);
+                        }
+                    }
+                })
             });
+        }).then((results) => {
+            console.log(results)
+            if (results[1].stores != undefined) {
+                var promises = [];
+                for (var i = 0; i < results[1].stores.length; i++) {
+                    promises.push(this.getStoreCatalog(i, results[1].stores[i]._id));
+                }
+            }
+            return new Promise(function (resolve, reject) {
+                Promise.all(promises).then(function (catalogInfo) {
+                    console.log(catalogInfo)
+                    for (let i = 0; i < catalogInfo.length; i++) {
+                        results[1].stores[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
+                    };
+                
+                    resolve(results);
+                });
+            });
+        }).then((mylist) => {
+            callback.onSuccess(mylist);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
+
+    getStoreCatalog(i, storeId) {
+        return new Promise(function (resolve, reject) {
+            CatalogModel.find({ storeId: storeId }).limit(3).exec(function (err, catalog) {
+                return resolve([i, catalog]);
+            })
+        });
+    }
+
+
+    // getUserMylist(user, req, callback) {
+    //     let data = req.body;
+    //     req.checkParams('id', 'Invalid id provided').isMongoId();
+    //     req.getValidationResult()
+    //         .then(function(result) {
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+    //             return new Promise(function(resolve, reject) {
+    //             MylistModel.aggregate([
+    //                 { "$match": { "userId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }} },
+    //                 {
+    //                     $unwind: {
+    //                         path: "$stores",
+    //                         preserveNullAndEmptyArrays: true
+    //                     }
+    //                 },
+    //                 {
+    //                     "$lookup": {
+    //                         "from": 'stores',
+    //                         "localField": "stores",
+    //                         "foreignField": "_id",
+    //                         "as": "storesInfo"
+    //                     }
+    //                 }, 
+    //                 {
+    //                     "$lookup": {
+    //                         "from": 'catalogs',
+    //                         "localField": "stores",
+    //                         "foreignField": "storeId",
+    //                         "as": "catalogsInfo"
+    //                     }
+    //                 },
+    //                 {
+    //                     "$lookup": {
+    //                         "from": 'catalogs',
+    //                         "localField": "storesInfo.featureCatalog",
+    //                         "foreignField": "_id",
+    //                         "as": "featureCatalog"
+    //                     }
+    //                 },
+    //                 {
+    //                     $project: {
+    //                         _id: 1,
+    //                         listName: 1,
+    //                         userId: 1,
+    //                         storesInfo:{
+    //                             _id: 1,
+    //                             storeName:1,
+    //                             storeLogo:1,
+    //                             storeBanner:1,
+    //                             avgRating:1,
+    //                             address:1,      
+    //                             bookmarkBy:1,      
+    //                             catalogsInfo: {
+    //                                 $filter: { input: "$catalogsInfo", as: "a", cond: { $ifNull: ["$$a._id", true] } }, 
+    //                             },  
+    //                             featureCatalog: {
+    //                                 $filter: { input: "$featureCatalog", as: "a", cond: { $ifNull: ["$$a._id", true] } },                          
+    //                             },                 
+    //                         },
+    //                     }
+    //                 },
+    //                 {
+    //                     $group: {
+    //                         _id : "$_id",
+    //                         listName : { $first : "$listName"},
+    //                         userId : { $first : "$userId"},
+    //                         storesInfo:{ $addToSet: '$storesInfo' },
+    //                     },
+    //                 },
+    //                 ]).exec(function(err, results){
+    //                     if (results[0] != undefined) {
+    //                         for (var i = 0; i < results[0]['storesInfo'].length; i++) {
+    //                             if(results[0]['storesInfo'][i][0] == undefined) {
+    //                                 results[0]['storesInfo'][i][0] = {}
+    //                             }
+    //                             if (results[0]['storesInfo'][i][0].bookmarkBy == undefined) {
+    //                                 results[0]['storesInfo'][i][0].bookmarkBy = [];
+    //                             }
+    //                             for (var j = 0; j < results[0]['storesInfo'][i][0].bookmarkBy.length; j++) {
+    //                                 results[0]['storesInfo'][i][0].isBookmarked = (results[0]['storesInfo'][i][0].bookmarkBy[j]).toString()==(req.params.id)?true:false;
+    //                             }
+    //                         }   
+    //                     }
+    //                     resolve(results);
+    //                 })
+    //             });
+    //         }).then((results) => {
+    //             if (results[0] != undefined && results[0]['storesInfo'] != undefined) {
+    //                 var promises = [];
+    //                 for (var i = 0; i < results[0]['storesInfo'].length; i++) {
+    //                     promises.push(this.checkBookmark(i, [results[0]['storesInfo'][i][0].id],req.params.id));
+
+    //                 }
+    //             }
+    //             return new Promise(function (resolve, reject) {
+    //                 Promise.all(promises).then(function (storesInfo) {
+    //                     for (let i = 0; i < storesInfo.length; i++) {
+    //                         results[0]['storesInfo'][storesInfo[i][0]][0].bookmarkId = storesInfo[i][1][0].id;
+    //                     };
+    //                     resolve(results);
+    //                 });
+    //             });
+    //         })
+    //         .then((mylist) => {
+    //             callback.onSuccess(mylist);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
 
     getUserOnlyMylist(req, callback) {
         let data = req.body;

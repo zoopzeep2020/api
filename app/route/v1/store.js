@@ -15,6 +15,7 @@ router.get('/searchbyCategoryId/:id', storeController.getStoreByCategoryId);
 router.get('/searchbykeywordcategory', storeController.getStoreByKeywordCategory);
 router.get('/:id', storeController.get);
 router.delete('/:id', storeController.remove);
+router.put('/bookmark', storeController.bookmarkStore);
 router.put('/:id', upload.any(), storeController.update);
 
 module.exports = router;

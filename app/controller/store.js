@@ -96,6 +96,12 @@ class StoreController extends BaseController {
         });        
     }
 
+    bookmarkStore(req, res, next) {
+        this.authenticate(req, res, next, (token, user) => {
+            this._storeHandler.bookmarkStore(user, req, this._responseManager.getDefaultResponseHandler(res));
+        });        
+    }
+
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
             if (user.isAdmin || (user.isStore && user.storeId == req.params.id)) {  

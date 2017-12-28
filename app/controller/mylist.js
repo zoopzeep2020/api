@@ -30,7 +30,7 @@ class MylistController extends BaseController {
         let responseManager = this._responseManager;
         this.authenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isUser && (user.id == req.params.id))){
-                this._mylistHandler.getUserMylist(req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                this._mylistHandler.getUserMylist(user, req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                     responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
                 })));

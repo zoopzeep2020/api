@@ -595,31 +595,31 @@ class BlogHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'likedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                            {
-                                '$addToSet': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
-                            },
-                            { 'new': true, 'multi': true },
-                            function (err, blog) {
-                                blog.likeCount = blog.likeCount + 1;
-                                blog.isLike = true;
-                                blog.save();
-                                resolve(blog);
-                            })
+                        {
+                            '$addToSet': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
+                        },
+                        { 'new': true, 'multi': true },
+                        function (err, blog) {
+                            blog.likeCount = blog.likeCount + 1;
+                            blog.isLike = true;
+                            blog.save();
+                            resolve(blog);
+                        })
                     } else if (!like) {
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'likedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
                         },
-                            {
-                                "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
-                            },
-                            { 'new': true, 'multi': true },
-                            function (err, blog) {
-                                blog.likeCount = blog.likeCount - 1;
-                                blog.isLike = false;
-                                blog.save();
-                                resolve(blog);
-                            })
+                        {
+                            "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        },
+                        { 'new': true, 'multi': true },
+                        function (err, blog) {
+                            blog.likeCount = blog.likeCount - 1;
+                            blog.isLike = false;
+                            blog.save();
+                            resolve(blog);
+                        })
                     }
                 });
             }).then((blog) => {
@@ -629,6 +629,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     /*likeBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
@@ -684,6 +685,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }*/
+
     saveBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
