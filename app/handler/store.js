@@ -741,6 +741,10 @@ class StoreHandler extends BaseAutoBindedClass {
                         } else {
                             // check store is bookmarked by user or not
                             store.is_bookmarked_by_me = false;
+                            if (store.bookmarkBy == undefined) {
+                                store.bookmarkBy = [];
+                            }
+
                             store.bookmarkCount = store.bookmarkBy.length;
                             for (var i = 0; i < store.bookmarkBy.length; i++) {
                                 if (store.bookmarkBy[i] == user.id) {
