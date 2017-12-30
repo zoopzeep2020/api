@@ -1132,11 +1132,11 @@ class BlogHandler extends BaseAutoBindedClass {
             pl = function (v, n) {
                 return (s === undefined) ? n + ' ' + v + (n > 1 ? 's' : '') + dir : n + v.substring(0, 1)
             },
-            ts = Date.now() - new Date(nd).getTime(),
+            ts = (Date.now() - new Date(nd).getTime())/1000,
             ii;
         if (ts < 0) {
             ts *= -1;
-            dir = ' from now';
+            dir = ' ago';
         }
         for (var i in o) {
             if (r(ts) < o[i]) return pl(ii || 'm', r(ts / (o[ii] || 1)))
