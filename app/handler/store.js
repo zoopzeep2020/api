@@ -642,7 +642,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 req.getValidationResult()
                     .then(function (result) {
-                        var errorMessages = {};
                         if (!result.isEmpty()) {
                             let errorMessages = result.array().map(function (elem) {
                                 return elem.msg;
