@@ -721,7 +721,7 @@ class StoreHandler extends BaseAutoBindedClass {
         if (!(user.storeId === req.params.id)) {
             query['$inc'] = { viewCount: 1 }
         }
-
+        console.log("hi")
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult().then(function (result) {
             if (!result.isEmpty()) {
@@ -759,7 +759,8 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-            return new Promise(function (resolve, reject) {
+            
+            var storePromise = new Promise(function (resolve, reject) {
                 ReviewModel.findOne({ storeId: req.params.id, userId: user.id }).populate({ path: 'userId' }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, review) {
                     if (err !== null) {
                         resolve(store);
@@ -778,8 +779,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 })
             });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
+            var myListPromise = new Promise(function (resolve, reject) {
                 MylistModel.find({ stores: { $in: [req.params.id] }, userId: user.id }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, mylist) {
                     if (err !== null) {
                         resolve(store);
@@ -796,8 +796,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 })
             });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
+            var offerPromise = new Promise(function (resolve, reject) {
                 OfferModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, offer) {
                     if (err !== null) {
                         resolve(store);
@@ -812,8 +811,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 })
             });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
+            var reviewPromise = new Promise(function (resolve, reject) {
                 ReviewModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).populate({ path: 'userId' }).limit(1).lean().exec(function (err, review) {
                     if (err !== null) {
                         resolve(store);
@@ -828,8 +826,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 })
             });
-        }).then((store) => {
-            return new Promise(function (resolve, reject) {
+            var catalogPromise = new Promise(function (resolve, reject) {
                 CatalogModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).lean().exec(function (err, catalogs) {
                     if (err !== null) {
                         resolve(store);
@@ -844,13 +841,28 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 })
             });
+            return new Promise(function (resolve, reject) {
+                Promise.all([storePromise, myListPromise, offerPromise, reviewPromise, catalogPromise]).then(function (results) {
+                    if (results[0]['storeOffers'][0] != undefined) {
+                        results[0]['storeOffers'][0].isClaimedByMe = false
+                        
+                        for (var i=0;i<=results[0]['storeOffers'][0]['claimedOfferBy'].length;i++) {
+                            if (user.id == results[0]['storeOffers'][0]['claimedOfferBy'][i]) {
+                                results[0]['storeOffers'][0].isClaimedByMe = true
+                            }
+                        }
+                    }
+                    resolve(results[0]);
+                    
+                });
+            });
         }).then((store) => {
             store.featureCatalog = [store.featureCatalog];
             callback.onSuccess([store]);
         })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     bookmarkStore(user, req, callback) {
