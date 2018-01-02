@@ -642,12 +642,12 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 req.getValidationResult()
                     .then(function (result) {
+                        var errorMessages = {};
                         if (!result.isEmpty()) {
-                            var errorMessages = {};
-                            result.array().map(function (elem) {
-                                return errorMessages[elem.param] = elem.msg;
+                            let errorMessages = result.array().map(function (elem) {
+                                return elem.msg;
                             });
-                            throw new ValidationError(errorMessages);
+                            throw new ValidationError(errorMessages.join(' && ')); ValidationError(errorMessages);
                         }
                         return new Promise(function (resolve, reject) {
                             StoreModel.findOne({ _id: req.params.id }, function (err, store) {

@@ -1136,7 +1136,7 @@ class BlogHandler extends BaseAutoBindedClass {
             ii;
         if (ts < 0) {
             ts *= -1;
-            dir = ' from now';
+            dir = ' ago';
         }
         for (var i in o) {
             if (r(ts) < o[i]) return pl(ii || 'm', r(ts / (o[ii] || 1)))
