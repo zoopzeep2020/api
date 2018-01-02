@@ -101,124 +101,124 @@ class KeywordHandler extends BaseAutoBindedClass {
  *       200:
  *         description: object of activity".
  */
- /**
- * @swagger
- * /keywords/{keywordId}:
- *   delete:
- *     tags:
- *       - Keyword
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: keywordId
- *         description: keywordId
- *         in: path
- *         required: true
- *         type: string
- *         schema:
- *          $ref: '#/definitions/UpdateActivitiesObj'
- *     responses:
- *       200:
- *         description: object of activity".
- */
-   /**
- * @swagger
- * /keywords/{keywordId}:
- *   get:
- *     tags:
- *       - Keyword
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity  
- *       - name: keywordId
- *         description: keywordId
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /keywords/{keywordId}:
+    *   delete:
+    *     tags:
+    *       - Keyword
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: token authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *       - name: Content-Type
+    *         description: content-type
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: application/json
+    *       - name: keywordId
+    *         description: keywordId
+    *         in: path
+    *         required: true
+    *         type: string
+    *         schema:
+    *          $ref: '#/definitions/UpdateActivitiesObj'
+    *     responses:
+    *       200:
+    *         description: object of activity".
+    */
+    /**
+  * @swagger
+  * /keywords/{keywordId}:
+  *   get:
+  *     tags:
+  *       - Keyword
+  *     description: activity object
+  *     produces:
+  *       - application/json
+  *     parameters:
+  *       - name: Authorization
+  *         description: basic authorization
+  *         in: header
+  *         required: true
+  *         type: string
+  *         default: maximumvsminimumsecurity  
+  *       - name: keywordId
+  *         description: keywordId
+  *         in: path
+  *         required: true
+  *         type: string
+  *     responses:
+  *       200:
+  *         description: object of activity".     
+  */
 
- /**
- * @swagger
- * /keywords/trendingkeyword:
- *   get:
- *     tags:
- *       - Keyword
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity  
- *     responses:
- *       200:
- *         description: object of activity".     
- */
+    /**
+    * @swagger
+    * /keywords/trendingkeyword:
+    *   get:
+    *     tags:
+    *       - Keyword
+    *     description: activity object
+    *     produces:
+    *       - application/json
+    *     parameters:
+    *       - name: Authorization
+    *         description: basic authorization
+    *         in: header
+    *         required: true
+    *         type: string
+    *         default: maximumvsminimumsecurity  
+    *     responses:
+    *       200:
+    *         description: object of activity".     
+    */
 
-   /**
- * @swagger
- * /keywords/search?{keyword}:
- *   get:
- *     tags:
- *       - Keyword
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity  
- *       - name: keyword
- *         description: keyword id
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".     
- */
-/**
- * @swagger
- * definition: 
- *   UpdateActivitiesObj:
- *     properties:
- *       title:
- *         type: string
- *         required: true
- */
+    /**
+  * @swagger
+  * /keywords/search?{keyword}:
+  *   get:
+  *     tags:
+  *       - Keyword
+  *     description: activity object
+  *     produces:
+  *       - application/json
+  *     parameters:
+  *       - name: Authorization
+  *         description: basic authorization
+  *         in: header
+  *         required: true
+  *         type: string
+  *         default: maximumvsminimumsecurity  
+  *       - name: keyword
+  *         description: keyword id
+  *         in: path
+  *         required: true
+  *         type: string
+  *     responses:
+  *       200:
+  *         description: object of activity".     
+  */
+    /**
+     * @swagger
+     * definition: 
+     *   UpdateActivitiesObj:
+     *     properties:
+     *       title:
+     *         type: string
+     *         required: true
+     */
     static get KEYWORD_VALIDATION_SCHEME() {
         return {
             'title': {
                 isLength: {
-                    options: [{ min: 2  }],
+                    options: [{ min: 2 }],
                     errorMessage: 'Keyword title must be 2 characters long'
                 },
                 notEmpty: false,
@@ -232,7 +232,7 @@ class KeywordHandler extends BaseAutoBindedClass {
         let validator = this._validator;
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -258,15 +258,15 @@ class KeywordHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.findOne({ _id: req.params.id }, function (err, keyword) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -297,7 +297,7 @@ class KeywordHandler extends BaseAutoBindedClass {
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.checkBody(KeywordHandler.KEYWORD_VALIDATION_SCHEME);
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
@@ -305,8 +305,8 @@ class KeywordHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
 
-                return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.findOne({ _id: req.params.id }, function (err, keyword) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -325,7 +325,7 @@ class KeywordHandler extends BaseAutoBindedClass {
                     if (data.hasOwnProperty(key)) {
                         keyword[key] = data[key];
                     }
-                }  
+                }
                 keyword.save();
                 return keyword;
             })
@@ -341,15 +341,15 @@ class KeywordHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function(result) {
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) {
-                    KeywordModel.findOne({ _id: req.params.id }, function(err, keyword) {
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.findOne({ _id: req.params.id }, function (err, keyword) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -380,22 +380,22 @@ class KeywordHandler extends BaseAutoBindedClass {
         var qString = {};
         for (var param in req.query) {
             qString = {};
-            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param]== "true") ? req.query[param]=="true" : (req.query[param]== "false") ? req.query[param]=="true" : req.query[param];
-            matchQuery.push(qString);             
+            qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
+            matchQuery.push(qString);
         }
         req.checkQuery('keyword', 'Invalid urlparam').notEmpty()
         req.getValidationResult()
-            .then(function(result) {                
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) { 
+                return new Promise(function (resolve, reject) {
                     StoreModel.aggregate([
-                        { "$unwind" : "$keyword" },
-                        { $match: { $and:  matchQuery } }  ,                    
+                        { "$unwind": "$keyword" },
+                        { $match: { $and: matchQuery } },
                         {
                             "$lookup": {
                                 "from": 'keywords',
@@ -406,44 +406,44 @@ class KeywordHandler extends BaseAutoBindedClass {
                         },
                         {
                             $project: {
-                                storeName:'$storeName',
-                                avgRating:'$avgRating',
-                                storeLogo:'$storeLogo',
-                                storeBanner:'$storeBanner',
-                                title:'$keywordInfo.title',
-                                _id:'$keywordInfo._id',
-                                viewCount:'$keywordInfo.viewCount',
+                                storeName: '$storeName',
+                                avgRating: '$avgRating',
+                                storeLogo: '$storeLogo',
+                                storeBanner: '$storeBanner',
+                                title: '$keywordInfo.title',
+                                _id: '$keywordInfo._id',
+                                viewCount: '$keywordInfo.viewCount',
                             }
                         },
-                        { "$unwind" : "$title" },
-                        { "$unwind" : "$viewCount" },
-                        { "$unwind" : "$_id" },
-                    ]).exec(function(err, results){
-                        for(var i=0;i<results.length;i++){
-                            objectArray[i]=mongoose.Types.ObjectId(results[i]._id)
+                        { "$unwind": "$title" },
+                        { "$unwind": "$viewCount" },
+                        { "$unwind": "$_id" },
+                    ]).exec(function (err, results) {
+                        for (var i = 0; i < results.length; i++) {
+                            objectArray[i] = mongoose.Types.ObjectId(results[i]._id)
                         }
                         resolve(results);
                     })
                 });
             })
             .then((keywords) => {
-                return new Promise(function(resolve, reject) { 
-                    KeywordModel.find({"_id" : { $in:  objectArray }}, function(err, keywords) {
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.find({ "_id": { $in: objectArray } }, function (err, keywords) {
                         if (err !== null) {
                             reject(new NotFoundError("keyword not found"));
                         } else {
                             if (!keywords) {
                                 reject(new NotFoundError("keyword not found"));
                             } else {
-                                for(var i=0;i<keywords.length;i++){
+                                for (var i = 0; i < keywords.length; i++) {
                                     keywords[i].viewCount = keywords[i].viewCount + 1;
                                     keywords[i].save();
                                 }
                                 resolve(keywords)
                             }
                         }
-                    }) 
-                }) 
+                    })
+                })
             })
             .then((keyword) => {
                 callback.onSuccess(keyword);
@@ -454,52 +454,52 @@ class KeywordHandler extends BaseAutoBindedClass {
     }
 
     getSearchResultByWord(req, callback) {
-        let data = req.body;      
+        let data = req.body;
         req.getValidationResult()
-            .then(function(result) {                
+            .then(function (result) {
                 if (!result.isEmpty()) {
                     let errorMessages = result.array().map(function (elem) {
                         return elem.msg;
                     });
                     throw new ValidationError(errorMessages);
                 }
-                return new Promise(function(resolve, reject) { 
+                return new Promise(function (resolve, reject) {
                     KeywordModel.aggregate(
-                        {"$match":{"title" : {$regex : req.query.search}}},
+                        { "$match": { "title": { $regex: req.query.search } } },
                         {
                             $project: {
-                                _id:'$_id',
-                                title:'$title',
-                                viewCount:'$viewCount'
+                                _id: '$_id',
+                                title: '$title',
+                                viewCount: '$viewCount'
                             }
                         }
                     )
-                    .exec(function(err, keywords){
-                        resolve(keywords);
-                    })
+                        .exec(function (err, keywords) {
+                            resolve(keywords);
+                        })
                 });
             })
             .then((keywords) => {
-                return new Promise(function(resolve, reject) { 
-                    KeywordModel.find({"title" : {$regex : req.query.search} }, function(err, keywords) {
+                return new Promise(function (resolve, reject) {
+                    KeywordModel.find({ "title": { $regex: new RegExp(req.query.search.trim(), 'i') } }, function (err, keywords) {
                         if (err !== null) {
                             reject(new NotFoundError("keyword not found"));
                         } else {
                             if (!keywords) {
                                 reject(new NotFoundError("keyword not found"));
                             } else {
-                                for(var i=0;i<keywords.length;i++){
+                                for (var i = 0; i < keywords.length; i++) {
                                     keywords[i].viewCount = keywords[i].viewCount + 1;
                                     keywords[i].save();
                                 }
                                 resolve(keywords)
                             }
                         }
-                    }) 
-                }) 
-            }).then((keywords)=>{
+                    })
+                })
+            }).then((keywords) => {
                 callback.onSuccess(keywords);
-                
+
             })
             .catch((error) => {
                 callback.onError(error);
@@ -508,8 +508,8 @@ class KeywordHandler extends BaseAutoBindedClass {
 
     getAllKeywords(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-            KeywordModel.find({}, function(err, keyword) {
+        new Promise(function (resolve, reject) {
+            KeywordModel.find({}, function (err, keyword) {
                 if (err !== null) {
                     reject(err);
                 } else {
@@ -521,18 +521,18 @@ class KeywordHandler extends BaseAutoBindedClass {
                 }
             })
         })
-        .then((keyword) => {
-            callback.onSuccess(keyword);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((keyword) => {
+                callback.onSuccess(keyword);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getAllTrending(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-            KeywordModel.aggregate([{ $sort : { viewCount : -1 },},{$limit:5}], function(err, keyword) {
+        new Promise(function (resolve, reject) {
+            KeywordModel.aggregate([{ $sort: { viewCount: -1 }, }, { $limit: 5 }], function (err, keyword) {
                 if (err !== null) {
                     reject(err);
                 } else {
@@ -544,12 +544,12 @@ class KeywordHandler extends BaseAutoBindedClass {
                 }
             })
         })
-        .then((keyword) => {
-            callback.onSuccess(keyword);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((keyword) => {
+                callback.onSuccess(keyword);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 }
 

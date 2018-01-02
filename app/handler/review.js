@@ -245,7 +245,7 @@ class ReviewHandler extends BaseAutoBindedClass {
     createNewReview(req, callback) {
         let data = req.body;
         let validator = this._validator;
-        let ModelData = {};
+        let update = false;
         req.checkBody('ratingScale', 'rating Scale required').notEmpty();
         req.getValidationResult()
             .then(function (result) {
@@ -255,47 +255,53 @@ class ReviewHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        ModelData[key] = data[key];
-                    }
-                    ModelData.timeDifference = "";
-                }
-                return new ReviewModel(ModelData);
-            })
-            .then((ModelData) => {
+
                 return new Promise(function (resolve, reject) {
-                    ReviewModel.findOne({ $and: [{ userId: req.body.userId }, { storeId: req.body.storeId }] }, function (err, review) {
-                        if (review) {
-                            reject(new AlreadyExistsError("you have already reviewed this store"));
+                    ReviewModel.findOne({ $and: [{ userId: req.body.userId }, { storeId: req.body.storeId }] }).exec(function (err, review) {
+                        if (err !== null) {
+                            reject(err);
                         } else {
-                            resolve(ModelData);
+                            if (review) {
+                                update = true;
+                                resolve(review);
+                            } else {
+                                var review = new ReviewModel(req.body);
+                                resolve(review);
+                            }
                         }
-                    })
+                    });
                 });
             })
-            .then((saved) => {
-                ReviewModel.findOne({ _id: req.params.id }, function (err, review) {
-                    StoreModel.findOne({ _id: req.body.storeId }, function (err, store) {
+            .then((review) => {
+                return new Promise(function (resolve, reject) {
+                    StoreModel.findById(review.storeId, function (err, store) {
                         if (err !== null) {
-                            new NotFoundError("store not found");
+                            reject(err);
                         } else {
                             if (!store) {
-                                new NotFoundError("store not found");
+                                reject(new NotFoundError("Store not found"));
                             } else {
-                                saved.ratingScale = parseFloat(saved.ratingScale).toFixed(1)
-                                store.avgRating = (store.avgRating * store.reviewCount + parseInt(ModelData.ratingScale)) / (parseInt(store.reviewCount) + 1);
-                                store.reviewCount = store.reviewCount + 1;
-                                store.save();
+                                if (update) {
+                                    store.avgRating = (store.avgRating * store.reviewCount - parseFloat(review.ratingScale) + parseFloat(req.body.ratingScale)) / (store.reviewCount);
+                                    store.save();
+                                } else {
+                                    store.avgRating = (store.avgRating * store.reviewCount + parseFloat(review.ratingScale)) / ((store.reviewCount) + 1);
+                                    store.reviewCount = store.reviewCount + 1;
+                                    store.save();
+                                }
+                                console.log(store);
+                                resolve(review);
                             }
                         }
                     })
                 })
-
-                saved.save();
-                callback.onSuccess(saved);
-            })
-            .catch((error) => {
+            }).then((review) => {
+                for (var key in req.body) {
+                    review[key] = req.body[key];
+                }
+                review.save();
+                callback.onSuccess(review);
+            }).catch((error) => {
                 callback.onError(error);
             });
     }
