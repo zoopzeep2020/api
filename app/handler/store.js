@@ -1251,8 +1251,14 @@ class StoreHandler extends BaseAutoBindedClass {
                             results[i].bookmarkBy = [];
                             results[i].isBookmarked = false
                         }
+
                         for (var j = 0; j < results[i].bookmarkBy.length; j++) {
-                            results[i].isBookmarked = (results[i].bookmarkBy[j]).toString() == (user.id) ? true : false;
+                            if ((results[i].bookmarkBy[j]).toString() == (user.id)) {
+                                results[i].isBookmarked = true;
+                                break;
+                            } else {
+                                results[i].isBookmarked = false;
+                            }
                         }
                     }
                     resolve(results)
