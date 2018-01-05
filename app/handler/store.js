@@ -663,6 +663,39 @@ class StoreHandler extends BaseAutoBindedClass {
                         });
                     })
                     .then((store) => {
+                        if (req.body.location != undefined) {
+                            var longitude = isNaN(parseFloat(req.body.location[0])) ? 0 : parseFloat(req.body.location[0]);
+                            var lattitude = isNaN(parseFloat(req.body.location[1])) ? 0 : parseFloat(req.body.location[1]);
+                            return new Promise(function(resolve, reject) {
+                                CityModel.aggregate(
+                                    {
+                                        "$geoNear": {
+                                            "near": {
+                                                "type": "Point",
+                                                "coordinates": [longitude, lattitude]
+                                            },
+                                            "distanceField": "distance",
+                                            "spherical": true,
+                                            "maxDistance": 0
+                                        }
+                                    },
+                                    {$sort:{maxDistance:-1}},
+                                    {$limit:1},
+                                function(err, city) {
+                                    if (err !== null) {
+                                        reject(err);
+                                    } else {
+                                        store.storeCity = city[0]['cityName']
+                                        store.save();
+                                        resolve(store);
+                                    }
+                                })
+                            });
+                        } else {
+                            return store;
+                        }
+                    })
+                    .then((store) => {
                         for (var key in data) {
                             store[key] = data[key];
                         }
@@ -721,7 +754,6 @@ class StoreHandler extends BaseAutoBindedClass {
         if (!(user.storeId === req.params.id)) {
             query['$inc'] = { viewCount: 1 }
         }
-        console.log("hi")
         req.checkParams('id', 'Invalid store id provided').isMongoId();
         req.getValidationResult().then(function (result) {
             if (!result.isEmpty()) {
@@ -759,7 +791,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-            
             var storePromise = new Promise(function (resolve, reject) {
                 ReviewModel.findOne({ storeId: req.params.id, userId: user.id }).populate({ path: 'userId' }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, review) {
                     if (err !== null) {
@@ -797,7 +828,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
             var offerPromise = new Promise(function (resolve, reject) {
-                OfferModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, offer) {
+                OfferModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).limit(3).lean().exec(function (err, offer) {
                     if (err !== null) {
                         resolve(store);
                     } else {
@@ -812,7 +843,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
             var reviewPromise = new Promise(function (resolve, reject) {
-                ReviewModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).populate({ path: 'userId' }).limit(1).lean().exec(function (err, review) {
+                ReviewModel.find({ storeId: req.params.id }).sort({ 'dateCreated': -1 }).populate({ path: 'userId' }).limit(3).lean().exec(function (err, review) {
                     if (err !== null) {
                         resolve(store);
                     } else {
@@ -890,12 +921,12 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         })
-            .then((store) => {
-                callback.onSuccess(store);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((store) => {
+            callback.onSuccess(store);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingStore(req, callback) {
@@ -1290,7 +1321,6 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
-
     getAllStores(req, callback) {
         let data = req.body;
         new Promise(function (resolve, reject) {
@@ -1309,10 +1339,7 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
-
-
     bookmarkByUser(user, req, callback) {
-        console.log(user);
         let data = req.body;
         new Promise(function (resolve, reject) {
             StoreModel.find({ bookmarkBy: { "$in": [user.id] } }).populate({ path: 'categoriesIds', select: ['category', 'categoryImage', 'categoryActiveImage'] }).lean().exec(function (err, store) {
@@ -1348,7 +1375,6 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
-
     objectify(array) {
         if (array !== undefined) {
             return array.reduce(function (p, c) {
@@ -1357,7 +1383,6 @@ class StoreHandler extends BaseAutoBindedClass {
             }, {});
         }
     }
-
 
     noNaN(n) { return isNaN(n) ? 0 : n; }
 }
