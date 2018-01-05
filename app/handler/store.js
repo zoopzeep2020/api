@@ -453,7 +453,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 return new StoreModel({});
             })
             .then((store) => {
-                store.viewCount = 0
+                store.viewCount = 1
                 store.avgRating = 0
                 store.reviewCount = 0
                 store.bookmarkCount = 0
@@ -664,6 +664,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     })
                     .then((store) => {
                         if (req.body.location != undefined) {
+                            console.log('location')
                             var longitude = isNaN(parseFloat(req.body.location[0])) ? 0 : parseFloat(req.body.location[0]);
                             var lattitude = isNaN(parseFloat(req.body.location[1])) ? 0 : parseFloat(req.body.location[1]);
                             return new Promise(function(resolve, reject) {
@@ -682,6 +683,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                     {$sort:{maxDistance:-1}},
                                     {$limit:1},
                                 function(err, city) {
+                                    console.log("city",city)
                                     if (err !== null) {
                                         reject(err);
                                     } else {
@@ -791,6 +793,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
+            
             var storePromise = new Promise(function (resolve, reject) {
                 ReviewModel.findOne({ storeId: req.params.id, userId: user.id }).populate({ path: 'userId' }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, review) {
                     if (err !== null) {
@@ -921,12 +924,12 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         })
-        .then((store) => {
-            callback.onSuccess(store);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((store) => {
+                callback.onSuccess(store);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getTrendingStore(req, callback) {
@@ -1321,6 +1324,7 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
+
     getAllStores(req, callback) {
         let data = req.body;
         new Promise(function (resolve, reject) {
@@ -1338,6 +1342,8 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
+
 
     bookmarkByUser(user, req, callback) {
         let data = req.body;
@@ -1374,6 +1380,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+
 
     objectify(array) {
         if (array !== undefined) {
