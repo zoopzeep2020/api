@@ -55,14 +55,27 @@ class HomeHandler extends BaseAutoBindedClass {
 
         Promise.all([
             this.requestAsync(req, 'http://' + req.get('host') + '/stores/search' + queryString, 'trendingStores'),
-            this.requestAsync(req, 'http://' + req.get('host') + '/catalogs/featurecatalog' + queryString, 'trendingCatalog'),
+            // this.requestAsync(req, 'http://' + req.get('host') + '/catalogs/featurecatalog' + queryString, 'trendingCatalog'),
             this.requestAsync(req, 'http://' + req.get('host') + '/collections/search' + queryString, 'trendingCollections')
         ])
             .then(function (allData) {
-                for (let i = 0; i < allData.length; i++) {
-                    mainObj[allData[i][0]] = allData[i][1]
-                }
+                mainObj['trendingCatalog'] = [];
+                return new Promise(function (resolve, reject) {
+                    for (let i = 0; i < allData.length; i++) {
+                        mainObj[allData[i][0]] = allData[i][1]
+                        if (allData[i][0] == 'trendingStores') {
+                            for (let j = 0; j < allData[i][1].length; j++) {
+                                console.log(allData[i][1][j].featureCatalog);
+                                mainObj['trendingCatalog'].push(allData[i][1][j].featureCatalog);
+                            }
+                        }
+                    }
+                    resolve(mainObj);
+                });
+            }).then((mainObj) => {
                 callback.onSuccess(mainObj);
+            }).catch((error) => {
+                callback.onError(error);
             });
     }
     objectify(array) {

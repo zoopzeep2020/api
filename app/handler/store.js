@@ -1234,7 +1234,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    StoreModel.find(mongoQuery).skip(skip).limit(limit).sort().lean().exec(function (err, results) {
+                    StoreModel.find(mongoQuery).skip(skip).limit(limit).populate({ path: 'featureCatalog' }).sort().lean().exec(function (err, results) {
                         resolve(results);
                     })
                 });
@@ -1266,7 +1266,6 @@ class StoreHandler extends BaseAutoBindedClass {
                             }
                         }
                         var items = arrayFinal.slice(0, trendingResult);
-
                         for (var i = 0; i < trendingResult; i++) {
                             mainObj[i] = results[items[i][1]]
                         }
