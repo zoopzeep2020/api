@@ -7,7 +7,8 @@
     "start": "SET PORT=3000 && SET NODE_ENV=dev && nodemon index.js ",
     "server": "PORT=3001 NODE_ENV=server node index.js",
     "new_server": "PORT=3001 NODE_ENV=new_server node index.js",
-    "dev": "PORT=3001 NODE_ENV=dev node index.js"
+    "dev": "PORT=3001 NODE_ENV=dev node index.js",
+    "production": "PORT=3000 NODE_ENV=production node index.js"
   },
   "repository": {
     "type": "git",

@@ -10,8 +10,11 @@ if (process.env.NODE_ENV == "server") {
     module.exports = {
         MONGO_CONNECT_URL: "mongodb://127.0.0.1:27017/devZeepZoop"
     };
-}
-else {
+} else if (process.env.NODE_ENV == "production") {
+    module.exports = {
+        MONGO_CONNECT_URL: "mongodb://127.0.0.1:27017/ZeepZoop"
+    };
+} else {
     module.exports = {
         MONGO_CONNECT_URL: "mongodb://127.0.0.1:27017/ZeepZoop"
     };

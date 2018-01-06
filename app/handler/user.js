@@ -482,7 +482,7 @@ class UserHandler {
                             } else {
 
                                 if (user.isStore) {
-                                    if (user.isStore && docs.isUser && !docs.isStore ) {
+                                    if (user.isStore && docs.isUser && !docs.isStore) {
                                         reject(new AlreadyExistsError("user already exists with this email. Would you like to continue?"));
                                     } else if (!docs.isStore) {
                                         storeHandler.createNewStore(request, {
@@ -533,7 +533,7 @@ class UserHandler {
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
-                   token: userToken.token,
+                    token: userToken.token,
                     _id: user._id,
                     name: user.name,
                     userId: user.name,
@@ -584,10 +584,10 @@ class UserHandler {
                     UserModel.findOne({ email: user.email }, function (err, docs) {
                         user.userImage = "";
                         // for result found or not 
-                        if (docs != null) { 
+                        if (docs != null) {
                             // check user already exists
                             if (docs.isStore && docs.isUser) {
-                                
+
                                 if (data.isStore) {
                                     reject(new AlreadyExistsError("Store already exists"));
                                 } else {
@@ -646,7 +646,7 @@ class UserHandler {
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
                 let data = {
-                   token: userToken.token,
+                    token: userToken.token,
                     _id: user._id,
                     name: user.name,
                     userId: user.name,
@@ -804,7 +804,7 @@ class UserHandler {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.userImage = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
