@@ -4,6 +4,7 @@
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const AdminModel = require(APP_MODEL_PATH + 'admin').AdminModel;
+const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const StoreHandler = require(APP_HANDLER_PATH + 'store');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const AlreadyExistsError = require(APP_ERROR_PATH + 'already-exists');
@@ -532,21 +533,59 @@ class UserHandler {
                 user.email = user.email.toLowerCase();
                 user.save();
                 let userToken = this._authManager.signToken("jwt-rs-auth", this._provideTokenPayload(user), this._provideTokenOptions());
-                let data = {
-                    token: userToken.token,
-                    _id: user._id,
-                    name: user.name,
-                    userId: user.name,
-                    email: user.email.toLowerCase(),
-                    phone: user.phone,
-                    latLong: user.latLong,
-                    userImage: user.userImage,
-                    deviceToken: user.deviceToken,
-                    storeId: { _id: user.storeId },
-                    isStore: user.isStore,
-                    isUser: user.isUser,
-                };
-                return data;
+                return new Promise(function (resolve, reject) {
+                    if (user.location && user.location.length === 2) {
+                        CityModel.aggregate(
+                            {
+                                "$geoNear": {
+                                    "near": {
+                                        "type": "Point",
+                                        "coordinates": user.location
+                                    },
+                                    "distanceField": "distance",
+                                    "spherical": true,
+                                    "maxDistance": 0
+                                }
+                            },
+                            { $limit: 1 }
+                        ).exec(function (err, results) {
+                            let data = {
+                                token: userToken.token,
+                                _id: user._id,
+                                name: user.name,
+                                userId: user.name,
+                                email: user.email.toLowerCase(),
+                                phone: user.phone,
+                                latLong: user.latLong,
+                                userImage: user.userImage,
+                                deviceToken: user.deviceToken,
+                                storeId: { _id: user.storeId },
+                                isStore: user.isStore,
+                                isUser: user.isUser,
+                                cityName: results[0]['cityName']
+                            };
+                            console.log(results);
+                            console.log(user);
+                            resolve(data);
+                        })
+                    } else {
+                        let data = {
+                            token: userToken.token,
+                            _id: user._id,
+                            name: user.name,
+                            userId: user.name,
+                            email: user.email.toLowerCase(),
+                            phone: user.phone,
+                            latLong: user.latLong,
+                            userImage: user.userImage,
+                            deviceToken: user.deviceToken,
+                            storeId: { _id: user.storeId },
+                            isStore: user.isStore,
+                            isUser: user.isUser,
+                        };
+                        resolve(data);
+                    }
+                });
             })
             .then((user) => {
                 callback.onSuccess(user);
