@@ -866,115 +866,153 @@ class OfferHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-
                 return new Promise(function (resolve, reject) {
-                    OfferModel.aggregate(
-                        { "$match": { "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
-                        {
-                            $unwind: {
-                                path: "$savedBy",
-                                preserveNullAndEmptyArrays: true
+                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } }).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
+
+                        for (var i = 0; i < offers.length; i++) {
+                            offers[i].is_claimed_by_me = false;
+                            if (offers[i].claimedOfferBy == undefined) {
+                                offers[i].claimedOfferBy = [];
                             }
-                        },
-                        {
-                            $unwind: {
-                                path: "$claimedOfferBy",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: 1,
-                                isSave: {
-                                    $cond: {
-                                        if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
-                                        then: true,
-                                        else: false
-                                    }
-                                },
-                                isClaimedByMe: {
-                                    $cond: {
-                                        if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
-                                        then: true,
-                                        else: false
-                                    }
-                                },
-                                offerName: 1,
-                                offerPicture: 1,
-                                offerDescription: 1,
-                                offerCode: 1,
-                                aplicableForAll: 1,
-                                discountTypePercentage: 1,
-                                discountTypeFlat: 1,
-                                storeId: 1,
-                                orderAbovePrice: 1,
-                                offerOnline: 1,
-                                offerOffline: 1,
-                                percentageDiscount: 1,
-                                flatDiscount: 1,
-                                startDate: 1,
-                                endDate: 1,
-                            }
-                        },
-                        {
-                            $group: {
-                                _id: '$_id',
-                                offerName: { $first: '$offerName' },
-                                offerPicture: { $first: '$offerPicture' },
-                                offerDescription: { $first: '$offerDescription' },
-                                offerCode: { $first: '$offerCode' },
-                                aplicableForAll: { $first: '$aplicableForAll' },
-                                discountTypePercentage: { $first: '$discountTypePercentage' },
-                                discountTypeFlat: { $first: '$discountTypeFlat' },
-                                orderAbovePrice: { $first: '$orderAbovePrice' },
-                                storeId: { $first: '$storeId' },
-                                percentageDiscount: { $first: '$percentageDiscount' },
-                                flatDiscount: { $first: '$flatDiscount' },
-                                startDate: { $first: '$startDate' },
-                                endDate: { $first: '$endDate' },
-                                isSave: { $max: '$isSave' },
-                                isClaimedByMe: { $max: '$isClaimedByMe' }
-                            }
-                        },
-                        function (err, offer) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!offer) {
-                                    reject(new NotFoundError("Offer not found"));
-                                } else {
-                                    resolve(offer);
+
+                            for (var j = 0; j < offers[i].claimedOfferBy.length; j++) {
+                                if (offers[i].claimedOfferBy[j] == user.id) {
+                                    offers[i].is_claimed_by_me = true;
+                                    break;
                                 }
                             }
-                        })
-                });
-            })
+                        }
 
-            //          find({"storeId" : req.params.id})
-            //         .populate([{ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating', 'addreess', 'featureCatalog'],  model: 'Store'} ,
-            //         {
-            //             path: 'storeId.', select: ['catalogUrl', 'catalogDescription'],  model: 'Catalog'
-            //         }])
-            //         .exec(function(err, offer) {
-            //             if (err !== null) {
-            //                 reject(err);
-            //             } else {
-            //                 if (!offer) {
-            //                     reject(new NotFoundError("Offer not found"));
-            //                 } else {
-            //                     resolve(offer);
-            //                 }
-            //             }
-            //         })
-            //     });
-            // })
-            .then((offer) => {
-                callback.onSuccess(offer);
-            })
-            .catch((error) => {
+                        resolve(offers);
+                    })
+                });
+            }).then((Offers) => {
+                callback.onSuccess(Offers);
+            }).catch((error) => {
                 callback.onError(error);
             });
     }
+
+    // getStoreOffer(user, req, callback) {
+    //     let data = req.body;
+    //     req.checkParams('id', 'Invalid id provided').isMongoId();
+    //     req.getValidationResult()
+    //         .then(function (result) {
+    //             if (!result.isEmpty()) {
+    //                 let errorMessages = result.array().map(function (elem) {
+    //                     return elem.msg;
+    //                 });
+    //                 throw new ValidationError(errorMessages);
+    //             }
+
+    //             return new Promise(function (resolve, reject) {
+    //                 OfferModel.aggregate(
+    //                     { "$match": { "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
+    //                     {
+    //                         $unwind: {
+    //                             path: "$savedBy",
+    //                             preserveNullAndEmptyArrays: true
+    //                         }
+    //                     },
+    //                     {
+    //                         $unwind: {
+    //                             path: "$claimedOfferBy",
+    //                             preserveNullAndEmptyArrays: true
+    //                         }
+    //                     },
+    //                     {
+    //                         $project: {
+    //                             _id: 1,
+    //                             isSave: {
+    //                                 $cond: {
+    //                                     if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
+    //                                     then: true,
+    //                                     else: false
+    //                                 }
+    //                             },
+    //                             isClaimedByMe: {
+    //                                 $cond: {
+    //                                     if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
+    //                                     then: true,
+    //                                     else: false
+    //                                 }
+    //                             },
+    //                             offerName: 1,
+    //                             offerPicture: 1,
+    //                             offerDescription: 1,
+    //                             offerCode: 1,
+    //                             aplicableForAll: 1,
+    //                             discountTypePercentage: 1,
+    //                             discountTypeFlat: 1,
+    //                             storeId: 1,
+    //                             orderAbovePrice: 1,
+    //                             offerOnline: 1,
+    //                             offerOffline: 1,
+    //                             percentageDiscount: 1,
+    //                             flatDiscount: 1,
+    //                             startDate: 1,
+    //                             endDate: 1,
+    //                         }
+    //                     },
+    //                     {
+    //                         $group: {
+    //                             _id: '$_id',
+    //                             offerName: { $first: '$offerName' },
+    //                             offerPicture: { $first: '$offerPicture' },
+    //                             offerDescription: { $first: '$offerDescription' },
+    //                             offerCode: { $first: '$offerCode' },
+    //                             aplicableForAll: { $first: '$aplicableForAll' },
+    //                             discountTypePercentage: { $first: '$discountTypePercentage' },
+    //                             discountTypeFlat: { $first: '$discountTypeFlat' },
+    //                             orderAbovePrice: { $first: '$orderAbovePrice' },
+    //                             storeId: { $first: '$storeId' },
+    //                             percentageDiscount: { $first: '$percentageDiscount' },
+    //                             flatDiscount: { $first: '$flatDiscount' },
+    //                             startDate: { $first: '$startDate' },
+    //                             endDate: { $first: '$endDate' },
+    //                             isSave: { $max: '$isSave' },
+    //                             isClaimedByMe: { $max: '$isClaimedByMe' }
+    //                         }
+    //                     },
+    //                     function (err, offer) {
+    //                         if (err !== null) {
+    //                             reject(err);
+    //                         } else {
+    //                             if (!offer) {
+    //                                 reject(new NotFoundError("Offer not found"));
+    //                             } else {
+    //                                 resolve(offer);
+    //                             }
+    //                         }
+    //                     })
+    //             });
+    //         })
+
+    //         //          find({"storeId" : req.params.id})
+    //         //         .populate([{ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating', 'addreess', 'featureCatalog'],  model: 'Store'} ,
+    //         //         {
+    //         //             path: 'storeId.', select: ['catalogUrl', 'catalogDescription'],  model: 'Catalog'
+    //         //         }])
+    //         //         .exec(function(err, offer) {
+    //         //             if (err !== null) {
+    //         //                 reject(err);
+    //         //             } else {
+    //         //                 if (!offer) {
+    //         //                     reject(new NotFoundError("Offer not found"));
+    //         //                 } else {
+    //         //                     resolve(offer);
+    //         //                 }
+    //         //             }
+    //         //         })
+    //         //     });
+    //         // })
+    //         .then((offer) => {
+    //             callback.onSuccess(offer);
+    //         })
+    //         .catch((error) => {
+    //             callback.onError(error);
+    //         });
+    // }
 
     saveOffer(req, callback) {
         let data = req.body;
