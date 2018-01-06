@@ -1077,98 +1077,41 @@ class OfferHandler extends BaseAutoBindedClass {
                 matchQuery.push(qString);
             }
         }
+
         new Promise(function (resolve, reject) {
-            OfferModel.aggregate(
-                {
-                    "$match": { $and: matchQuery }
-                },
-                {
-                    $unwind: {
-                        path: "$savedBy",
-                        preserveNullAndEmptyArrays: true
+            req.getValidationResult()
+                .then(function (result) {
+                    if (!result.isEmpty()) {
+                        let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
+                        });
+                        throw new ValidationError(errorMessages);
                     }
-                },
-                {
-                    $unwind: {
-                        path: "$claimedOfferBy",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        isSave: {
-                            $cond: {
-                                if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
-                                then: true,
-                                else: false
+                    return new Promise(function (resolve, reject) {
+                        OfferModel.find(matchQuery).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
+                            for (var i = 0; i < offers.length; i++) {
+                                offers[i].is_claimed_by_me = false;
+                                if (offers[i].claimedOfferBy == undefined) {
+                                    offers[i].claimedOfferBy = [];
+                                }
+
+                                for (var j = 0; j < offers[i].claimedOfferBy.length; j++) {
+                                    if (offers[i].claimedOfferBy[j] == user.id) {
+                                        offers[i].is_claimed_by_me = true;
+                                        break;
+                                    }
+                                }
                             }
-                        },
-                        isClaimedByMe: {
-                            $cond: {
-                                if: { $eq: ["$claimedOfferBy", mongoose.Types.ObjectId(user.id)] },
-                                then: true,
-                                else: false
-                            }
-                        },
-                        offerName: 1,
-                        offerPicture: 1,
-                        offerDescription: 1,
-                        offerCode: 1,
-                        aplicableForAll: 1,
-                        discountTypePercentage: 1,
-                        discountTypeFlat: 1,
-                        storeId: 1,
-                        orderAbovePrice: 1,
-                        offerOnline: 1,
-                        offerOffline: 1,
-                        percentageDiscount: 1,
-                        flatDiscount: 1,
-                        startDate: 1,
-                        endDate: 1,
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$_id',
-                        offerName: { $first: '$offerName' },
-                        offerPicture: { $first: '$offerPicture' },
-                        offerDescription: { $first: '$offerDescription' },
-                        offerCode: { $first: '$offerCode' },
-                        aplicableForAll: { $first: '$aplicableForAll' },
-                        discountTypePercentage: { $first: '$discountTypePercentage' },
-                        discountTypeFlat: { $first: '$discountTypeFlat' },
-                        orderAbovePrice: { $first: '$orderAbovePrice' },
-                        storeId: { $first: '$storeId' },
-                        percentageDiscount: { $first: '$percentageDiscount' },
-                        flatDiscount: { $first: '$flatDiscount' },
-                        startDate: { $first: '$startDate' },
-                        endDate: { $first: '$endDate' },
-                        offerOffline: { $first: '$offerOffline' },
-                        offerOnline: { $first: '$offerOnline' },
-                        isSave: { $max: '$isSave' },
-                        isClaimedByMe: { $max: '$isClaimedByMe' }
-                    }
-                },
-                function (err, offer) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        if (!offer) {
-                            reject(new NotFoundError("Offer not found"));
-                        } else {
-                            resolve(offer);
-                        }
-                    }
-                }
-            );
-        })
-            .then((posts) => {
-                callback.onSuccess(posts);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+                            resolve(offers);
+                        })
+                    });
+
+                }).then((Offers) => {
+                    callback.onSuccess(Offers);
+                }).catch((error) => {
+                    callback.onError(error);
+                });
+        });
     }
 
     getAllOffers(user, req, callback) {
