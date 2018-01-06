@@ -1201,7 +1201,8 @@ class StoreHandler extends BaseAutoBindedClass {
                 ]
                 // mongoQuery['$text'] = { '$search': 'Sanjay' }                
             } else if (key == "location") {
-                mongoQuery['storeCity'] = query[key]
+                var re = new RegExp(query[key], 'i');
+                mongoQuery['storeCity'] = { "$in": [re] };
             } else if (key == "active") {
                 mongoQuery['isActive'] = ('true' === query[key]);
             } else if (key == "category") {

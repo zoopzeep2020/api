@@ -785,7 +785,8 @@ class CollectionHandler extends BaseAutoBindedClass {
                     { 'collectionName': { $regex: new RegExp(query[key], 'i') } },
                 ]
             } else if (key == "location") {
-                mongoQuery['cityName'] = { "$in": [query[key]] };
+                var re = new RegExp(query[key], 'i');
+                mongoQuery['cityName'] = { "$in": [re] };
             } else if (key == "buisnessOnline") {
                 mongoQuery['buisnessOnline'] = ('true' === query[key]);
             } else if (key == "buisnessOffline") {
