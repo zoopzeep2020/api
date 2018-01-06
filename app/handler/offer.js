@@ -1070,13 +1070,31 @@ class OfferHandler extends BaseAutoBindedClass {
         var ObjectID = require('mongodb').ObjectID;
         var matchQuery = [];
         var qString = {};
-        for (var param in req.query) {
-            qString = {};
-            if (param == "offerOnline" || param == "offerOffline") {
-                qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
-                matchQuery.push(qString);
+
+        let query = req.query;
+        let mongoQuery = {};
+        let skip = 0;
+        let limit = 10;
+
+        for (var key in query) {
+            if (key == "offerOnline") {
+                mongoQuery['offerOnline'] = ('true' === query[key]);
+            } else if (key == "offerOffline") {
+                mongoQuery['offerOffline'] = ('true' === query[key]);
+            } else if (key == "startOffers") {
+                skip = parseInt(query[key]);
+            } else if (key == "endOffers") {
+                limit = parseInt(query[key]) - skip + 1;
             }
         }
+
+        // for (var param in req.query) {
+        //     qString = {};
+        //     if (param == "offerOnline" || param == "offerOffline") {
+        //         qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : { $regex: req.query[param] };
+        //         matchQuery.push(qString);
+        //     }
+        // }
 
         new Promise(function (resolve, reject) {
             req.getValidationResult()
@@ -1088,7 +1106,7 @@ class OfferHandler extends BaseAutoBindedClass {
                         throw new ValidationError(errorMessages);
                     }
                     return new Promise(function (resolve, reject) {
-                        OfferModel.find(matchQuery).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
+                        OfferModel.find(mongoQuery).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
                             for (var i = 0; i < offers.length; i++) {
                                 offers[i].is_claimed_by_me = false;
                                 if (offers[i].claimedOfferBy == undefined) {
