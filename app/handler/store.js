@@ -667,7 +667,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             console.log('location')
                             var longitude = isNaN(parseFloat(req.body.location[0])) ? 0 : parseFloat(req.body.location[0]);
                             var lattitude = isNaN(parseFloat(req.body.location[1])) ? 0 : parseFloat(req.body.location[1]);
-                            return new Promise(function(resolve, reject) {
+                            return new Promise(function (resolve, reject) {
                                 CityModel.aggregate(
                                     {
                                         "$geoNear": {
@@ -680,18 +680,18 @@ class StoreHandler extends BaseAutoBindedClass {
                                             "maxDistance": 0
                                         }
                                     },
-                                    {$sort:{maxDistance:-1}},
-                                    {$limit:1},
-                                function(err, city) {
-                                    console.log("city",city)
-                                    if (err !== null) {
-                                        reject(err);
-                                    } else {
-                                        store.storeCity = city[0]['cityName']
-                                        store.save();
-                                        resolve(store);
-                                    }
-                                })
+                                    { $sort: { maxDistance: -1 } },
+                                    { $limit: 1 },
+                                    function (err, city) {
+                                        console.log("city", city)
+                                        if (err !== null) {
+                                            reject(err);
+                                        } else {
+                                            store.storeCity = city[0]['cityName']
+                                            store.save();
+                                            resolve(store);
+                                        }
+                                    })
                             });
                         } else {
                             return store;
@@ -793,7 +793,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-            
             var storePromise = new Promise(function (resolve, reject) {
                 ReviewModel.findOne({ storeId: req.params.id, userId: user.id }).populate({ path: 'userId' }).sort({ 'dateCreated': -1 }).limit(1).lean().exec(function (err, review) {
                     if (err !== null) {
@@ -879,24 +878,24 @@ class StoreHandler extends BaseAutoBindedClass {
                 Promise.all([storePromise, myListPromise, offerPromise, reviewPromise, catalogPromise]).then(function (results) {
                     if (results[0]['storeOffers'][0] != undefined) {
                         results[0]['storeOffers'][0].isClaimedByMe = false
-                        
-                        for (var i=0;i<=results[0]['storeOffers'][0]['claimedOfferBy'].length;i++) {
+
+                        for (var i = 0; i <= results[0]['storeOffers'][0]['claimedOfferBy'].length; i++) {
                             if (user.id == results[0]['storeOffers'][0]['claimedOfferBy'][i]) {
                                 results[0]['storeOffers'][0].isClaimedByMe = true
                             }
                         }
                     }
                     resolve(results[0]);
-                    
+
                 });
             });
         }).then((store) => {
             store.featureCatalog = [store.featureCatalog];
             callback.onSuccess([store]);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     bookmarkStore(user, req, callback) {
