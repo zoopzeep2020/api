@@ -8,13 +8,11 @@ const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 let crypto = require('crypto');
 var async = require('async');
-// var socket = require('socket');
-// var server = require('http').createServer();
-// var io = require('socket.io')(server)
 const utf8 = require('utf8');
-const nodemailer = require('nodemailer');
 const SHA_HASH_LENGTH = 64;
 const ForbiddenError = require(APP_ERROR_PATH + 'forbidden');
+const hbs = require('nodemailer-express-handlebars');
+const nodemailer = require('nodemailer');
 
 class AuthHandler extends BaseAutoBindedClass {
     constructor() {
@@ -95,6 +93,7 @@ class AuthHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     issueNewTokenWithFbToken(req, callback) {
         let that = this;
         req.getValidationResult()
@@ -260,16 +259,27 @@ class AuthHandler extends BaseAutoBindedClass {
                         logger: true
                     });
 
-                var mailOptions = {
+                smtpTransport.use('compile',hbs({
+                    viewPath:'app/email_templates/forgot_password',
+                    extName:'.hbs'
+
+                }))
+                smtpTransport
+                 var mailOptions = {
                     to: user.email,
                     from: '"ZeepZoop" <notification@zeepzoop.com>',
                     subject: 'Password Reset',
-                    text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-                        'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                        'http://www.zeepzoop.com/reset/?token=' + token + '\n\n' +
-                        'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+                    // text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                    //     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                    //     'http://www.zeepzoop.com/reset/?token=' + token + '\n\n' +
+                    //     'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+                    template:'conemail',
+                    context:{
+                        username: user.name,
+                        token:token,
+                    }
                 };
-                smtpTransport.sendMail(mailOptions, function (err) {
+                smtpTransport.sendMail(mailOptions, function (err,res) {
                     if (err) return done(new NotFoundError(err));
                     return callback.onSuccess({
                         "response": 'An e-mail has been sent to ' + user.email + ' with further instructions.'

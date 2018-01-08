@@ -114,10 +114,12 @@ app.use(expressValidator({
             return false;
         },
         checkDateValidity: function (value, startDate, endDate) {
-            var startDate = new Date(startDate).getTime();
-            var endDate = new Date(endDate).getTime();
-            var currentDate = new Date().getTime();
-            if (startDate > currentDate && endDate > currentDate && startDate < endDate) {
+            var startDate = new Date(startDate)
+            startDate.setDate(startDate.getDate() + 1)
+            var endDate = new Date(endDate)
+            endDate.setDate(endDate.getDate() + 1)
+            var currentDate = new Date()
+            if (startDate > currentDate && endDate > currentDate && startDate <= endDate) {
                 return true;
             }
             return false;

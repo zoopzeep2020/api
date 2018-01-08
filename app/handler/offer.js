@@ -1045,14 +1045,14 @@ class OfferHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.offerId),
                             'savedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                            {
-                                "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                            }, { 'new': true, 'multi': true }).exec(function (err, offer) {
-                                offer.saveCount = offer.saveCount - 1;
-                                offer.isSave = save;
-                                offer.save()
-                                resolve(offer);
-                            })
+                        {
+                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        }, { 'new': true, 'multi': true }).exec(function (err, offer) {
+                            offer.saveCount = offer.saveCount - 1;
+                            offer.isSave = save;
+                            offer.save()
+                            resolve(offer);
+                        })
                     }
 
                 });

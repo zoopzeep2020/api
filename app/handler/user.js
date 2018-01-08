@@ -19,6 +19,9 @@ const mongoose = require('mongoose');
 const imagemin = require('imagemin');
 const imageminMozjpeg = require('imagemin-mozjpeg');
 const imageminPngquant = require('imagemin-pngquant');
+const hbs = require('nodemailer-express-handlebars');
+const nodemailer = require('nodemailer');
+const utf8 = require('utf8');
 
 /**
  * @swagger
@@ -564,8 +567,6 @@ class UserHandler {
                                 isUser: user.isUser,
                                 cityName: results[0]['cityName']
                             };
-                            console.log(results);
-                            console.log(user);
                             resolve(data);
                         })
                     } else {
@@ -588,6 +589,52 @@ class UserHandler {
                 });
             })
             .then((user) => {
+                var smtpTransport = nodemailer.createTransport(
+                    {
+                        host: 'smtp.zoho.com',
+                        port: 465,
+                        secure: true, // use SSL
+                        auth: {
+                            user: global.config.constants.userMail,
+                            pass: utf8.decode(global.config.constants.password)
+                        },
+                        //     service: 'Gmail',
+                        // //    host : 'smtpout.secureserver.net',
+                        // //    port : 465,
+                        // //    secureConnection : true,
+                        //     auth: {
+                        //         user: global.config.constants.userMail,
+                        //         pass: utf8.decode(global.config.constants.password) 
+                        //     },
+                        logger: true
+                    });
+                    if(user.isUser){
+                        smtpTransport.use('compile',hbs({
+                            viewPath:'app/email_templates/welcome_user',
+                            extName:'.hbs'
+                        }))
+                    } else {
+                        smtpTransport.use('compile',hbs({
+                            viewPath:'app/email_templates/welcome_store',
+                            extName:'.hbs'
+                        }))
+                    }
+                
+                smtpTransport
+                 var mailOptions = {
+                    to: user.email,
+                    from: '"ZeepZoop" <notification@zeepzoop.com>',
+                    subject: 'Welcome to ZeepZoop',
+                    // text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+                    //     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+                    //     'http://www.zeepzoop.com/reset/?token=' + token + '\n\n' +
+                    //     'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+                    template:'conemail',
+                    context:{
+                        username: user.name,
+                    }
+                }
+                smtpTransport.sendMail(mailOptions);
                 callback.onSuccess(user);
             })
             .catch((error) => {

@@ -495,12 +495,13 @@ class CityHandler extends BaseAutoBindedClass {
                 }
             })
         })
-            .then((city) => {
-                callback.onSuccess(city);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((city) => {
+            
+            callback.onSuccess(city);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
 }

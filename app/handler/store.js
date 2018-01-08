@@ -664,7 +664,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     })
                     .then((store) => {
                         if (req.body.location != undefined) {
-                            console.log('location')
                             var longitude = isNaN(parseFloat(req.body.location[0])) ? 0 : parseFloat(req.body.location[0]);
                             var lattitude = isNaN(parseFloat(req.body.location[1])) ? 0 : parseFloat(req.body.location[1]);
                             return new Promise(function (resolve, reject) {
@@ -918,7 +917,7 @@ class StoreHandler extends BaseAutoBindedClass {
             return new Promise(function (resolve, reject) {
                 StoreModel.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.storeId), query, { 'new': true, 'multi': true }).select("bookmarkBy").lean().exec(function (err, store) {
                     store.bookmarkCount = store.bookmarkBy.length;
-                    store.isBookmarked = bookmark;
+                    store.is_bookmarked_by_me = bookmark;
                     resolve(store);
                 })
             });
@@ -1282,15 +1281,15 @@ class StoreHandler extends BaseAutoBindedClass {
 
                         if (results[i].bookmarkBy == undefined) {
                             results[i].bookmarkBy = [];
-                            results[i].isBookmarked = false
+                            results[i].is_bookmarked_by_me = false
                         }
 
                         for (var j = 0; j < results[i].bookmarkBy.length; j++) {
                             if ((results[i].bookmarkBy[j]).toString() == (user.id)) {
-                                results[i].isBookmarked = true;
+                                results[i].is_bookmarked_by_me = true;
                                 break;
                             } else {
-                                results[i].isBookmarked = false;
+                                results[i].is_bookmarked_by_me = false;
                             }
                         }
                     }
@@ -1323,7 +1322,6 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
-
     getAllStores(req, callback) {
         let data = req.body;
         new Promise(function (resolve, reject) {
@@ -1341,8 +1339,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
-
 
     bookmarkByUser(user, req, callback) {
         let data = req.body;
@@ -1375,9 +1371,9 @@ class StoreHandler extends BaseAutoBindedClass {
             }
             callback.onSuccess(store);
         })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
 
