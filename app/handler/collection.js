@@ -544,7 +544,6 @@ class CollectionHandler extends BaseAutoBindedClass {
 
             return new Promise(function (resolve, reject) {
                 Promise.all(promises).then(function (catalogInfo) {
-                    console.log(catalogInfo)
                     for (let i = 0; i < catalogInfo.length; i++) {
                         collection.storeId[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
                     };

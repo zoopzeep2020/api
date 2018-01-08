@@ -65,7 +65,6 @@ class HomeHandler extends BaseAutoBindedClass {
                         mainObj[allData[i][0]] = allData[i][1]
                         if (allData[i][0] == 'trendingStores') {
                             for (let j = 0; j < allData[i][1].length; j++) {
-                                console.log(allData[i][1][j].featureCatalog);
                                 mainObj['trendingCatalog'].push(allData[i][1][j].featureCatalog);
                             }
                         }

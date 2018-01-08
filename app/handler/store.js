@@ -682,7 +682,6 @@ class StoreHandler extends BaseAutoBindedClass {
                                     { $sort: { maxDistance: -1 } },
                                     { $limit: 1 },
                                     function (err, city) {
-                                        console.log("city", city)
                                         if (err !== null) {
                                             reject(err);
                                         } else {
@@ -916,9 +915,18 @@ class StoreHandler extends BaseAutoBindedClass {
             }
             return new Promise(function (resolve, reject) {
                 StoreModel.findByIdAndUpdate(mongoose.Types.ObjectId(req.body.storeId), query, { 'new': true, 'multi': true }).select("bookmarkBy").lean().exec(function (err, store) {
-                    store.bookmarkCount = store.bookmarkBy.length;
-                    store.is_bookmarked_by_me = bookmark;
-                    resolve(store);
+                    if (err !== null) {
+                        reject(new NotFoundError("store not found"))
+                    } else {
+                        if (!store) {
+                            reject(new NotFoundError("store not found"))
+                        } else {
+                            store.bookmarkCount = store.bookmarkBy.length;
+                            store.is_bookmarked_by_me = bookmark;
+                            resolve(store);
+                        }
+                    }
+                   
                 })
             });
         })

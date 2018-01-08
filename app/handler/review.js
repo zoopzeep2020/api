@@ -289,7 +289,6 @@ class ReviewHandler extends BaseAutoBindedClass {
                                     store.reviewCount = store.reviewCount + 1;
                                     store.save();
                                 }
-                                console.log(store);
                                 resolve(review);
                             }
                         }
