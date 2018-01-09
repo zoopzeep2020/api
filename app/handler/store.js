@@ -926,7 +926,6 @@ class StoreHandler extends BaseAutoBindedClass {
                             resolve(store);
                         }
                     }
-                   
                 })
             });
         })
