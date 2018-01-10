@@ -903,16 +903,14 @@ class BlogHandler extends BaseAutoBindedClass {
                         resolve(blogs);
                     }
                 });
-        })
-            .then((blogs) => {
-                for (var i = 0; i < blogs.length; i++) {
-                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
-                }
-                callback.onSuccess(blogs);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).then((blogs) => {
+            for (var i = 0; i < blogs.length; i++) {
+                blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+            }
+            callback.onSuccess(blogs);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getAllWithoutLogin(req, callback) {
@@ -971,16 +969,15 @@ class BlogHandler extends BaseAutoBindedClass {
                         resolve(blogs);
                     }
                 });
+        }).then((blogs) => {
+            for (var i = 0; i < blogs.length; i++) {
+                blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+            }
+            callback.onSuccess(blogs);
         })
-            .then((blogs) => {
-                for (var i = 0; i < blogs.length; i++) {
-                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
-                }
-                callback.onSuccess(blogs);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingBlog(req, callback) {
@@ -995,16 +992,14 @@ class BlogHandler extends BaseAutoBindedClass {
                         resolve(blogs);
                     }
                 });
-        })
-            .then((blogs) => {
-                for (var i = 0; i < blogs.length; i++) {
-                    blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
-                }
-                callback.onSuccess(blogs);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).then((blogs) => {
+            for (var i = 0; i < blogs.length; i++) {
+                blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
+            }
+            callback.onSuccess(blogs);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
     // getStoreCatalog(i, storeId) {
     //     return new Promise(function (resolve, reject) {
@@ -1039,29 +1034,27 @@ class BlogHandler extends BaseAutoBindedClass {
                 sorting = query["trending"] == 'true' ? { likeCount: -1 } : {}
             }
         }
-        req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    BlogModel.find(mongoQuery).skip(skip).limit(limit).sort(sorting).lean().exec(function (err, results) {
-                        resolve(results);
-                    })
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            })
-            .then((results) => {
-                for (var i = 0; i < results.length; i++) {
-                    results[i].time = this.getDDMMMYYYY(results[i].dateCreated)
-                }
-                callback.onSuccess(results);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
+                BlogModel.find(mongoQuery).skip(skip).limit(limit).sort(sorting).lean().exec(function (err, results) {
+                    resolve(results);
+                })
             });
+        })
+        .then((results) => {
+            for (var i = 0; i < results.length; i++) {
+                results[i].time = this.getDDMMMYYYY(results[i].dateCreated)
+            }
+            callback.onSuccess(results);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getBlogByUrl(req, callback) {
@@ -1093,6 +1086,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
+    
     objectify(array) {
         if (array !== undefined) {
             return array.reduce(function (p, c) {

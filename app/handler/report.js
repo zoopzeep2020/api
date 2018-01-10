@@ -425,24 +425,24 @@ class ReportHandler extends BaseAutoBindedClass {
     getAllReports(req, callback) {
         let data = req.body;
         new Promise(function(resolve, reject) {
-                ReportModel.find({}, function(err, category) {
-                    if (err !== null) {
-                        reject(err);
+            ReportModel.find({}, function(err, category) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!category) {
+                        reject(new NotFoundError("Report not found"));
                     } else {
-                        if (!category) {
-                            reject(new NotFoundError("Report not found"));
-                        } else {
-                            resolve(category);
-                        }
+                        resolve(category);
                     }
-                })
+                }
             })
-            .then((report) => {
-                callback.onSuccess(report);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        })
+        .then((report) => {
+            callback.onSuccess(report);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 }
 

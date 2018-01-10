@@ -398,7 +398,6 @@ class MylistHandler extends BaseAutoBindedClass {
                 var promises = [];
                 for (var i = 0; i < results.length; i++) {
                     for (var j = 0; j < results[i].stores.length; j++) {
-
                         if (results[i].stores[j].bookmarkBy == undefined) {
                             results[i].stores[j].bookmarkBy = [];
                         }
@@ -422,16 +421,14 @@ class MylistHandler extends BaseAutoBindedClass {
                     for (let i = 0; i < catalogInfo.length; i++) {
                         results[catalogInfo[i][0]].stores[catalogInfo[i][1]]['catalogInfo'] = catalogInfo[i][2];
                     };
-
                     resolve(results);
                 });
             });
         }).then((mylist) => {
             callback.onSuccess(mylist);
-        })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getStoreCatalog(i, j, storeId) {

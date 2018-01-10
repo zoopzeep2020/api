@@ -58,24 +58,24 @@ class HomeHandler extends BaseAutoBindedClass {
             // this.requestAsync(req, 'http://' + req.get('host') + '/catalogs/featurecatalog' + queryString, 'trendingCatalog'),
             this.requestAsync(req, 'http://' + req.get('host') + '/collections/search' + queryString, 'trendingCollections')
         ])
-            .then(function (allData) {
-                mainObj['trendingCatalog'] = [];
-                return new Promise(function (resolve, reject) {
-                    for (let i = 0; i < allData.length; i++) {
-                        mainObj[allData[i][0]] = allData[i][1]
-                        if (allData[i][0] == 'trendingStores') {
-                            for (let j = 0; j < allData[i][1].length; j++) {
-                                mainObj['trendingCatalog'].push(allData[i][1][j].featureCatalog);
-                            }
+        .then(function (allData) {
+            mainObj['trendingCatalog'] = [];
+            return new Promise(function (resolve, reject) {
+                for (let i = 0; i < allData.length; i++) {
+                    mainObj[allData[i][0]] = allData[i][1]
+                    if (allData[i][0] == 'trendingStores') {
+                        for (let j = 0; j < allData[i][1].length; j++) {
+                            mainObj['trendingCatalog'].push(allData[i][1][j].featureCatalog);
                         }
                     }
-                    resolve(mainObj);
-                });
-            }).then((mainObj) => {
-                callback.onSuccess(mainObj);
-            }).catch((error) => {
-                callback.onError(error);
+                }
+                resolve(mainObj);
             });
+        }).then((mainObj) => {
+            callback.onSuccess(mainObj);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
     objectify(array) {
         return array.reduce(function (p, c) {

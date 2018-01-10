@@ -547,7 +547,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                     for (let i = 0; i < catalogInfo.length; i++) {
                         collection.storeId[catalogInfo[i][0]]['catalogInfo'] = catalogInfo[i][1];
                     };
-
                     resolve(collection);
                 });
             });

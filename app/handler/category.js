@@ -479,23 +479,66 @@ class CategoryHandler extends BaseAutoBindedClass {
             });
     }
 
+    // getAllCategories(req, callback) {
+    //     let data = req.body;
+    //     new Promise(function(resolve, reject) {
+    //         CategoryModel.find({}, function(err, posts) {
+    //             if (err !== null) {
+    //                 reject(err);
+    //             } else {
+    //                 resolve(posts);
+    //             }
+    //         });
+    //     })
+    //     .then((posts) => {
+    //         callback.onSuccess(posts);
+    //     })
+    //     .catch((error) => {
+    //         callback.onError(error);
+    //     });
+    // }
+
     getAllCategories(req, callback) {
         let data = req.body;
-        new Promise(function(resolve, reject) {
-                CategoryModel.find({}, function(err, posts) {
+        let query = req.query;
+        let sortQuery = {};
+        let mongoQuery = {};
+        let limit = 0;
+        for (var key in query) {
+            if (key == "trending") {
+                if (query[key] == 'true') {
+                    sortQuery = { viewCount : -1 },
+                    limit = 5
+                }
+            } else if (key == "search") {
+                mongoQuery['category'] =  { $regex: new RegExp(query[key].trim(), 'i') } 
+            }
+        }
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            new Promise(function (resolve, reject) {
+                CategoryModel.find(mongoQuery).sort(sortQuery).limit(limit).exec(function (err, category) {
                     if (err !== null) {
                         reject(err);
                     } else {
-                        resolve(posts);
+                        if (!category) {
+                            reject(new NotFoundError("Category not found"));
+                        } else {
+                            resolve(category);
+                        }
                     }
-                });
+                })
+            }).then((category) => {
+                callback.onSuccess(category);
             })
-            .then((posts) => {
-                callback.onSuccess(posts);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingCategory(req, callback) {

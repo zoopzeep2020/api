@@ -549,32 +549,30 @@ class ReviewHandler extends BaseAutoBindedClass {
     getAllReviews(req, callback) {
         let data = req.body;
         return new Promise(function (resolve, reject) {
-            ReviewModel.find({})
-                .populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating'], model: 'Store' }).exec(function (err, review) {
-                    if (err !== null) {
-                        reject(err);
+            ReviewModel.find({}).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating'], model: 'Store' })
+            .exec(function (err, review) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!review) {
+                        reject(new NotFoundError("Review not found"));
                     } else {
-                        if (!review) {
-                            reject(new NotFoundError("Review not found"));
-                        } else {
-                            resolve(review);
-                        }
+                        resolve(review);
                     }
-                })
-        })
-            .then((review) => {
-                var currdatetime = new Date();
-                var datecreated;
-                for (var i = 0; i < review.length; i++) {
-                    datecreated = review[i].dateCreated;
-                    review[i].timeDifference = this.getDDMMMYYYY(datecreated)
-                    review[i].save();
                 }
-                callback.onSuccess(review);
             })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).then((review) => {
+            var currdatetime = new Date();
+            var datecreated;
+            for (var i = 0; i < review.length; i++) {
+                datecreated = review[i].dateCreated;
+                review[i].timeDifference = this.getDDMMMYYYY(datecreated)
+                review[i].save();
+            }
+            callback.onSuccess(review);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getDDMMMYYYY(date1) {
@@ -616,7 +614,6 @@ class ReviewHandler extends BaseAutoBindedClass {
         }
         return pl(i, r(ts / o[i]));
     }
-
 }
 
 

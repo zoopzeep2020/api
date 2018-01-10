@@ -343,7 +343,6 @@ class CityHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-
                 return new Promise(function (resolve, reject) {
                     CityModel.findOne({ _id: req.params.id }, function (err, city) {
                         if (err !== null) {
@@ -402,8 +401,6 @@ class CityHandler extends BaseAutoBindedClass {
                 });
             })
             .then((city) => {
-                city.viewCount = city.viewCount + 1;
-                city.save();
                 callback.onSuccess(city);
             })
             .catch((error) => {
@@ -414,96 +411,104 @@ class CityHandler extends BaseAutoBindedClass {
     getSearchByWord(req, callback) {
         let data = req.body;
         req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    CityModel.find({ cityName: { $regex: req.query.search.toLowerCase() } }, function (err, city) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!city) {
-                                reject(new NotFoundError("City not found"));
-                            } else {
-                                resolve(city);
-                            }
-                        }
-                    })
+        .then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            }).then((cities) => {
-                callback.onSuccess(cities);
-
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
-
-    getSearchByLongLat(req, callback) {
-        let data = req.body;
-        req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    CityModel.aggregate(
-                        {
-                            "$geoNear": {
-                                "near": {
-                                    "type": "Point",
-                                    "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
-                                },
-                                "distanceField": "distance",
-                                "spherical": true,
-                                "maxDistance": 0
-                            }
-                        },
-                        { $limit: 1 }
-                    )
-                        .exec(function (err, cities) {
-                            resolve(cities);
-                        })
-                });
-            }).then((cities) => {
-                callback.onSuccess(cities);
-
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
-    }
-
-    getAllCitys(req, callback) {
-        new Promise(function (resolve, reject) {
-            CityModel.find({}).sort({ cityName: 1 }).exec(function (err, city) {
-                if (err !== null) {
-                    reject(err);
-                } else {
-                    if (!city) {
-                        reject(new NotFoundError("City not found"));
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
+                CityModel.find({ cityName: { $regex: new RegExp(req.query.search.trim(), 'i') }  }, function (err, city) {
+                    if (err !== null) {
+                        reject(err);
                     } else {
-                        resolve(city);
+                        if (!city) {
+                            reject(new NotFoundError("City not found"));
+                        } else {
+                            resolve(city);
+                        }
                     }
-                }
-            })
-        })
-        .then((city) => {
-            
-            callback.onSuccess(city);
+                })
+            });
+        }).then((cities) => {
+            callback.onSuccess(cities);
         })
         .catch((error) => {
             callback.onError(error);
         });
     }
 
+    getSearchByLongLat(req, callback) {
+        let data = req.body;
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
+                CityModel.aggregate(
+                    {
+                        "$geoNear": {
+                            "near": {
+                                "type": "Point",
+                                "coordinates": [parseFloat(req.query.lng), parseFloat(req.query.lat)]
+                            },
+                            "distanceField": "distance",
+                            "spherical": true,
+                            "maxDistance": 0
+                        }
+                    },
+                    { $limit: 1 }
+                ).exec(function (err, cities) {
+                    resolve(cities);
+                })
+            });
+        }).then((cities) => {
+            callback.onSuccess(cities);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+
+    getAllCitys(req, callback) {
+        let data = req.body;
+        let query = req.query;
+        let mongoQuery = {};
+        for (var key in query) {
+            if (key == "cityName") {
+                mongoQuery['cityName'] =  { $regex: new RegExp(query[key].trim(), 'i') } 
+            } 
+        }
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages);
+            }
+            new Promise(function (resolve, reject) {
+                CityModel.find(mongoQuery).sort({ cityName: 1 }).skip(skip).limit(limit).exec(function (err, city) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!city) {
+                            reject(new NotFoundError("City not found"));
+                        } else {
+                            resolve(city);
+                        }
+                    }
+                })
+            }).then((city) => {
+                callback.onSuccess(city);
+            })
+        }).catch((error) => {
+            callback.onError(error);
+        });
+    }
 }
 
 module.exports = CityHandler;

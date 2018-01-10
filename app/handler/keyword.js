@@ -474,9 +474,9 @@ class KeywordHandler extends BaseAutoBindedClass {
                             }
                         }
                     )
-                        .exec(function (err, keywords) {
-                            resolve(keywords);
-                        })
+                    .exec(function (err, keywords) {
+                        resolve(keywords);
+                    })
                 });
             })
             .then((keywords) => {
@@ -499,7 +499,6 @@ class KeywordHandler extends BaseAutoBindedClass {
                 })
             }).then((keywords) => {
                 callback.onSuccess(keywords);
-
             })
             .catch((error) => {
                 callback.onError(error);
@@ -520,13 +519,12 @@ class KeywordHandler extends BaseAutoBindedClass {
                     }
                 }
             })
+        }).then((keyword) => {
+            callback.onSuccess(keyword);
         })
-            .then((keyword) => {
-                callback.onSuccess(keyword);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getAllTrending(req, callback) {

@@ -383,7 +383,6 @@ class StaticPageHandler extends BaseAutoBindedClass {
                     }
                 }
             })
-
         })
         .then((staticPage) => {
             callback.onSuccess(staticPage);

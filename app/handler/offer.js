@@ -539,7 +539,6 @@ class OfferHandler extends BaseAutoBindedClass {
                     if (stores) {
                         mongoQuery['storeId'] = { "$in": stores };
                     }
-
                     for (var key in query) {
                         if (key == "offerSearch") {
                             mongoQuery['$or'] = [
