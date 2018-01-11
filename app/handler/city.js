@@ -306,12 +306,10 @@ class CityHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function (resolve, reject) {
                     CityModel.findOne({ _id:req.params.id }, function (err, city) {
-                        console.log(req.params.id)
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!city) {
-                                console.log("city not found1")
                                 reject(new NotFoundError("City not found"));
                             } else {
                                 resolve(city);

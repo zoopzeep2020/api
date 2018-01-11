@@ -87,7 +87,6 @@ class CityController extends BaseController {
         this._passport.authenticate('jwt-rs-auth', {
             onVerified: callback,
             onFailure: function (error) {
-                console.log("error",error)
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);

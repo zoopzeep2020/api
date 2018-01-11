@@ -1280,9 +1280,7 @@ class OfferHandler extends BaseAutoBindedClass {
                 for (var i=0;i<Offers.length;i++) {
                     Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
                     Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
-                console.log(Offers[i].endDate)
-                console.log(this.getDDMMMYYYY(Offers[i].endDate))
-            }
+                }
                 callback.onSuccess(Offers);
             }).catch((error) => {
                 callback.onError(error);
