@@ -73,7 +73,8 @@ class CityController extends BaseController {
 
     remove(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if (user.isAdmin || (user.isUser && user.id == req.body.userId) || (user.isStore && user.id == req.body.storeId)) {
+            
+            if (user.isAdmin || (user.isUser && (user.id == req.body.userId)) || (user.isStore && (user.id == req.body.storeId))) {
                 this._cityHandler.deleteCity(user, req, this._responseManager.getDefaultResponseHandler(res));
             } else {
                 this._responseManager.respondWithError(res, 404, "access not available")
@@ -86,6 +87,7 @@ class CityController extends BaseController {
         this._passport.authenticate('jwt-rs-auth', {
             onVerified: callback,
             onFailure: function (error) {
+                console.log("error",error)
                 responseManager.respondWithError(res, error.status || 401, error.message);
             }
         })(req, res, next);

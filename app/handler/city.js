@@ -293,7 +293,7 @@ class CityHandler extends BaseAutoBindedClass {
             });
     }
 
-    deleteCity(req, callback) {
+    deleteCity(user, req, callback) {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
@@ -305,11 +305,13 @@ class CityHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    CityModel.findOne({ _id: req.params.id }, function (err, city) {
+                    CityModel.findOne({ _id:req.params.id }, function (err, city) {
+                        console.log(req.params.id)
                         if (err !== null) {
                             reject(err);
                         } else {
                             if (!city) {
+                                console.log("city not found1")
                                 reject(new NotFoundError("City not found"));
                             } else {
                                 resolve(city);
@@ -351,7 +353,6 @@ class CityHandler extends BaseAutoBindedClass {
                             if (!city) {
                                 reject(new NotFoundError("City not found"));
                             } else {
-
                                 resolve(city);
                             }
                         }
@@ -419,7 +420,7 @@ class CityHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function (resolve, reject) {
-                CityModel.find({ cityName: { $regex: new RegExp(req.query.search.trim(), 'i') }  }, function (err, city) {
+                CityModel.find({ cityName: { $regex: new RegExp(req.query.search.trim(), 'i') }  }).sort({ cityName: 1 }).lean().exec(function (err, city) {
                     if (err !== null) {
                         reject(err);
                     } else {
@@ -478,6 +479,8 @@ class CityHandler extends BaseAutoBindedClass {
         let data = req.body;
         let query = req.query;
         let mongoQuery = {};
+        let skip = 0;
+        let limit = 0;
         for (var key in query) {
             if (key == "cityName") {
                 mongoQuery['cityName'] =  { $regex: new RegExp(query[key].trim(), 'i') } 
@@ -491,7 +494,7 @@ class CityHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             new Promise(function (resolve, reject) {
-                CityModel.find(mongoQuery).sort({ cityName: 1 }).skip(skip).limit(limit).exec(function (err, city) {
+                CityModel.find(mongoQuery).sort({ cityName: 1 }).skip(skip).limit(limit).lean().exec(function (err, city) {
                     if (err !== null) {
                         reject(err);
                     } else {

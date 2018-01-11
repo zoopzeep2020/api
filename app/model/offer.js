@@ -26,7 +26,7 @@ let OfferSchema = new Schema({
     percentageDiscount:Number,
     flatDiscount:Number,
     startDate:String,
-    endDate:String,
+    endDate:{ type: Date },
     offerPicture:String, 
     cityName:[],  
     claimedOfferBy: [{

@@ -875,7 +875,7 @@ class StoreHandler extends BaseAutoBindedClass {
             return new Promise(function (resolve, reject) {
                 Promise.all([storePromise, myListPromise, offerPromise, reviewPromise, catalogPromise]).then(function (results) {
                     if (results[0]['storeOffers'][0] != undefined) {
-                        results[0]['storeOffers'][0].isClaimedByMe = false
+                        results[0]['storeOffers'][0].isClaimedByMe = false;
 
                         for (var i = 0; i <= results[0]['storeOffers'][0]['claimedOfferBy'].length; i++) {
                             if (user.id == results[0]['storeOffers'][0]['claimedOfferBy'][i]) {
@@ -928,13 +928,12 @@ class StoreHandler extends BaseAutoBindedClass {
                     }
                 })
             });
+        }).then((store) => {
+            callback.onSuccess(store);
         })
-            .then((store) => {
-                callback.onSuccess(store);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingStore(req, callback) {

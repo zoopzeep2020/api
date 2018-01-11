@@ -466,35 +466,47 @@ class OfferHandler extends BaseAutoBindedClass {
                 req.checkBody('startDate', 'startDate must be in format of mm/dd/yyyy').isDate();
                 req.checkBody('endDate', 'endDate must be in format of mm/dd/yyyy').isDate();
                 req.getValidationResult()
-                    .then(function (result) {
-                        var errorMessages = {};
-                        if (!result.isEmpty()) {
-                            let errorMessages = result.array().map(function (elem) {
-                                return elem.msg;
-                            });
-                            throw new ValidationError(errorMessages);
-                        }
-                        return new OfferModel(data);
-                    })
-                    .then((offer) => {
-                        offer.save();
-                        return offer;
-                    })
-                    .then((saved) => {
-                        callback.onSuccess(saved);
-                        const directory = './uploads';
-                        fs.readdir(directory, (err, files) => {
-                            if (err) throw error;
-                            for (const file of files) {
-                                fs.unlink(path.join(directory, file), err => {
-                                    if (err) throw error;
-                                });
-                            }
+                .then(function (result) {
+                    var errorMessages = {};
+                    if (!result.isEmpty()) {
+                        let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
                         });
-                    })
-                    .catch((error) => {
-                        callback.onError(error);
+                        throw new ValidationError(errorMessages);
+                    }
+                    return new OfferModel(data);
+                })
+                .then((offer) => {
+                    offer.save();
+                    var savedOffer = Object.assign({}, offer._doc);
+                    var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+                    "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                    var new_date = new Date(offer.startDate);
+                    savedOffer.startDate = new_date.getDate() + ' '
+                        + months[new_date.getMonth()] + ' '
+                        + new_date.getFullYear();
+                    new_date = new Date(offer.endDate);
+                    savedOffer.endDate = new_date.getDate() + ' '
+                        + months[new_date.getMonth()] + ' '
+                        + new_date.getFullYear();
+
+                    return savedOffer;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
                     });
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);
@@ -551,12 +563,13 @@ class OfferHandler extends BaseAutoBindedClass {
                             limit = parseInt(query[key]) - skip + 1;
                         }
                     }
-
                     OfferModel.find(mongoQuery).skip(skip).limit(limit).exec(function (err, results) {
                         resolve(results);
                     })
                 });
             }).then((offer) => {
+                offer.startDate = this.getDDMMMYYYY(offer.startDate)
+                offer.endDate = this.getDDMMMYYYY(offer.endDate)
                 callback.onSuccess(offer);
             })
             .catch((error) => {
@@ -847,6 +860,8 @@ class OfferHandler extends BaseAutoBindedClass {
                 });
             })
             .then((offer) => {
+                Offer.startDate = this.getDDMMMYYYY(Offer.startDate)
+                Offer.endDate = this.getDDMMMYYYY(Offer.endDate)
                 callback.onSuccess(offer);
             })
             .catch((error) => {
@@ -856,6 +871,7 @@ class OfferHandler extends BaseAutoBindedClass {
 
     getStoreOffer(user, req, callback) {
         let data = req.body;
+        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function (result) {
@@ -866,7 +882,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } }).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
+                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } ,endDate:{'$gte':new Date(today)}}).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
 
                         for (var i = 0; i < offers.length; i++) {
                             offers[i].is_claimed_by_me = false;
@@ -886,6 +902,10 @@ class OfferHandler extends BaseAutoBindedClass {
                     })
                 });
             }).then((Offers) => {
+                for (var i=0;i<Offers.length;i++) {
+                    Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
+                    Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
+                }
                 callback.onSuccess(Offers);
             }).catch((error) => {
                 callback.onError(error);
@@ -1071,7 +1091,9 @@ class OfferHandler extends BaseAutoBindedClass {
         var qString = {};
 
         let query = req.query;
-        let mongoQuery = {};
+        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
+        
+        let mongoQuery = {endDate:{'$gte':new Date(today)}};
         let skip = 0;
         let limit = 10;
 
@@ -1124,6 +1146,10 @@ class OfferHandler extends BaseAutoBindedClass {
                     });
 
                 }).then((Offers) => {
+                    for (var i=0;i<Offers.length;i++) {
+                        Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
+                        Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
+                    }
                     callback.onSuccess(Offers);
                 }).catch((error) => {
                     callback.onError(error);
@@ -1132,8 +1158,10 @@ class OfferHandler extends BaseAutoBindedClass {
     }
 
     getAllOffers(user, req, callback) {
+        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
         new Promise(function (resolve, reject) {
             OfferModel.aggregate(
+                {$match:{endDate:{'$gte':new Date(today)}}},
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -1203,8 +1231,12 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
             );
         })
-            .then((posts) => {
-                callback.onSuccess(posts);
+            .then((Offers) => {
+                for (var i=0;i<Offers.length;i++) {
+                    Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
+                    Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
+                }
+                callback.onSuccess(Offers);
             })
             .catch((error) => {
                 callback.onError(error);
@@ -1213,7 +1245,9 @@ class OfferHandler extends BaseAutoBindedClass {
 
     getAllWithoutLogin(req, callback) {
         let query = req.query;
-        let mongoQuery = {};
+        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
+        
+        let mongoQuery = {endDate:{'$gte':new Date(today)}};
         let skip = 0;
         let limit = 10;
 
@@ -1243,6 +1277,12 @@ class OfferHandler extends BaseAutoBindedClass {
                     })
                 });
             }).then((Offers) => {
+                for (var i=0;i<Offers.length;i++) {
+                    Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
+                    Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
+                console.log(Offers[i].endDate)
+                console.log(this.getDDMMMYYYY(Offers[i].endDate))
+            }
                 callback.onSuccess(Offers);
             }).catch((error) => {
                 callback.onError(error);
