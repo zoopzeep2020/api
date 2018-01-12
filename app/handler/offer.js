@@ -450,14 +450,29 @@ class OfferHandler extends BaseAutoBindedClass {
                 } else {
                     req.checkBody('offerPicture', 'offerPicture is required').notEmpty();
                 }
+                var discountTypePercentage; 
+                var discountTypeFlat; 
+                if (req.body.discountTypePercentage == 'false' || req.body.discountTypePercentage == '0') {
+                    discountTypePercentage = (1==0);
+                } else {
+                    discountTypePercentage = Boolean(req.body.discountTypePercentage)
+                }
+
+                if (req.body.discountTypeFlat == 'false' || req.body.discountTypeFlat == '0') {
+                    discountTypeFlat = (1==0);
+                } else {
+                    discountTypeFlat = Boolean(req.body.discountTypeFlat)
+                }
                 req.checkBody('offerOnline', 'Either offerOnline is true or offerOffline is true').isOneOfTwoTrue(req.body.offerOnline, req.body.offerOffline);
                 req.checkBody('offerOffline', 'Either offerOffline is true or offerOnline is true').isOneOfTwoTrue(req.body.offerOnline, req.body.offerOffline);
-                req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage == 'true', req.body.discountTypeFlat == 'true');
-                req.checkBody('discountTypeFlat', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(req.body.discountTypePercentage == 'true', req.body.discountTypeFlat == 'true');
-                if (req.body.discountTypePercentage == 'true') {
+
+
+                req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(discountTypePercentage, discountTypeFlat);
+                req.checkBody('discountTypeFlat', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(discountTypePercentage, discountTypeFlat);
+                if (discountTypePercentage) {
                     req.checkBody('percentageDiscount', 'Percentage should be between 1 to 100').checkNumberRange(req.body.percentageDiscount, 1, 100);
                 }
-                if (req.body.discountTypeFlat == 'true') {
+                if (discountTypeFlat) {
                     req.checkBody('flatDiscount', 'flatDiscount11 should be number').isInt();
                 }
                 req.checkBody('offerCode', 'offerCode is required').notEmpty();
@@ -489,7 +504,6 @@ class OfferHandler extends BaseAutoBindedClass {
                     savedOffer.endDate = new_date.getDate() + ' '
                         + months[new_date.getMonth()] + ' '
                         + new_date.getFullYear();
-
                     return savedOffer;
                 })
                 .then((saved) => {
