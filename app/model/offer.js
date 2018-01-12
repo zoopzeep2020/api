@@ -25,7 +25,7 @@ let OfferSchema = new Schema({
     offerOffline:{ type: Boolean },
     percentageDiscount:Number,
     flatDiscount:Number,
-    startDate:String,
+    startDate:{ type: Date },
     endDate:{ type: Date },
     offerPicture:String, 
     cityName:[],  

@@ -1245,16 +1245,16 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
             );
         })
-            .then((Offers) => {
-                for (var i=0;i<Offers.length;i++) {
-                    Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
-                    Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
-                }
-                callback.onSuccess(Offers);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((Offers) => {
+            for (var i=0;i<Offers.length;i++) {
+                Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
+                Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
+            }
+            callback.onSuccess(Offers);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getAllWithoutLogin(req, callback) {
