@@ -1161,8 +1161,16 @@ class OfferHandler extends BaseAutoBindedClass {
 
                 }).then((Offers) => {
                     for (var i = 0; i < Offers.length; i++) {
-                        Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
-                        Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
+                        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+                            "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                        var new_date = new Date(Offers[i].startDate);
+                        Offers[i].startDate = new_date.getDate() + ' '
+                            + months[new_date.getMonth()] + ' '
+                            + new_date.getFullYear();
+                        new_date = new Date(Offers[i].endDate);
+                        Offers[i].endDate = new_date.getDate() + ' '
+                            + months[new_date.getMonth()] + ' '
+                            + new_date.getFullYear();
                     }
                     callback.onSuccess(Offers);
                 }).catch((error) => {
