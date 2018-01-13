@@ -450,16 +450,16 @@ class OfferHandler extends BaseAutoBindedClass {
                 } else {
                     req.checkBody('offerPicture', 'offerPicture is required').notEmpty();
                 }
-                var discountTypePercentage; 
-                var discountTypeFlat; 
+                var discountTypePercentage;
+                var discountTypeFlat;
                 if (req.body.discountTypePercentage == 'false' || req.body.discountTypePercentage == '0') {
-                    discountTypePercentage = (1==0);
+                    discountTypePercentage = (1 == 0);
                 } else {
                     discountTypePercentage = Boolean(req.body.discountTypePercentage)
                 }
 
                 if (req.body.discountTypeFlat == 'false' || req.body.discountTypeFlat == '0') {
-                    discountTypeFlat = (1==0);
+                    discountTypeFlat = (1 == 0);
                 } else {
                     discountTypeFlat = Boolean(req.body.discountTypeFlat)
                 }
@@ -481,46 +481,46 @@ class OfferHandler extends BaseAutoBindedClass {
                 req.checkBody('startDate', 'startDate must be in format of mm/dd/yyyy').isDate();
                 req.checkBody('endDate', 'endDate must be in format of mm/dd/yyyy').isDate();
                 req.getValidationResult()
-                .then(function (result) {
-                    var errorMessages = {};
-                    if (!result.isEmpty()) {
-                        let errorMessages = result.array().map(function (elem) {
-                            return elem.msg;
-                        });
-                        throw new ValidationError(errorMessages);
-                    }
-                    return new OfferModel(data);
-                })
-                .then((offer) => {
-                    offer.save();
-                    var savedOffer = Object.assign({}, offer._doc);
-                    var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
-                    "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
-                    var new_date = new Date(offer.startDate);
-                    savedOffer.startDate = new_date.getDate() + ' '
-                        + months[new_date.getMonth()] + ' '
-                        + new_date.getFullYear();
-                    new_date = new Date(offer.endDate);
-                    savedOffer.endDate = new_date.getDate() + ' '
-                        + months[new_date.getMonth()] + ' '
-                        + new_date.getFullYear();
-                    return savedOffer;
-                })
-                .then((saved) => {
-                    callback.onSuccess(saved);
-                    const directory = './uploads';
-                    fs.readdir(directory, (err, files) => {
-                        if (err) throw error;
-                        for (const file of files) {
-                            fs.unlink(path.join(directory, file), err => {
-                                if (err) throw error;
+                    .then(function (result) {
+                        var errorMessages = {};
+                        if (!result.isEmpty()) {
+                            let errorMessages = result.array().map(function (elem) {
+                                return elem.msg;
                             });
+                            throw new ValidationError(errorMessages);
                         }
+                        return new OfferModel(data);
+                    })
+                    .then((offer) => {
+                        offer.save();
+                        var savedOffer = Object.assign({}, offer._doc);
+                        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+                            "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                        var new_date = new Date(offer.startDate);
+                        savedOffer.startDate = new_date.getDate() + ' '
+                            + months[new_date.getMonth()] + ' '
+                            + new_date.getFullYear();
+                        new_date = new Date(offer.endDate);
+                        savedOffer.endDate = new_date.getDate() + ' '
+                            + months[new_date.getMonth()] + ' '
+                            + new_date.getFullYear();
+                        return savedOffer;
+                    })
+                    .then((saved) => {
+                        callback.onSuccess(saved);
+                        const directory = './uploads';
+                        fs.readdir(directory, (err, files) => {
+                            if (err) throw error;
+                            for (const file of files) {
+                                fs.unlink(path.join(directory, file), err => {
+                                    if (err) throw error;
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        callback.onError(error);
                     });
-                })
-                .catch((error) => {
-                    callback.onError(error);
-                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);
@@ -885,7 +885,7 @@ class OfferHandler extends BaseAutoBindedClass {
 
     getStoreOffer(user, req, callback) {
         let data = req.body;
-        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
+        var today = (new Date().getMonth() + 1) + '/' + (new Date().getDate()) + '/' + new Date().getFullYear()
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function (result) {
@@ -896,7 +896,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } ,endDate:{'$gte':new Date(today)}}).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
+                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }, endDate: { '$gte': new Date(today) } }).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
 
                         for (var i = 0; i < offers.length; i++) {
                             offers[i].is_claimed_by_me = false;
@@ -916,7 +916,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     })
                 });
             }).then((Offers) => {
-                for (var i=0;i<Offers.length;i++) {
+                for (var i = 0; i < Offers.length; i++) {
                     Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
                     Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
                 }
@@ -1078,14 +1078,14 @@ class OfferHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.offerId),
                             'savedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                        {
-                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        }, { 'new': true, 'multi': true }).exec(function (err, offer) {
-                            offer.saveCount = offer.saveCount - 1;
-                            offer.isSave = save;
-                            offer.save()
-                            resolve(offer);
-                        })
+                            {
+                                "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                            }, { 'new': true, 'multi': true }).exec(function (err, offer) {
+                                offer.saveCount = offer.saveCount - 1;
+                                offer.isSave = save;
+                                offer.save()
+                                resolve(offer);
+                            })
                     }
 
                 });
@@ -1105,9 +1105,9 @@ class OfferHandler extends BaseAutoBindedClass {
         var qString = {};
 
         let query = req.query;
-        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
-        
-        let mongoQuery = {endDate:{'$gte':new Date(today)}};
+        var today = (new Date().getMonth() + 1) + '/' + (new Date().getDate()) + '/' + new Date().getFullYear()
+
+        let mongoQuery = { endDate: { '$gte': new Date(today) } };
         let skip = 0;
         let limit = 10;
 
@@ -1160,7 +1160,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     });
 
                 }).then((Offers) => {
-                    for (var i=0;i<Offers.length;i++) {
+                    for (var i = 0; i < Offers.length; i++) {
                         Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
                         Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
                     }
@@ -1172,10 +1172,10 @@ class OfferHandler extends BaseAutoBindedClass {
     }
 
     getAllOffers(user, req, callback) {
-        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
+        var today = (new Date().getMonth() + 1) + '/' + (new Date().getDate()) + '/' + new Date().getFullYear()
         new Promise(function (resolve, reject) {
             OfferModel.aggregate(
-                {$match:{endDate:{'$gte':new Date(today)}}},
+                { $match: { endDate: { '$gte': new Date(today) } } },
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -1245,23 +1245,31 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
             );
         })
-        .then((Offers) => {
-            for (var i=0;i<Offers.length;i++) {
-                Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
-                Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
-            }
-            callback.onSuccess(Offers);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((Offers) => {
+                for (var i = 0; i < Offers.length; i++) {
+                    var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+                        "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                    var new_date = new Date(Offers[i].startDate);
+                    Offers[i].startDate = new_date.getDate() + ' '
+                        + months[new_date.getMonth()] + ' '
+                        + new_date.getFullYear();
+                    new_date = new Date(Offers[i].endDate);
+                    Offers[i].endDate = new_date.getDate() + ' '
+                        + months[new_date.getMonth()] + ' '
+                        + new_date.getFullYear();
+                }
+                callback.onSuccess(Offers);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getAllWithoutLogin(req, callback) {
         let query = req.query;
-        var today = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'/'+new Date().getFullYear()
-        
-        let mongoQuery = {endDate:{'$gte':new Date(today)}};
+        var today = (new Date().getMonth() + 1) + '/' + (new Date().getDate()) + '/' + new Date().getFullYear()
+
+        let mongoQuery = { endDate: { '$gte': new Date(today) } };
         let skip = 0;
         let limit = 10;
 
@@ -1291,7 +1299,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     })
                 });
             }).then((Offers) => {
-                for (var i=0;i<Offers.length;i++) {
+                for (var i = 0; i < Offers.length; i++) {
                     Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
                     Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
                 }
