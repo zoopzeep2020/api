@@ -931,9 +931,9 @@ class StoreHandler extends BaseAutoBindedClass {
         }).then((store) => {
             callback.onSuccess(store);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getTrendingStore(req, callback) {
@@ -1196,7 +1196,7 @@ class StoreHandler extends BaseAutoBindedClass {
         let skip = 0;
         let limit = 10;
         var maxviewcount = 1;
-        var trendingResult = 10;
+        var trendingResult = 30;
         var arrayFinal = [];
         for (var key in query) {
             if (key == "search") {
@@ -1377,9 +1377,9 @@ class StoreHandler extends BaseAutoBindedClass {
             }
             callback.onSuccess(store);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
 
