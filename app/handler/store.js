@@ -1226,11 +1226,8 @@ class StoreHandler extends BaseAutoBindedClass {
                 skip = parseInt(query[key]);
             } else if (key == "endStores") {
                 limit = parseInt(query[key]) - skip + 1;
-            } else if (trending == 'true') {
-                limit = trendingResult;
             } else if (key == "trendingResult") {
                 trendingResult = parseInt(req.query.trendingResult)
-                limit = trendingResult;
             }
         }
         req.getValidationResult()
