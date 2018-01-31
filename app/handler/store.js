@@ -1196,7 +1196,7 @@ class StoreHandler extends BaseAutoBindedClass {
         let skip = 0;
         let limit = 0;
         var maxviewcount = 1;
-        var trendingResult = 30;
+        var trendingResult = 0;
         var arrayFinal = [];
         for (var key in query) {
             if (key == "search") {
@@ -1257,10 +1257,11 @@ class StoreHandler extends BaseAutoBindedClass {
                     }).then((maxview) => {
 
                         maxviewcount = maxview.viewCount
-                        if (results.length < trendingResult) {
-                            trendingResult = results.length
-                        }
-
+                        // if (results.length < trendingResult) {
+                        //     trendingResult = results.length
+                        // }
+                        trendingResult = results.length
+                        
                         for (let i = 0; i < results.length; i++) {
                             var finalTotal = (((5 * results[i].viewCount)) / maxviewcount) + results[i].avgRating;
                             arrayFinal.push([finalTotal, i]);
