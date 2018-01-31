@@ -1194,7 +1194,7 @@ class StoreHandler extends BaseAutoBindedClass {
         let mainObj = [];
         var storeIds = [];
         let skip = 0;
-        let limit = 10;
+        let limit = 0;
         var maxviewcount = 1;
         var trendingResult = 30;
         var arrayFinal = [];
@@ -1238,18 +1238,24 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
+
+
                 return new Promise(function (resolve, reject) {
+
                     StoreModel.find(mongoQuery).skip(skip).limit(limit).populate({ path: 'featureCatalog' }).sort().lean().exec(function (err, results) {
                         resolve(results);
                     })
+
                 });
             }).then((results) => {
+                console.log(results.length)
                 if (req.query.trending == 'true') {
                     return new Promise(function (resolve, reject) {
-                        StoreModel.findOne({}).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
+                        StoreModel.findOne({isActive:true}).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
                             resolve(store);
                         })
                     }).then((maxview) => {
+
                         maxviewcount = maxview.viewCount
                         if (results.length < trendingResult) {
                             trendingResult = results.length
@@ -1261,7 +1267,6 @@ class StoreHandler extends BaseAutoBindedClass {
                         }
 
                         arrayFinal.sort(sortFunction);
-
                         function sortFunction(a, b) {
                             if (a[0] === b[0]) {
                                 return 0;
@@ -1276,6 +1281,63 @@ class StoreHandler extends BaseAutoBindedClass {
                         }
                         return mainObj;
                     })
+                    // return new Promise(function (resolve, reject) {
+                    //     StoreModel.aggregate(
+                    //     {
+                    //         "$match": { "isActive": 1 == 1 }
+                    //     },
+                    //     { $group : { _id: null, stores:{"$addToSet": "$$ROOT"},maxViewCount: { $max : "$viewCount" }}},
+                    //     {$unwind:'$stores'},
+                    //     {
+                    //         $project:{
+                    //         _id:0,
+                    //         stores:1,
+                    //         maxViewCount:1,
+                    //         finalTotal: {
+                    //             $let: {
+                    //                 vars: {
+                    //                     total: { $divide: [{ $multiply: ['$stores.viewCount', 5] }, "$maxViewCount" ] },
+                    //                 },
+                    //                 in: { $add: ["$stores.avgRating", "$$total"] }
+                    //                 }
+                    //             },
+                    //         }
+                    //     },  
+                    //     { '$sort': { finalTotal: -1 } },
+                    //     {
+                    //         '$project':{
+                    //             _id:'$stores._id',
+                    //             storeName: '$stores.storeName',
+                    //             avgRating: '$stores.avgRating',
+                    //             finalTotal: '$finalTotal',
+                    //             storeBanner: '$stores.storeBanner',
+                    //             storeDiscription: '$stores.storeDiscription',
+                    //             storeLogo: '$stores.storeLogo',
+                    //             featureCatalog: '$stores.featureCatalog',
+                    //         }
+                    //     },
+                    //     {
+                    //         "$lookup": {
+                    //             "from": 'catalogs',
+                    //             "localField": "featureCatalog",
+                    //             "foreignField": "_id",
+                    //             "as": "featureCatalogInfo"
+                    //         }
+                    //     },                                 
+                    //     {
+                    //         $unwind:{
+                    //             path: "$featureCatalogInfo",
+                    //             preserveNullAndEmptyArrays: true
+                    //         }
+                    //     },
+                    //     function (err, results) {
+                    //         if (err !== null) {
+                    //             reject(err);
+                    //         } else {
+                    //             resolve(results);
+                    //         }
+                    //     })
+                    // });
                 } else {
                     return results;
                 }
@@ -1321,6 +1383,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     return results;
                 }
             }).then((results) => {
+                console.log(results.length)
                 callback.onSuccess(results);
 
             }).catch((error) => {
