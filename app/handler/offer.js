@@ -4,9 +4,13 @@
  */
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const fs = require('fs');
 const async = require('async');
 const mkdirp = require('mkdirp');
@@ -417,6 +421,7 @@ class OfferHandler extends BaseAutoBindedClass {
      *         type: string
      */
     createNewOffer(req, callback) {
+        let ModelData = {};
         req.body.startDate = this.getDDMMMYYYY(req.body.startDate)
         req.body.endDate = this.getDDMMMYYYY(req.body.endDate)
         let validator = this._validator;
@@ -490,8 +495,24 @@ class OfferHandler extends BaseAutoBindedClass {
                             throw new ValidationError(errorMessages);
                         }
                         return new OfferModel(data);
+                    }).then((offer) => {
+                        return new Promise(function (resolve, reject) {
+                            StoreModel.findOne({ _id: offer.storeId }, function (err, store) {
+                                if (err !== null) {
+                                    reject(err);
+                                } else {
+                                    if (!store) {
+                                        reject(new NotFoundError("store not found"));
+                                    } else {
+                                        offer.storeCity = store.storeCity
+                                        resolve(offer);
+                                    }
+                                }
+                            })
+                        });
                     })
                     .then((offer) => {
+                        offer.isActive = true;
                         offer.save();
                         var savedOffer = Object.assign({}, offer._doc);
                         var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
@@ -505,22 +526,64 @@ class OfferHandler extends BaseAutoBindedClass {
                             + months[new_date.getMonth()] + ' '
                             + new_date.getFullYear();
                         return savedOffer;
-                    })
-                    .then((saved) => {
-                        callback.onSuccess(saved);
-                        const directory = './uploads';
-                        fs.readdir(directory, (err, files) => {
-                            if (err) throw error;
-                            for (const file of files) {
-                                fs.unlink(path.join(directory, file), err => {
-                                    if (err) throw error;
-                                });
-                            }
-                        });
-                    })
-                    .catch((error) => {
-                        callback.onError(error);
+                    }).then((offer) => {
+                        StoreModel.aggregate(
+                            { "$match": { "_id": offer.storeId }  }  ,
+                                function (err, store) {
+                                if (err !== null) {
+                                    return err;
+                                } else {
+                                    if (!store) {
+                                        return new NotFoundError("store not found");
+                                    } else {
+                                        UserModel.aggregate(
+                                        { "$match": { "_id":  { "$in": store[0].bookmarkBy }  }  }  ,
+                                            function (err, users) {
+                                                if (err !== null) {
+                                                    return err;
+                                                } else {
+                                                    if (!users) {
+                                                        return new NotFoundError("user not found");
+                                                    } else {
+                                                        for(var j=0;j<users.length;j++)
+                                                        {
+                                                            ModelData['storeId'] = users[j].storeID
+                                                            ModelData['title'] = 'title'
+                                                            ModelData['deviceToken'] = users[j].deviceToken
+                                                            ModelData['deviceType'] =  users[j].deviceType
+                                                            ModelData['notificationType'] = 'offer'
+                                                            ModelData['description'] =  users[j].storeName+' has created offer';
+                                                            StoreNotificationModel(ModelData).save();
+                                                            if(ModelData['deviceToken']){
+                                                                if (ModelData['deviceType'] == 'android') {
+                                                                    sendAndroidNotification(ModelData)
+                                                                } else if (ModelData['deviceType'] == 'ios') {
+                                                                    sendAppleNotification(ModelData)
+                                                                } 
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                    }
+                                }
+                        })                
+                    return offer;
+                }).then((saved) => {
+                    callback.onSuccess(saved);
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
                     });
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);
@@ -532,7 +595,7 @@ class OfferHandler extends BaseAutoBindedClass {
         let data = req.body;
         let query = req.query;
         let stores = [];
-        let mongoQuery = {};
+        let mongoQuery = { isActive:true};
         var queryString = url.parse(req.url, true).search;
         let skip = 0;
         let limit = 10;
@@ -571,7 +634,11 @@ class OfferHandler extends BaseAutoBindedClass {
                                 { 'offerName': { $regex: new RegExp(query[key], 'i') } },
                                 { 'offerDescription': { $regex: new RegExp(query[key], 'i') } }
                             ]
-                        } else if (key == "startOffers") {
+                        } else if (key == "location") {
+                            var re = new RegExp(query[key], 'i');
+                            mongoQuery['storeCity'] = { "$in": [re] };
+                        } 
+                        else if (key == "startOffers") {
                             skip = parseInt(query[key]);
                         } else if (key == "endOffers") {
                             limit = parseInt(query[key]) - skip + 1;
@@ -896,8 +963,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }, endDate: { '$gte': new Date(today) } }).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
-
+                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }, endDate: { '$gte': new Date(today) } },{isActive:true}).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
                         for (var i = 0; i < offers.length; i++) {
                             offers[i].is_claimed_by_me = false;
                             if (offers[i].claimedOfferBy == undefined) {
@@ -937,7 +1003,6 @@ class OfferHandler extends BaseAutoBindedClass {
     //                 });
     //                 throw new ValidationError(errorMessages);
     //             }
-
     //             return new Promise(function (resolve, reject) {
     //                 OfferModel.aggregate(
     //                     { "$match": { "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },

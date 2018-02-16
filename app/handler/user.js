@@ -5,6 +5,8 @@ const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const AdminModel = require(APP_MODEL_PATH + 'admin').AdminModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const StoreHandler = require(APP_HANDLER_PATH + 'store');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const AlreadyExistsError = require(APP_ERROR_PATH + 'already-exists');
@@ -843,6 +845,7 @@ class UserHandler {
     claimOffer(req, callback) {
         let data = req.body;
         let validator = this._validator;
+        let ModelData = {}
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
             .then(function (result) {
@@ -867,13 +870,40 @@ class UserHandler {
                             }
                         })
                 });
-            })
-            .then((saved) => {
-                callback.onSuccess(saved);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+            }).then((offer) => {
+                UserModel.aggregate(
+                    { "$match": { "storeId": offer.storeId } } ,
+                        function (err, stores) {
+                        if (err !== null) {
+                            return err;
+                        } else {
+                            if (!stores) {
+                                return new NotFoundError("Offer not found");
+                            } else {
+                                ModelData['storeId'] = stores[0].storeID
+                                ModelData['title'] = 'title'
+                                ModelData['deviceToken'] = stores[0].deviceToken
+                                ModelData['deviceType'] =  stores[0].deviceType
+                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['description'] =  stores[0].name+' has claimed your offer';
+                                StoreNotificationModel(ModelData).save();
+                                if(ModelData['deviceToken']){
+                                    if (ModelData['deviceType'] == 'android') {
+                                        sendAndroidNotification(ModelData)
+                                    } else if (ModelData['deviceType'] == 'ios') {
+                                        sendAppleNotification(ModelData)
+                                    } 
+                                }
+                            }
+                        }
+                })                
+            return offer;
+        }).then((saved) => {
+            callback.onSuccess(saved);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     updateUser(req, callback) {
@@ -1038,6 +1068,9 @@ class UserHandler {
                 isUser: user.isUser,
                 isStore: user.isStore,
                 email: user.email,
+                deviceToken: user.deviceToken,
+                deviceType: user.deviceType,
+                name: user.name,
                 userImage: user.userImage,
                 scope: 'default'
             };
@@ -1047,6 +1080,9 @@ class UserHandler {
                 isAdmin: user.isAdmin,
                 isUser: user.isUser,
                 isStore: user.isStore,
+                deviceToken: user.deviceToken,
+                deviceType: user.deviceType,
+                name: user.name,
                 email: user.email,
                 userImage: user.userImage,
                 scope: 'default'

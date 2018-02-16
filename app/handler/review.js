@@ -2,11 +2,15 @@
  * Created by WebrexStudio on 5/13/17.
  */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const AlreadyExistsError = require(APP_ERROR_PATH + 'already-exists');
+var request = require('request');
 
 class ReviewHandler extends BaseAutoBindedClass {
     constructor() {
@@ -244,6 +248,8 @@ class ReviewHandler extends BaseAutoBindedClass {
 
     createNewReview(req, callback) {
         let data = req.body;
+        let ModelData = {};
+        
         let validator = this._validator;
         let update = false;
         req.checkBody('ratingScale', 'rating Scale required').notEmpty();
@@ -294,6 +300,35 @@ class ReviewHandler extends BaseAutoBindedClass {
                         }
                     })
                 })
+            })
+            .then((review) => {
+                    UserModel.aggregate(
+                        { "$match": { "storeId": review.storeId } } ,
+                            function (err, stores) {
+                            if (err !== null) {
+                                return err;
+                            } else {
+                                if (!stores) {
+                                    return new NotFoundError("store not found");
+                                } else {
+                                    ModelData['storeId'] = stores[0].storeID
+                                    ModelData['title'] = 'title'
+                                    ModelData['deviceToken'] = stores[0].deviceToken
+                                    ModelData['deviceType'] =  stores[0].deviceType
+                                    ModelData['notificationType'] = 'bookmark'
+                                    ModelData['description'] =  stores[0].name+' has reviewed your store';
+                                    StoreNotificationModel(ModelData).save();
+                                    if(ModelData['deviceToken']){
+                                        if (ModelData['deviceType'] == 'android') {
+                                            sendAndroidNotification(ModelData)
+                                        } else if (ModelData['deviceType'] == 'ios') {
+                                            sendAppleNotification(ModelData)
+                                        } 
+                                    }
+                                }
+                            }
+                    })                
+                return review;
             }).then((review) => {
                 for (var key in req.body) {
                     review[key] = req.body[key];

@@ -43,7 +43,6 @@ class CredentialsAuthStrategy extends LocalAuthStrategy {
             session: false
         };
     }
-
     getSecretKey() {
         throw new Error("No key is required for this type of auth");
     }

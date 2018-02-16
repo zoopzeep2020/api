@@ -24,6 +24,7 @@
   "author": "Webrex Studio",
   "license": "MIT",
   "dependencies": {
+    "apn": "^2.2.0",
     "auto-bind": "^1.1.0",
     "bcrypt-nodejs": "latest",
     "body-parser": "^1.17.1",

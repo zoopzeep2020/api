@@ -1,9 +1,14 @@
+
+
 /**
  * Created by WebrexStudio on 5/13/17.
  */
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -242,8 +247,9 @@ class MylistHandler extends BaseAutoBindedClass {
         };
     }
 
-    createNewMylist(req, callback) {
+    createNewMylist(user, req, callback) {
         let data = req.body;
+        let ModelData = {};
         let validator = this._validator;
         req.checkBody(MylistHandler.MYLIST_VALIDATION_SCHEME);
         req.checkBody('stores', 'minimum one list is required').notEmpty();
@@ -262,7 +268,81 @@ class MylistHandler extends BaseAutoBindedClass {
             .then((mylist) => {
                 mylist.save();
                 return mylist;
-            })
+            }).then((store) => {
+                // console.log(store.stores)
+                // var storesIds = [] 
+                // for(var i=0;i<store.stores.length;i++){
+                //     storesIds.push(mongoose.Types.ObjectId(store.stores[i]))
+                // }
+                // console.log(typeof storesIds[0])
+                
+                // UserModel.aggregate(
+                //     { "$match": { "storeId": { "$in": storesIds } } },
+                //     function (err, stores) {
+                //         if (err !== null) {
+                //             return err;
+                //         } else {
+                //             if (!stores) {
+                //                 return new NotFoundError("Offer not found");
+                //             } else {
+                //                 for(var j=0;j<stores.length;j++)
+                //                 {
+                //                     let ModelData = {};
+                //                     ModelData['storeId'] = stores[j].storeID
+                //                     ModelData['title'] = 'title'
+                //                     ModelData['deviceToken'] = 'deviceToken'
+                //                     ModelData['deviceType'] =  stores[j].deviceType
+                //                     ModelData['notificationType'] = 'bookmark'
+                //                     ModelData['description'] =  stores[j].name+' has added your store to his list';
+                //                     StoreNotificationModel(ModelData).save();
+                //                 }
+                //             }
+                //         }
+                //     })
+                
+                // if ( ModelData['type']) {}
+                // console.log(MyModule)
+                // console.log(MyModule.MyModuleHandler)
+                // this.sendAppleNotification(ModelData)
+                // this.sendAndroidNotification(ModelData)
+                
+                return store;
+            }).then((store) => {
+                var storesIds = [] 
+                for(var i=0;i<store.stores.length;i++){
+                    storesIds.push(mongoose.Types.ObjectId(store.stores[i]))
+                }
+                UserModel.aggregate(
+                    { "$match": { "storeId": { "$in": storesIds } } },
+                        function (err, stores) {
+                        if (err !== null) {
+                            return err;
+                        } else {
+                            if (!stores) {
+                                return new NotFoundError("Store not found");
+                            } else {
+                                for(var j=0;j<stores.length;j++)
+                                {
+                                    ModelData['storeId'] = stores[j].storeID
+                                    ModelData['title'] = 'title'
+                                    ModelData['deviceToken'] = stores[j].deviceToken
+                                    ModelData['deviceType'] =  stores[j].deviceType
+                                    ModelData['notificationType'] = 'mylist'
+                                    ModelData['description'] =  stores[j].name+' has bookmarked your store';
+                                    StoreNotificationModel(ModelData).save();
+                                    if(ModelData['deviceToken']){
+                                        if (ModelData['deviceType'] == 'android') {
+                                            sendAndroidNotification(ModelData)
+                                        } else if (ModelData['deviceType'] == 'ios') {
+                                            sendAppleNotification(ModelData)
+                                        } 
+                                    }
+                                }
+                            }
+                        }
+                })                
+            return store;
+        })
             .then((saved) => {
                 callback.onSuccess(saved);
             })

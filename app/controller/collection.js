@@ -57,7 +57,7 @@ class CollectionController extends BaseController {
 
     create(req, res, next) {
         this.authenticate(req, res, next, (token, user) => {
-            if (user.isAdmin || (user.isStore && user.storeId == req.body.storeId)) {
+            if (user.isAdmin || user.isStore) {
                 this._collectionHandler.createNewCollection(req, this._responseManager.getDefaultResponseHandler(res));
             } else {
                 this._responseManager.respondWithError(res, 404, "access not available")

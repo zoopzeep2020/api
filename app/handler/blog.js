@@ -15,6 +15,8 @@ const imagemin = require('imagemin');
 const imageminMozjpeg = require('imagemin-mozjpeg');
 const imageminPngquant = require('imagemin-pngquant');
 
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 /**
  * @swagger
  * /blogs/withoutlogin:
@@ -323,6 +325,7 @@ class BlogHandler extends BaseAutoBindedClass {
     }
 
     createNewBlog(req, callback) {
+        let ModelData = {}
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
@@ -400,6 +403,20 @@ class BlogHandler extends BaseAutoBindedClass {
                         return blog;
                     })
                     .then((saved) => {
+                        // ModelData['blogId'] = saved._id
+                        // ModelData['title'] = 'title'
+                        // ModelData['deviceToken'] = 'cFbFZZeGWu8:APA91bEhOIstS0w38G-W21kFOJl2jztIGk2aRf7JfRu6LN1RPgC73csj6ZZlOtLhdbrAZ3cKHe1xPHXD-kAw2jaiAjOQH0picWL-i0qXCvsqHJhlr5A4xUPsm80liG7cr721WZM4fztY'
+                        // ModelData['deviceType'] =  'android'
+                        // ModelData['notificationType'] = 'blog'
+                        // ModelData['description'] =  'ZeepZoop has added new blog';
+                        // StoreNotificationModel(ModelData).save();
+                        // if(ModelData['deviceToken']){
+                        //     if (ModelData['deviceType'] == 'android') {
+                        //         sendAndroidNotification(ModelData)
+                        //     } else if (ModelData['deviceType'] == 'ios') {
+                        //         sendAppleNotification(ModelData)
+                        //     } 
+                        // }
                         callback.onSuccess(saved);
                         const directory = './uploads';
                         fs.readdir(directory, (err, files) => {

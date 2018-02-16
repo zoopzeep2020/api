@@ -24,7 +24,7 @@ let UserSchema = new Schema({
     },
     bookmarkStores: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'store'
+        ref: 'Store'
     }],
     salt: {
         type: String,

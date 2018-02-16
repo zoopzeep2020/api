@@ -6,8 +6,11 @@
  */
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const mongoose = require('mongoose');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const fs = require('fs');
@@ -416,6 +419,7 @@ class CatalogHandler extends BaseAutoBindedClass {
     }
 
     updateCatalog(req, callback) {
+        let ModelData = {}
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
         async.waterfall([
@@ -476,22 +480,64 @@ class CatalogHandler extends BaseAutoBindedClass {
                         }
                         catalog.save();
                         return catalog;
-                    })
-                    .then((saved) => {
-                        callback.onSuccess(saved);
-                        const directory = './uploads';
-                        fs.readdir(directory, (err, files) => {
-                            if (err) throw error;
-                            for (const file of files) {
-                                fs.unlink(path.join(directory, file), err => {
-                                    if (err) throw error;
-                                });
-                            }
-                        });
-                    })
-                    .catch((error) => {
-                        callback.onError(error);
+                    }).then((catalog) => {
+                        StoreModel.aggregate(
+                            { "$match": { "_id": catalog.storeId }  }  ,
+                                function (err, store) {
+                                if (err !== null) {
+                                    return err;
+                                } else {
+                                    if (!store) {
+                                        return new NotFoundError("store not found");
+                                    } else {
+                                        UserModel.aggregate(
+                                        { "$match": { "_id":  { "$in": store[0].bookmarkBy }  }  }  ,
+                                            function (err, users) {
+                                                if (err !== null) {
+                                                    return err;
+                                                } else {
+                                                    if (!users) {
+                                                        return new NotFoundError("user not found");
+                                                    } else {
+                                                        for(var j=0;j<users.length;j++)
+                                                        {
+                                                            ModelData['storeId'] = users[j].storeID
+                                                            ModelData['title'] = 'title'
+                                                            ModelData['deviceToken'] = users[j].deviceToken
+                                                            ModelData['deviceType'] = users[j].deviceType
+                                                            ModelData['notificationType'] = 'bookmark'
+                                                            ModelData['description'] =  users[j].storeName+' has updated their catalogue';
+                                                            StoreNotificationModel(ModelData).save();
+                                                            if(ModelData['deviceToken']){
+                                                                if (ModelData['deviceType'] == 'android') {
+                                                                    sendAndroidNotification(ModelData)
+                                                                } else if (ModelData['deviceType'] == 'ios') {
+                                                                    sendAppleNotification(ModelData)
+                                                                } 
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                    }
+                                }
+                        })                
+                    return catalog;
+                }).then((saved) => {
+                    callback.onSuccess(saved);
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
                     });
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);

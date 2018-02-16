@@ -32,4 +32,5 @@ BookmarkSchema.methods.toJSON = function() {
     delete obj.dateCreated;
     return obj
 };
+
 module.exports.BookmarkModel = mongoose.model('Bookmark', BookmarkSchema);

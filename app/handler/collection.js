@@ -3,10 +3,14 @@
  */
 const CollectionModel = require(APP_MODEL_PATH + 'collection').CollectionModel;
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const fs = require('fs');
 const async = require('async');
 const mkdirp = require('mkdirp');
@@ -289,6 +293,7 @@ class CollectionHandler extends BaseAutoBindedClass {
     */
 
     createNewCollection(req, callback) {
+        let ModelData = {};
         let validator = this._validator;
         const targetDir = 'public/' + (new Date()).getFullYear() + '/' + (((new Date()).getMonth() + 1) + '/');
         let files = this.objectify(req.files);
@@ -325,7 +330,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                 if ((req.body.storId === null || req.body.storId === undefined) && (req.body.offerId === null || req.body.offerId === undefined) && (req.body.catalogId === null || req.body.catalogId === undefined)) {
                     req.checkBody('storeId', 'storeId,offerId or catalogId is required').notEmpty();
                 }
-
                 req.getValidationResult()
                     .then(function (result) {
                         var errorMessages = {};
@@ -340,8 +344,95 @@ class CollectionHandler extends BaseAutoBindedClass {
                     .then((collection) => {
                         collection.save();
                         return collection;
-                    })
-                    .then((saved) => {
+                    }).then((collection) => {
+                        if(collection.collectionType == 'offer') {
+                            var offerIds = [] 
+                        
+                            for(var i=0;i<collection.offerId.length;i++){
+                                offerIds.push(mongoose.Types.ObjectId(collection.offerId[i]))
+                            }
+                            OfferModel.aggregate(
+                                { "$match": { "_id": { "$in": offerIds } } } , function (err, offers) {
+                                    if (err !== null) {
+                                        return err;
+                                    } else {
+                                        if (!offers) {
+                                            return new NotFoundError("Offer not found");
+                                        } else {
+                                            var storeIds = [];
+                                            for(var j=0;j<offers.length;j++)
+                                            {
+                                                storeIds.push(mongoose.Types.ObjectId(offers[j].storeId))
+                                            }
+                                            UserModel.aggregate(
+                                            { "$match": { "storeId": { "$in": storeIds } } } , function (err, stores) {
+                                                if (err !== null) {
+                                                    return err;
+                                                } else {
+                                                    if (!stores) {
+                                                        return new NotFoundError("store not found");
+                                                    } else {
+                                                        for(var j=0;j<stores.length;j++)
+                                                        {
+                                                            ModelData['storeId'] = stores[j].storeID
+                                                            ModelData['title'] = 'title'
+                                                            ModelData['deviceToken'] = stores[j].deviceToken
+                                                            ModelData['deviceType'] =  stores[j].deviceType
+                                                            ModelData['notificationType'] = 'bookmark'
+                                                            ModelData['description'] =  'your store hase been added to ' + collection.collectionName;
+                                                            StoreNotificationModel(ModelData).save();
+                                                            if(ModelData['deviceToken']){
+                                                                if (ModelData['deviceType'] == 'android') {
+                                                                    sendAndroidNotification(ModelData)
+                                                                } else if (ModelData['deviceType'] == 'ios') {
+                                                                    sendAppleNotification(ModelData)
+                                                                } 
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            })
+                                        }
+                                    }
+                            })         
+                        } else {
+                            var storesIds = [] 
+                            
+                            for(var i=0;i<collection.storeId.length;i++){
+                                storesIds.push(mongoose.Types.ObjectId(collection.storeId[i]))
+                            }
+                            UserModel.aggregate(
+                                { "$match": { "storeId": { "$in": storesIds } } } ,
+                                    function (err, stores) {
+                                    if (err !== null) {
+                                        return err;
+                                    } else {
+                                        if (!stores) {
+                                            return new NotFoundError("Offer not found");
+                                        } else {
+                                            for(var j=0;j<stores.length;j++)
+                                            {
+                                                ModelData['storeId'] = stores[j].storeID
+                                                ModelData['title'] = 'title'
+                                                ModelData['deviceToken'] = 'cFbFZZeGWu8:APA91bEhOIstS0w38G-W21kFOJl2jztIGk2aRf7JfRu6LN1RPgC73csj6ZZlOtLhdbrAZ3cKHe1xPHXD-kAw2jaiAjOQH0picWL-i0qXCvsqHJhlr5A4xUPsm80liG7cr721WZM4fztY'
+                                                ModelData['deviceType'] =  'android'
+                                                ModelData['notificationType'] = 'bookmark'
+                                                ModelData['description'] =  stores[j].name+' has bookmarked your store';
+                                                StoreNotificationModel(ModelData).save();
+                                                if(ModelData['deviceToken']){
+                                                    if (ModelData['deviceType'] == 'android') {
+                                                        sendAndroidNotification(ModelData)
+                                                    } else if (ModelData['deviceType'] == 'ios') {
+                                                        sendAppleNotification(ModelData)
+                                                    } 
+                                                }
+                                            }
+                                        }
+                                    }
+                            })     
+                        }           
+                        return collection;
+                    }).then((saved) => {
                         callback.onSuccess(saved);
                         const directory = './uploads';
                         fs.readdir(directory, (err, files) => {
@@ -541,7 +632,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                     promises.push(this.getStoreCatalog(j, collection.storeId[j]._id));
                 }
             }
-
             return new Promise(function (resolve, reject) {
                 Promise.all(promises).then(function (catalogInfo) {
                     for (let i = 0; i < catalogInfo.length; i++) {

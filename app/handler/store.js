@@ -1,7 +1,12 @@
 /**
  * Created by WebrexStudio on 5/13/17.
  */
+// var demoModuleReference = require('myModule.js');
+const MyModule = require(APP_HANDLER_PATH + 'myModule');
+var apn = require('apn');
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 
@@ -11,6 +16,7 @@ const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const mongoose = require('mongoose');
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
+const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const KeywordModel = require(APP_MODEL_PATH + 'keyword').KeywordModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -30,7 +36,6 @@ class StoreHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-
     /**
      * @swagger
      * /stores/{storeId}:
@@ -898,6 +903,7 @@ class StoreHandler extends BaseAutoBindedClass {
 
     bookmarkStore(user, req, callback) {
         let data = req.body;
+        let ModelData = {}
         var bookmark = req.body.bookmark;
         let query = {};
         if (bookmark) {
@@ -929,11 +935,40 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
+                UserModel.aggregate(
+                    { "$match": { "storeId": store._id } } ,
+                        function (err, user) {
+                        if (err !== null) {
+                            return err;
+                        } else {
+                            if (!user) {
+                                return new NotFoundError("Offer not found");
+                            } else {
+                                ModelData['storeId'] = user[0].storeID
+                                ModelData['title'] = 'title'
+                                ModelData['deviceToken'] = user[0].deviceToken
+                                ModelData['deviceType'] =  user[0].deviceType
+                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['description'] =  user[0].name+' has bookmarked your store';
+                                StoreNotificationModel(ModelData).save();
+                                if(ModelData['deviceToken']){
+                                    if (ModelData['deviceType'] == 'android') {
+                                        sendAndroidNotification(ModelData)
+                                    } else if (ModelData['deviceType'] == 'ios') {
+                                        sendAppleNotification(ModelData)
+                                    } 
+                                }
+                            }
+                        }
+                })                
+            return store;
+        })
+        .then((store) => {
             callback.onSuccess(store);
         })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingStore(req, callback) {
@@ -1238,17 +1273,13 @@ class StoreHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-
-
                 return new Promise(function (resolve, reject) {
-
                     StoreModel.find(mongoQuery).skip(skip).limit(limit).populate({ path: 'featureCatalog' }).sort().lean().exec(function (err, results) {
                         resolve(results);
                     })
 
                 });
             }).then((results) => {
-                console.log(results.length)
                 if (req.query.trending == 'true') {
                     return new Promise(function (resolve, reject) {
                         StoreModel.findOne({isActive:true}).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
@@ -1384,7 +1415,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     return results;
                 }
             }).then((results) => {
-                console.log(results.length)
                 callback.onSuccess(results);
 
             }).catch((error) => {
@@ -1405,9 +1435,9 @@ class StoreHandler extends BaseAutoBindedClass {
         }).then((store) => {
             callback.onSuccess(store);
         })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     bookmarkByUser(user, req, callback) {
@@ -1446,7 +1476,6 @@ class StoreHandler extends BaseAutoBindedClass {
             });
     }
 
-
     objectify(array) {
         if (array !== undefined) {
             return array.reduce(function (p, c) {
@@ -1457,5 +1486,6 @@ class StoreHandler extends BaseAutoBindedClass {
     }
 
     noNaN(n) { return isNaN(n) ? 0 : n; }
+
 }
 module.exports = StoreHandler;
