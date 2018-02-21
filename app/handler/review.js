@@ -319,7 +319,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                                     ModelData['description'] =  stores[0].name+' has reviewed your store';
                                     StoreNotificationModel(ModelData).save();
                                     if(ModelData['deviceToken']){
-                                        if (ModelData['deviceType'] == 'android') {
+                                        if (ModelData['deviceType'] == 'Android') {
                                             sendAndroidNotification(ModelData)
                                         } else if (ModelData['deviceType'] == 'ios') {
                                             sendAppleNotification(ModelData)

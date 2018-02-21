@@ -406,12 +406,12 @@ class BlogHandler extends BaseAutoBindedClass {
                         // ModelData['blogId'] = saved._id
                         // ModelData['title'] = 'title'
                         // ModelData['deviceToken'] = 'cFbFZZeGWu8:APA91bEhOIstS0w38G-W21kFOJl2jztIGk2aRf7JfRu6LN1RPgC73csj6ZZlOtLhdbrAZ3cKHe1xPHXD-kAw2jaiAjOQH0picWL-i0qXCvsqHJhlr5A4xUPsm80liG7cr721WZM4fztY'
-                        // ModelData['deviceType'] =  'android'
+                        // ModelData['deviceType'] =  'Android'
                         // ModelData['notificationType'] = 'blog'
                         // ModelData['description'] =  'ZeepZoop has added new blog';
                         // StoreNotificationModel(ModelData).save();
                         // if(ModelData['deviceToken']){
-                        //     if (ModelData['deviceType'] == 'android') {
+                        //     if (ModelData['deviceType'] == 'Android') {
                         //         sendAndroidNotification(ModelData)
                         //     } else if (ModelData['deviceType'] == 'ios') {
                         //         sendAppleNotification(ModelData)

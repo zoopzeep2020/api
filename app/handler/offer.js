@@ -555,7 +555,7 @@ class OfferHandler extends BaseAutoBindedClass {
                                                             ModelData['description'] =  users[j].storeName+' has created offer';
                                                             StoreNotificationModel(ModelData).save();
                                                             if(ModelData['deviceToken']){
-                                                                if (ModelData['deviceType'] == 'android') {
+                                                                if (ModelData['deviceType'] == 'Android') {
                                                                     sendAndroidNotification(ModelData)
                                                                 } else if (ModelData['deviceType'] == 'ios') {
                                                                     sendAppleNotification(ModelData)

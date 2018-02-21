@@ -888,7 +888,7 @@ class UserHandler {
                                 ModelData['description'] =  stores[0].name+' has claimed your offer';
                                 StoreNotificationModel(ModelData).save();
                                 if(ModelData['deviceToken']){
-                                    if (ModelData['deviceType'] == 'android') {
+                                    if (ModelData['deviceType'] == 'Android') {
                                         sendAndroidNotification(ModelData)
                                     } else if (ModelData['deviceType'] == 'ios') {
                                         sendAppleNotification(ModelData)
