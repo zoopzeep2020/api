@@ -328,7 +328,7 @@ class MylistHandler extends BaseAutoBindedClass {
                                     ModelData['deviceToken'] = stores[j].deviceToken
                                     ModelData['deviceType'] =  stores[j].deviceType
                                     ModelData['notificationType'] = 'mylist'
-                                    ModelData['description'] =  stores[j].name+' has bookmarked your store';
+                                    ModelData['description'] =  stores[j].name+' has added your store to his list';
                                     StoreNotificationModel(ModelData).save();
                                     if(ModelData['deviceToken']){
                                         if (ModelData['deviceType'] == 'Android') {

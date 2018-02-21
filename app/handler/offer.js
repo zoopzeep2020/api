@@ -938,16 +938,17 @@ class OfferHandler extends BaseAutoBindedClass {
                                 }
                             }
                         })
-                });
-            })
-            .then((offer) => {
-                Offer.startDate = this.getDDMMMYYYY(Offer.startDate)
-                Offer.endDate = this.getDDMMMYYYY(Offer.endDate)
+                })
+                
+            }).then((offer) => {
+                offer.startDate = this.getDDMMMYYYY(offer.startDate)
+                offer.endDate = this.getDDMMMYYYY(offer.endDate)
                 callback.onSuccess(offer);
             })
             .catch((error) => {
                 callback.onError(error);
             });
+            
     }
 
     getStoreOffer(user, req, callback) {
