@@ -946,7 +946,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             } else {
                                 ModelData['storeId'] = user[0].storeID
                                 ModelData['title'] = 'title'
-                                ModelData['deviceToken'] = user[0].deviceToken
+                                ModelData['deviceToken'] = "cFbFZZeGWu8:APA91bEhOIstS0w38G-W21kFOJl2jztIGk2aRf7JfRu6LN1RPgC73csj6ZZlOtLhdbrAZ3cKHe1xPHXD-kAw2jaiAjOQH0picWL-i0qXCvsqHJhlr5A4xUPsm80liG7cr721WZM4fztY"
                                 ModelData['deviceType'] =  user[0].deviceType
                                 ModelData['notificationType'] = 'bookmark'
                                 ModelData['description'] =  user[0].name+' has bookmarked your store';

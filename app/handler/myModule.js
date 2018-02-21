@@ -1,6 +1,7 @@
 var request = require('request');
 
 module.exports.sendAndroidNotification = function(obj){
+    console.log("inside notification function")
             var URLStore = 'https://gcm-http.googleapis.com/gcm/send';
             var optionsStore = {
                 url: URLStore,
@@ -21,7 +22,7 @@ module.exports.sendAndroidNotification = function(obj){
                 )
             };
             request(optionsStore, function (error, response, body) {
-                // console.log("response",body)
+                console.log("response",body)
                 // let storesData = JSON.parse(body)['data'];
                 // for (let i = 0; i < storesData.length; i++) {
                 //     stores[i] = storesData[i]._id;
