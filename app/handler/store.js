@@ -954,7 +954,7 @@ class StoreHandler extends BaseAutoBindedClass {
                                 if(ModelData['deviceToken']){
                                     if (ModelData['deviceType'] == 'Android') {
                                         sendAndroidNotification(ModelData)
-                                    } else if (ModelData['deviceType'] == 'ios') {
+                                    } else if (ModelData['deviceType'] == 'IOS') {
                                         sendAppleNotification(ModelData)
                                     } 
                                 }

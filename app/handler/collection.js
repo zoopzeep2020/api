@@ -379,12 +379,12 @@ class CollectionHandler extends BaseAutoBindedClass {
                                                             ModelData['deviceToken'] = stores[j].deviceToken
                                                             ModelData['deviceType'] =  stores[j].deviceType
                                                             ModelData['notificationType'] = 'bookmark'
-                                                            ModelData['description'] =  'your store hase been added to ' + collection.collectionName;
+                                                            ModelData['description'] =  'your store has been added to ' + collection.collectionName;
                                                             StoreNotificationModel(ModelData).save();
                                                             if(ModelData['deviceToken']){
                                                                 if (ModelData['deviceType'] == 'Android') {
                                                                     sendAndroidNotification(ModelData)
-                                                                } else if (ModelData['deviceType'] == 'ios') {
+                                                                } else if (ModelData['deviceType'] == 'IOS') {
                                                                     sendAppleNotification(ModelData)
                                                                 } 
                                                             }
@@ -397,7 +397,6 @@ class CollectionHandler extends BaseAutoBindedClass {
                             })         
                         } else {
                             var storesIds = [] 
-                            
                             for(var i=0;i<collection.storeId.length;i++){
                                 storesIds.push(mongoose.Types.ObjectId(collection.storeId[i]))
                             }
@@ -422,7 +421,7 @@ class CollectionHandler extends BaseAutoBindedClass {
                                                 if(ModelData['deviceToken']){
                                                     if (ModelData['deviceType'] == 'Android') {
                                                         sendAndroidNotification(ModelData)
-                                                    } else if (ModelData['deviceType'] == 'ios') {
+                                                    } else if (ModelData['deviceType'] == 'IOS') {
                                                         sendAppleNotification(ModelData)
                                                     } 
                                                 }

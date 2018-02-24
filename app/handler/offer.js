@@ -10,6 +10,7 @@ const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 
 const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const fs = require('fs');
 const async = require('async');
@@ -557,7 +558,7 @@ class OfferHandler extends BaseAutoBindedClass {
                                                             if(ModelData['deviceToken']){
                                                                 if (ModelData['deviceType'] == 'Android') {
                                                                     sendAndroidNotification(ModelData)
-                                                                } else if (ModelData['deviceType'] == 'ios') {
+                                                                } else if (ModelData['deviceType'] == 'IOS') {
                                                                     sendAppleNotification(ModelData)
                                                                 } 
                                                             }
@@ -590,7 +591,7 @@ class OfferHandler extends BaseAutoBindedClass {
             else return data;
         });
     }
-
+ 
     getOfferBySearch(req, callback) {
         let data = req.body;
         let query = req.query;
@@ -634,7 +635,7 @@ class OfferHandler extends BaseAutoBindedClass {
                                 { 'offerName': { $regex: new RegExp(query[key], 'i') } },
                                 { 'offerDescription': { $regex: new RegExp(query[key], 'i') } }
                             ]
-                        } else if (key == "location") {
+                        } else if (key == "storeCity") {
                             var re = new RegExp(query[key], 'i');
                             mongoQuery['storeCity'] = { "$in": [re] };
                         } 
@@ -644,18 +645,29 @@ class OfferHandler extends BaseAutoBindedClass {
                             limit = parseInt(query[key]) - skip + 1;
                         }
                     }
-                    OfferModel.find(mongoQuery).skip(skip).limit(limit).exec(function (err, results) {
-                        resolve(results);
+                    OfferModel.find(mongoQuery).skip(skip).limit(limit).exec(function (err, Offers) {
+                        resolve(Offers);
                     })
+                }).then((Offers) => {
+                    for (var i = 0; i < Offers.length; i++) {
+                        var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+                            "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                        var new_date = new Date(Offers[i].startDate);
+                        Offers[i].startDate = new_date.getDate() + ' '
+                            + months[new_date.getMonth()] + ' '
+                            + new_date.getFullYear();
+                        new_date = new Date(Offers[i].endDate);
+                        Offers[i].endDate = new_date.getDate() + ' '
+                            + months[new_date.getMonth()] + ' '
+                            + new_date.getFullYear();
+                        console.log(new_date.getDate() + ' '+ months[new_date.getMonth()] + ' '+ new_date.getFullYear())
+                    }
+                    callback.onSuccess(Offers);
+                })
+                .catch((error) => {
+                    callback.onError(error);
                 });
-            }).then((offer) => {
-                offer.startDate = this.getDDMMMYYYY(offer.startDate)
-                offer.endDate = this.getDDMMMYYYY(offer.endDate)
-                callback.onSuccess(offer);
             })
-            .catch((error) => {
-                callback.onError(error);
-            });
     }
 
     deleteOffer(req, callback) {
@@ -1319,24 +1331,24 @@ class OfferHandler extends BaseAutoBindedClass {
                 }
             );
         })
-            .then((Offers) => {
-                for (var i = 0; i < Offers.length; i++) {
-                    var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
-                        "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
-                    var new_date = new Date(Offers[i].startDate);
-                    Offers[i].startDate = new_date.getDate() + ' '
-                        + months[new_date.getMonth()] + ' '
-                        + new_date.getFullYear();
-                    new_date = new Date(Offers[i].endDate);
-                    Offers[i].endDate = new_date.getDate() + ' '
-                        + months[new_date.getMonth()] + ' '
-                        + new_date.getFullYear();
-                }
-                callback.onSuccess(Offers);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((Offers) => {
+            for (var i = 0; i < Offers.length; i++) {
+                var months = ["Jan", "Feb", "Mar", "Apr", "May", "June",
+                    "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                var new_date = new Date(Offers[i].startDate);
+                Offers[i].startDate = new_date.getDate() + ' '
+                    + months[new_date.getMonth()] + ' '
+                    + new_date.getFullYear();
+                new_date = new Date(Offers[i].endDate);
+                Offers[i].endDate = new_date.getDate() + ' '
+                    + months[new_date.getMonth()] + ' '
+                    + new_date.getFullYear();
+            }
+            callback.onSuccess(Offers);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getAllWithoutLogin(req, callback) {
