@@ -35,8 +35,8 @@ class AuthHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                console.log(req.body, user);
-                for (var key in req.body.deviceType, req.body.deviceToken) {
+                console.log(req.body, user, req.body.deviceType, req.body.deviceToken);
+                for (var key in req.body) {
                     console.log(key);
                     if (key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType') {
                         console.log(key);
