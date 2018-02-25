@@ -10,6 +10,7 @@ const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const fs = require('fs');
 const async = require('async');
@@ -345,14 +346,14 @@ class CollectionHandler extends BaseAutoBindedClass {
                         collection.save();
                         return collection;
                     }).then((collection) => {
-                        if(collection.collectionType == 'offer') {
-                            var offerIds = [] 
-                        
-                            for(var i=0;i<collection.offerId.length;i++){
+                        if (collection.collectionType == 'offer') {
+                            var offerIds = []
+
+                            for (var i = 0; i < collection.offerId.length; i++) {
                                 offerIds.push(mongoose.Types.ObjectId(collection.offerId[i]))
                             }
                             OfferModel.aggregate(
-                                { "$match": { "_id": { "$in": offerIds } } } , function (err, offers) {
+                                { "$match": { "_id": { "$in": offerIds } } }, function (err, offers) {
                                     if (err !== null) {
                                         return err;
                                     } else {
@@ -360,76 +361,73 @@ class CollectionHandler extends BaseAutoBindedClass {
                                             return new NotFoundError("Offer not found");
                                         } else {
                                             var storeIds = [];
-                                            for(var j=0;j<offers.length;j++)
-                                            {
+                                            for (var j = 0; j < offers.length; j++) {
                                                 storeIds.push(mongoose.Types.ObjectId(offers[j].storeId))
                                             }
                                             UserModel.aggregate(
-                                            { "$match": { "storeId": { "$in": storeIds } } } , function (err, stores) {
-                                                if (err !== null) {
-                                                    return err;
-                                                } else {
-                                                    if (!stores) {
-                                                        return new NotFoundError("store not found");
+                                                { "$match": { "storeId": { "$in": storeIds } } }, function (err, stores) {
+                                                    if (err !== null) {
+                                                        return err;
                                                     } else {
-                                                        for(var j=0;j<stores.length;j++)
-                                                        {
-                                                            ModelData['storeId'] = stores[j].storeID
-                                                            ModelData['title'] = 'title'
-                                                            ModelData['deviceToken'] = stores[j].deviceToken
-                                                            ModelData['deviceType'] =  stores[j].deviceType
-                                                            ModelData['notificationType'] = 'bookmark'
-                                                            ModelData['description'] =  'your store has been added to ' + collection.collectionName;
-                                                            StoreNotificationModel(ModelData).save();
-                                                            if(ModelData['deviceToken']){
-                                                                if (ModelData['deviceType'] == 'Android') {
-                                                                    sendAndroidNotification(ModelData)
-                                                                } else if (ModelData['deviceType'] == 'IOS') {
-                                                                    sendAppleNotification(ModelData)
-                                                                } 
+                                                        if (!stores) {
+                                                            return new NotFoundError("store not found");
+                                                        } else {
+                                                            for (var j = 0; j < stores.length; j++) {
+                                                                ModelData['storeId'] = stores[j].storeID
+                                                                ModelData['title'] = 'title'
+                                                                ModelData['deviceToken'] = stores[j].deviceToken
+                                                                ModelData['deviceType'] = stores[j].deviceType
+                                                                ModelData['notificationType'] = 'bookmark'
+                                                                ModelData['description'] = 'your store has been added to ' + collection.collectionName;
+                                                                StoreNotificationModel(ModelData).save();
+                                                                if (ModelData['deviceToken']) {
+                                                                    if (ModelData['deviceType'] == 'Android') {
+                                                                        sendAndroidNotification(ModelData)
+                                                                    } else if (ModelData['deviceType'] == 'IOS') {
+                                                                        sendAppleNotification(ModelData)
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                }
-                                            })
+                                                })
                                         }
                                     }
-                            })         
+                                })
                         } else {
-                            var storesIds = [] 
-                            for(var i=0;i<collection.storeId.length;i++){
+                            var storesIds = []
+                            for (var i = 0; i < collection.storeId.length; i++) {
                                 storesIds.push(mongoose.Types.ObjectId(collection.storeId[i]))
                             }
                             UserModel.aggregate(
-                                { "$match": { "storeId": { "$in": storesIds } } } ,
-                                    function (err, stores) {
+                                { "$match": { "storeId": { "$in": storesIds } } },
+                                function (err, stores) {
                                     if (err !== null) {
                                         return err;
                                     } else {
                                         if (!stores) {
                                             return new NotFoundError("Offer not found");
                                         } else {
-                                            for(var j=0;j<stores.length;j++)
-                                            {
+                                            for (var j = 0; j < stores.length; j++) {
                                                 ModelData['storeId'] = stores[j].storeID
                                                 ModelData['title'] = 'title'
                                                 ModelData['deviceToken'] = 'cFbFZZeGWu8:APA91bEhOIstS0w38G-W21kFOJl2jztIGk2aRf7JfRu6LN1RPgC73csj6ZZlOtLhdbrAZ3cKHe1xPHXD-kAw2jaiAjOQH0picWL-i0qXCvsqHJhlr5A4xUPsm80liG7cr721WZM4fztY'
-                                                ModelData['deviceType'] =  'Android'
+                                                ModelData['deviceType'] = 'Android'
                                                 ModelData['notificationType'] = 'bookmark'
-                                                ModelData['description'] =  stores[j].name+' has bookmarked your store';
+                                                ModelData['description'] = stores[j].name + ' has bookmarked your store';
                                                 StoreNotificationModel(ModelData).save();
-                                                if(ModelData['deviceToken']){
+                                                if (ModelData['deviceToken']) {
                                                     if (ModelData['deviceType'] == 'Android') {
                                                         sendAndroidNotification(ModelData)
                                                     } else if (ModelData['deviceType'] == 'IOS') {
                                                         sendAppleNotification(ModelData)
-                                                    } 
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                            })     
-                        }           
+                                })
+                        }
                         return collection;
                     }).then((saved) => {
                         callback.onSuccess(saved);

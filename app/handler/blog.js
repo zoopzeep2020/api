@@ -16,6 +16,7 @@ const imageminMozjpeg = require('imagemin-mozjpeg');
 const imageminPngquant = require('imagemin-pngquant');
 
 const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 /**
  * @swagger
@@ -612,31 +613,31 @@ class BlogHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'likedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                        {
-                            '$addToSet': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
-                        },
-                        { 'new': true, 'multi': true },
-                        function (err, blog) {
-                            blog.likeCount = blog.likeCount + 1;
-                            blog.isLike = true;
-                            blog.save();
-                            resolve(blog);
-                        })
+                            {
+                                '$addToSet': { 'likedBy': mongoose.Types.ObjectId(req.body.userId) },
+                            },
+                            { 'new': true, 'multi': true },
+                            function (err, blog) {
+                                blog.likeCount = blog.likeCount + 1;
+                                blog.isLike = true;
+                                blog.save();
+                                resolve(blog);
+                            })
                     } else if (!like) {
                         BlogModel.findByIdAndUpdate({
                             '_id': mongoose.Types.ObjectId(req.body.blogId),
                             'likedBy': { '$ne': mongoose.Types.ObjectId(req.body.userId) }
                         },
-                        {
-                            "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        },
-                        { 'new': true, 'multi': true },
-                        function (err, blog) {
-                            blog.likeCount = blog.likeCount - 1;
-                            blog.isLike = false;
-                            blog.save();
-                            resolve(blog);
-                        })
+                            {
+                                "$pull": { "likedBy": mongoose.Types.ObjectId(req.body.userId) }
+                            },
+                            { 'new': true, 'multi': true },
+                            function (err, blog) {
+                                blog.likeCount = blog.likeCount - 1;
+                                blog.isLike = false;
+                                blog.save();
+                                resolve(blog);
+                            })
                     }
                 });
             }).then((blog) => {
@@ -646,7 +647,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     /*likeBlog(req, callback) {
         let data = req.body;
         req.checkBody('blogId', 'Invalid urlparam').isMongoId();
@@ -992,9 +993,9 @@ class BlogHandler extends BaseAutoBindedClass {
             }
             callback.onSuccess(blogs);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getTrendingBlog(req, callback) {
@@ -1064,14 +1065,14 @@ class BlogHandler extends BaseAutoBindedClass {
                 })
             });
         })
-        .then((results) => {
-            for (var i = 0; i < results.length; i++) {
-                results[i].time = this.getDDMMMYYYY(results[i].dateCreated)
-            }
-            callback.onSuccess(results);
-        }).catch((error) => {
-            callback.onError(error);
-        });
+            .then((results) => {
+                for (var i = 0; i < results.length; i++) {
+                    results[i].time = this.getDDMMMYYYY(results[i].dateCreated)
+                }
+                callback.onSuccess(results);
+            }).catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getBlogByUrl(req, callback) {
@@ -1103,7 +1104,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     objectify(array) {
         if (array !== undefined) {
             return array.reduce(function (p, c) {

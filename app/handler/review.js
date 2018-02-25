@@ -3,6 +3,7 @@
  */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
@@ -249,7 +250,7 @@ class ReviewHandler extends BaseAutoBindedClass {
     createNewReview(req, callback) {
         let data = req.body;
         let ModelData = {};
-        
+
         let validator = this._validator;
         let update = false;
         req.checkBody('ratingScale', 'rating Scale required').notEmpty();
@@ -302,32 +303,32 @@ class ReviewHandler extends BaseAutoBindedClass {
                 })
             })
             .then((review) => {
-                    UserModel.aggregate(
-                        { "$match": { "storeId": review.storeId } } ,
-                            function (err, stores) {
-                            if (err !== null) {
-                                return err;
+                UserModel.aggregate(
+                    { "$match": { "storeId": review.storeId } },
+                    function (err, stores) {
+                        if (err !== null) {
+                            return err;
+                        } else {
+                            if (!stores) {
+                                return new NotFoundError("store not found");
                             } else {
-                                if (!stores) {
-                                    return new NotFoundError("store not found");
-                                } else {
-                                    ModelData['storeId'] = stores[0].storeID
-                                    ModelData['title'] = 'title'
-                                    ModelData['deviceToken'] = stores[0].deviceToken
-                                    ModelData['deviceType'] =  stores[0].deviceType
-                                    ModelData['notificationType'] = 'bookmark'
-                                    ModelData['description'] =  stores[0].name+' has reviewed your store';
-                                    StoreNotificationModel(ModelData).save();
-                                    if(ModelData['deviceToken']){
-                                        if (ModelData['deviceType'] == 'Android') {
-                                            sendAndroidNotification(ModelData)
-                                        } else if (ModelData['deviceType'] == 'IOS') {
-                                            sendAppleNotification(ModelData)
-                                        } 
+                                ModelData['storeId'] = stores[0].storeID
+                                ModelData['title'] = 'title'
+                                ModelData['deviceToken'] = stores[0].deviceToken
+                                ModelData['deviceType'] = stores[0].deviceType
+                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['description'] = stores[0].name + ' has reviewed your store';
+                                StoreNotificationModel(ModelData).save();
+                                if (ModelData['deviceToken']) {
+                                    if (ModelData['deviceType'] == 'Android') {
+                                        sendAndroidNotification(ModelData)
+                                    } else if (ModelData['deviceType'] == 'IOS') {
+                                        sendAppleNotification(ModelData)
                                     }
                                 }
                             }
-                    })                
+                        }
+                    })
                 return review;
             }).then((review) => {
                 for (var key in req.body) {
@@ -585,17 +586,17 @@ class ReviewHandler extends BaseAutoBindedClass {
         let data = req.body;
         return new Promise(function (resolve, reject) {
             ReviewModel.find({}).populate({ path: 'storeId', select: ['storeName', 'storeLogo', 'storeBanner', 'avgRating'], model: 'Store' })
-            .exec(function (err, review) {
-                if (err !== null) {
-                    reject(err);
-                } else {
-                    if (!review) {
-                        reject(new NotFoundError("Review not found"));
+                .exec(function (err, review) {
+                    if (err !== null) {
+                        reject(err);
                     } else {
-                        resolve(review);
+                        if (!review) {
+                            reject(new NotFoundError("Review not found"));
+                        } else {
+                            resolve(review);
+                        }
                     }
-                }
-            })
+                })
         }).then((review) => {
             var currdatetime = new Date();
             var datecreated;

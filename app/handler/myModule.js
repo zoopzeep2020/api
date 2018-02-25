@@ -38,7 +38,7 @@ module.exports.sendAppleNotification = function (obj) {
     note.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires 1 hour from now.
     note.badge = 3;
     note.sound = "Default.aiff";
-    note.alert = "obj.description";
+    note.alert = obj.description;
     note.payload = { obj };
     console.log(note);
     apnProvider.send(note, obj.deviceToken).then((result) => {

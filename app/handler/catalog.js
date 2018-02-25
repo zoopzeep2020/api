@@ -10,6 +10,7 @@ const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const mongoose = require('mongoose');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -304,7 +305,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.catalogUrl = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -433,7 +434,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                     imageminMozjpeg(),
                                     imageminPngquant({ quality: '65-80' })
                                 ]
-                            }).then(files => {});
+                            }).then(files => { });
                             req.body.catalogUrl = targetDir + fileName;
                             let data = req.body;
                             done(err, data);
@@ -482,8 +483,8 @@ class CatalogHandler extends BaseAutoBindedClass {
                         return catalog;
                     }).then((catalog) => {
                         StoreModel.aggregate(
-                            { "$match": { "_id": catalog.storeId }  }  ,
-                                function (err, store) {
+                            { "$match": { "_id": catalog.storeId } },
+                            function (err, store) {
                                 if (err !== null) {
                                     return err;
                                 } else {
@@ -491,7 +492,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                         return new NotFoundError("store not found");
                                     } else {
                                         UserModel.aggregate(
-                                        { "$match": { "_id":  { "$in": store[0].bookmarkBy }  }  }  ,
+                                            { "$match": { "_id": { "$in": store[0].bookmarkBy } } },
                                             function (err, users) {
                                                 if (err !== null) {
                                                     return err;
@@ -499,21 +500,20 @@ class CatalogHandler extends BaseAutoBindedClass {
                                                     if (!users) {
                                                         return new NotFoundError("user not found");
                                                     } else {
-                                                        for(var j=0;j<users.length;j++)
-                                                        {
+                                                        for (var j = 0; j < users.length; j++) {
                                                             ModelData['storeId'] = users[j].storeID
                                                             ModelData['title'] = 'title'
                                                             ModelData['deviceToken'] = users[j].deviceToken
                                                             ModelData['deviceType'] = users[j].deviceType
                                                             ModelData['notificationType'] = 'bookmark'
-                                                            ModelData['description'] =  users[j].storeName+' has updated their catalogue';
+                                                            ModelData['description'] = users[j].storeName + ' has updated their catalogue';
                                                             StoreNotificationModel(ModelData).save();
-                                                            if(ModelData['deviceToken']){
+                                                            if (ModelData['deviceToken']) {
                                                                 if (ModelData['deviceType'] == 'Android') {
                                                                     sendAndroidNotification(ModelData)
                                                                 } else if (ModelData['deviceType'] == 'IOS') {
                                                                     sendAppleNotification(ModelData)
-                                                                } 
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -521,23 +521,23 @@ class CatalogHandler extends BaseAutoBindedClass {
                                             })
                                     }
                                 }
-                        })                
-                    return catalog;
-                }).then((saved) => {
-                    callback.onSuccess(saved);
-                    const directory = './uploads';
-                    fs.readdir(directory, (err, files) => {
-                        if (err) throw error;
-                        for (const file of files) {
-                            fs.unlink(path.join(directory, file), err => {
-                                if (err) throw error;
-                            });
-                        }
+                            })
+                        return catalog;
+                    }).then((saved) => {
+                        callback.onSuccess(saved);
+                        const directory = './uploads';
+                        fs.readdir(directory, (err, files) => {
+                            if (err) throw error;
+                            for (const file of files) {
+                                fs.unlink(path.join(directory, file), err => {
+                                    if (err) throw error;
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        callback.onError(error);
                     });
-                })
-                .catch((error) => {
-                    callback.onError(error);
-                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);
