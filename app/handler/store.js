@@ -6,6 +6,7 @@ const MyModule = require(APP_HANDLER_PATH + 'myModule');
 var apn = require('apn');
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
 const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
