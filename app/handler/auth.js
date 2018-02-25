@@ -35,9 +35,7 @@ class AuthHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                console.log(req.body, req.body.deviceType, req.body.deviceToken);
                 user.deviceType = req.body.deviceType;
-                console.log(user.deviceType);
                 for (var key in req.body) {
                     if (key == 'userLat' || key == 'deviceToken' || key == 'userLong') {
                         user[key] = req.body[key];
@@ -69,8 +67,7 @@ class AuthHandler extends BaseAutoBindedClass {
             }).then((results) => {
                 if (user) {
                     if (user != null)
-                        console.log(user);
-                    user.save();
+                        user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,

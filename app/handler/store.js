@@ -935,40 +935,41 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-                UserModel.aggregate(
-                    { "$match": { "storeId": store._id } } ,
-                        function (err, user) {
-                        if (err !== null) {
-                            return err;
+            UserModel.aggregate(
+                { "$match": { "storeId": store._id } },
+                function (err, user) {
+                    if (err !== null) {
+                        return err;
+                    } else {
+                        if (!user) {
+                            return new NotFoundError("Offer not found");
                         } else {
-                            if (!user) {
-                                return new NotFoundError("Offer not found");
-                            } else {
-                                ModelData['storeId'] = user[0].storeID
-                                ModelData['title'] = 'title'
-                                ModelData['deviceToken'] = user[0].deviceToken
-                                ModelData['deviceType'] =  user[0].deviceType
-                                ModelData['notificationType'] = 'bookmark'
-                                ModelData['description'] =  user[0].name+' has bookmarked your store';
-                                StoreNotificationModel(ModelData).save();
-                                if(ModelData['deviceToken']){
-                                    if (ModelData['deviceType'] == 'Android') {
-                                        sendAndroidNotification(ModelData)
-                                    } else if (ModelData['deviceType'] == 'IOS') {
-                                        sendAppleNotification(ModelData)
-                                    } 
+                            ModelData['storeId'] = user[0].storeID
+                            ModelData['title'] = 'title'
+                            ModelData['deviceToken'] = user[0].deviceToken
+                            ModelData['deviceType'] = user[0].deviceType
+                            ModelData['notificationType'] = 'bookmark'
+                            ModelData['description'] = user[0].name + ' has bookmarked your store';
+                            StoreNotificationModel(ModelData).save();
+                            if (ModelData['deviceToken']) {
+                                if (ModelData['deviceType'] == 'Android') {
+                                    sendAndroidNotification(ModelData)
+                                } else if (ModelData['deviceType'] == 'IOS') {
+                                    console.log("IOS");
+                                    sendAppleNotification(ModelData)
                                 }
                             }
                         }
-                })                
+                    }
+                })
             return store;
         })
-        .then((store) => {
-            callback.onSuccess(store);
-        })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .then((store) => {
+                callback.onSuccess(store);
+            })
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     getTrendingStore(req, callback) {
@@ -1282,7 +1283,7 @@ class StoreHandler extends BaseAutoBindedClass {
             }).then((results) => {
                 if (req.query.trending == 'true') {
                     return new Promise(function (resolve, reject) {
-                        StoreModel.findOne({isActive:true}).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
+                        StoreModel.findOne({ isActive: true }).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
                             resolve(store);
                         })
                     }).then((maxview) => {
@@ -1292,7 +1293,7 @@ class StoreHandler extends BaseAutoBindedClass {
                         //     trendingResult = results.length
                         // }
                         trendingResult = results.length
-                        
+
                         for (let i = 0; i < results.length; i++) {
                             var finalTotal = (((5 * results[i].viewCount)) / maxviewcount) + results[i].avgRating;
                             arrayFinal.push([finalTotal, i]);
@@ -1435,9 +1436,9 @@ class StoreHandler extends BaseAutoBindedClass {
         }).then((store) => {
             callback.onSuccess(store);
         })
-        .catch((error) => {
-            callback.onError(error);
-        });
+            .catch((error) => {
+                callback.onError(error);
+            });
     }
 
     bookmarkByUser(user, req, callback) {
