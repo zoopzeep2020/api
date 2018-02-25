@@ -24,7 +24,7 @@ class AuthHandler extends BaseAutoBindedClass {
     issueNewToken(user, req, callback) {
         let that = this;
         if (user != null && user) {
-            
+
             user.cityName = "";
         }
         req.getValidationResult()
@@ -66,6 +66,7 @@ class AuthHandler extends BaseAutoBindedClass {
             }).then((results) => {
                 if (user) {
                     if (user != null)
+                        console.log(user);
                     user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
@@ -93,7 +94,7 @@ class AuthHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-    
+
     issueNewTokenWithFbToken(req, callback) {
         let that = this;
         req.getValidationResult()
@@ -153,7 +154,7 @@ class AuthHandler extends BaseAutoBindedClass {
             }).then((user) => {
                 if (user) {
                     if (user != null)
-                    user.save();
+                        user.save();
                     let userToken = that._authManager.signToken("jwt-rs-auth", that._provideTokenPayload(user), that._provideTokenOptions());
                     let data = {
                         _id: user._id,
@@ -259,13 +260,13 @@ class AuthHandler extends BaseAutoBindedClass {
                         logger: true
                     });
 
-                smtpTransport.use('compile',hbs({
-                    viewPath:'app/email_templates/forgot_password',
-                    extName:'.hbs'
+                smtpTransport.use('compile', hbs({
+                    viewPath: 'app/email_templates/forgot_password',
+                    extName: '.hbs'
 
                 }))
                 smtpTransport
-                 var mailOptions = {
+                var mailOptions = {
                     to: user.email,
                     from: '"ZeepZoop" <notification@zeepzoop.com>',
                     subject: 'Password Reset',
@@ -273,13 +274,13 @@ class AuthHandler extends BaseAutoBindedClass {
                     //     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
                     //     'http://www.zeepzoop.com/reset/?token=' + token + '\n\n' +
                     //     'If you did not request this, please ignore this email and your password will remain unchanged.\n',
-                    template:'conemail',
-                    context:{
+                    template: 'conemail',
+                    context: {
                         username: user.name,
-                        token:token,
+                        token: token,
                     }
                 };
-                smtpTransport.sendMail(mailOptions, function (err,res) {
+                smtpTransport.sendMail(mailOptions, function (err, res) {
                     if (err) return done(new NotFoundError(err));
                     return callback.onSuccess({
                         "response": 'An e-mail has been sent to ' + user.email + ' with further instructions.'
