@@ -37,7 +37,8 @@ class AuthHandler extends BaseAutoBindedClass {
                 }
                 console.log(req.body, user);
                 for (var key in req.body) {
-                    if ((key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType')) {
+                    console.log(key);
+                    if (key == 'userLat' || key == 'deviceToken' || key == 'userLong' || key == 'deviceType') {
                         console.log(key);
                         user[key] = req.body[key];
                     }
