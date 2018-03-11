@@ -12,6 +12,7 @@ router.get('/:id', userController.get);
 router.post('/existuser', upload.any(), userController.createNewExistingUser);
 router.post('/', upload.any(), userController.create);
 router.put('/claimoffer/:id', userController.claimOffer);
+router.put('/logout/:id', userController.logoutUser);
 router.put('/:id', upload.any(), userController.update);
 router.post('/admin', userController.createAdmin);
 router.get('/admin/adminkey', userController.getAdminKey);

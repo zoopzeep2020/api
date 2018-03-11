@@ -9,8 +9,8 @@ const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
 
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const fs = require('fs');
 const async = require('async');
@@ -528,6 +528,21 @@ class OfferHandler extends BaseAutoBindedClass {
                             + new_date.getFullYear();
                         return savedOffer;
                     }).then((offer) => {
+                        // ModelData['storeId'] = offer.storeId
+                        // ModelData['title'] = 'title'
+                        // ModelData['deviceToken'] = "topic"
+                        // ModelData['deviceType'] = user[0].deviceType
+                        // ModelData['notificationType'] = 'bookmark'
+                        // ModelData['description'] = user[0].name + ' has bookmarked your store';
+                        // StoreNotificationModel(ModelData).save();
+                        // if (ModelData['deviceToken']) {
+                        //     if (ModelData['deviceType'] == 'Android') {
+                        //         sendAndroidNotification(ModelData)
+                        //     } else if (ModelData['deviceType'] == 'IOS') {
+                        //         console.log("IOS");
+                        //         sendAppleNotification(ModelData)
+                        //     }
+                        // }
                         StoreModel.aggregate(
                             { "$match": { "_id": offer.storeId } },
                             function (err, store) {
@@ -538,33 +553,43 @@ class OfferHandler extends BaseAutoBindedClass {
                                         return new NotFoundError("store not found");
                                     } else {
                                         UserModel.aggregate(
-                                            { "$match": { "_id": { "$in": store[0].bookmarkBy } } },
-                                            function (err, users) {
-                                                if (err !== null) {
-                                                    return err;
+                                        { "$match": { "_id": { "$in": store[0].bookmarkBy } } },
+                                        function (err, users) {
+                                            if (err !== null) {
+                                                return err;
+                                            } else {
+                                                if (!users) {
+                                                    return new NotFoundError("user not found");
                                                 } else {
-                                                    if (!users) {
-                                                        return new NotFoundError("user not found");
-                                                    } else {
-                                                        for (var j = 0; j < users.length; j++) {
-                                                            ModelData['storeId'] = users[j].storeID
-                                                            ModelData['title'] = 'title'
-                                                            ModelData['deviceToken'] = users[j].deviceToken
-                                                            ModelData['deviceType'] = users[j].deviceType
-                                                            ModelData['notificationType'] = 'offer'
-                                                            ModelData['description'] = users[j].storeName + ' has created offer';
-                                                            StoreNotificationModel(ModelData).save();
-                                                            if (ModelData['deviceToken']) {
-                                                                if (ModelData['deviceType'] == 'Android') {
-                                                                    sendAndroidNotification(ModelData)
-                                                                } else if (ModelData['deviceType'] == 'IOS') {
-                                                                    sendAppleNotification(ModelData)
-                                                                }
+                                                    var androidTokens = [];
+                                                    var appleTokens = [];
+                                                    for (var j = 0; j < users.length; j++) {
+                                                        if (users[j]['deviceToken']) {
+                                                            if (users[j]['deviceType'] == 'Android') {
+                                                                androidTokens.push(users[j].deviceToken);
+                                                            } else if (users[j]['deviceType'] == 'IOS') {
+                                                                appleTokens.push(users[j].deviceToken);
                                                             }
                                                         }
                                                     }
+                                                    ModelData['storeId'] = store[0]._id;
+                                                    ModelData['title'] = 'title';
+                                                    ModelData['notificationType'] = 'offer';
+                                                    ModelData['description'] = store[0].storeName + ' has created offer';
+                                                    StoreNotificationModel(ModelData).save();
+                                                    if (androidTokens.length>0) {
+                                                        ModelData['deviceToken'] = "topic";
+                                                        ModelData['deviceType'] = "Android";
+                                                        sendAndroidNotification(ModelData);
+                                                    }
+                                                    if (appleTokens.length>0){
+                                                        ModelData['deviceToken'] = appleTokens;
+                                                        ModelData['deviceType'] = "IOS";
+                                                        sendAppleNotification(ModelData);
+                                                    }
                                                 }
-                                            })
+                                            }
+                                        })
                                     }
                                 }
                             })
@@ -644,7 +669,7 @@ class OfferHandler extends BaseAutoBindedClass {
                             limit = parseInt(query[key]) - skip + 1;
                         }
                     }
-                    OfferModel.find(mongoQuery).skip(skip).limit(limit).exec(function (err, Offers) {
+                    OfferModel.find(mongoQuery).skip(skip).limit(limit).lean().exec(function (err, Offers) {
                         resolve(Offers);
                     })
                 }).then((Offers) => {
@@ -659,13 +684,12 @@ class OfferHandler extends BaseAutoBindedClass {
                         Offers[i].endDate = new_date.getDate() + ' '
                             + months[new_date.getMonth()] + ' '
                             + new_date.getFullYear();
-                        console.log(new_date.getDate() + ' ' + months[new_date.getMonth()] + ' ' + new_date.getFullYear())
                     }
                     callback.onSuccess(Offers);
                 })
-                    .catch((error) => {
-                        callback.onError(error);
-                    });
+                .catch((error) => {
+                    callback.onError(error);
+                });
             })
     }
 
@@ -1155,16 +1179,15 @@ class OfferHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.offerId),
                             'savedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                            {
-                                "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                            }, { 'new': true, 'multi': true }).exec(function (err, offer) {
-                                offer.saveCount = offer.saveCount - 1;
-                                offer.isSave = save;
-                                offer.save()
-                                resolve(offer);
-                            })
+                        {
+                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                        }, { 'new': true, 'multi': true }).exec(function (err, offer) {
+                            offer.saveCount = offer.saveCount - 1;
+                            offer.isSave = save;
+                            offer.save()
+                            resolve(offer);
+                        })
                     }
-
                 });
             })
             .then((offer) => {

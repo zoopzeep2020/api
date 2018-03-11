@@ -52,7 +52,6 @@ class HomeHandler extends BaseAutoBindedClass {
         }
 
         var mainObj = {};
-
         Promise.all([
             this.requestAsync(req, 'http://' + req.get('host') + '/stores/search' + queryString, 'trendingStores'),
             // this.requestAsync(req, 'http://' + req.get('host') + '/catalogs/featurecatalog' + queryString, 'trendingCatalog'),

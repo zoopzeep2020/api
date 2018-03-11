@@ -5,8 +5,8 @@ const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const AdminModel = require(APP_MODEL_PATH + 'admin').AdminModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const StoreHandler = require(APP_HANDLER_PATH + 'store');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -885,7 +885,7 @@ class UserHandler {
                                 ModelData['title'] = 'title'
                                 ModelData['deviceToken'] = stores[0].deviceToken
                                 ModelData['deviceType'] = stores[0].deviceType
-                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['notificationType'] = 'claimoffer'
                                 ModelData['description'] = stores[0].name + ' has claimed your offer';
                                 StoreNotificationModel(ModelData).save();
                                 if (ModelData['deviceToken']) {
@@ -944,50 +944,50 @@ class UserHandler {
                     req.checkBody('password', 'password is too short').checkLength(req.body.password, 8);
                 }
                 req.getValidationResult()
-                    .then(function (result) {
-                        if (!result.isEmpty()) {
-                            let errorMessages = result.array().map(function (elem) {
-                                return elem.msg;
-                            });
-                            throw new ValidationError(errorMessages.join(' && '));
-                        }
-                        return new Promise(function (resolve, reject) {
-                            UserModel.findOne({ _id: req.params.id }, function (err, user) {
-                                if (err !== null) {
-                                    reject(err);
+                .then(function (result) {
+                    if (!result.isEmpty()) {
+                        let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
+                        });
+                        throw new ValidationError(errorMessages.join(' && '));
+                    }
+                    return new Promise(function (resolve, reject) {
+                        UserModel.findOne({ _id: req.params.id }, function (err, user) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!user) {
+                                    reject(new NotFoundError("user not found"));
                                 } else {
-                                    if (!user) {
-                                        reject(new NotFoundError("user not found"));
-                                    } else {
-                                        resolve(user);
-                                    }
+                                    resolve(user);
                                 }
-                            })
-                        });
-                    })
-                    .then((user) => {
-                        for (var key in data) {
-                            user[key] = data[key];
-                        }
-                        user.email = user.email.toLowerCase();
-                        user.save();
-                        return user;
-                    })
-                    .then((saved) => {
-                        callback.onSuccess(saved);
-                        const directory = './uploads';
-                        fs.readdir(directory, (err, files) => {
-                            if (err) throw error;
-                            for (const file of files) {
-                                fs.unlink(path.join(directory, file), err => {
-                                    if (err) throw error;
-                                });
                             }
-                        });
-                    })
-                    .catch((error) => {
-                        callback.onError(error);
+                        })
                     });
+                })
+                .then((user) => {
+                    for (var key in data) {
+                        user[key] = data[key];
+                    }
+                    user.email = user.email.toLowerCase();
+                    user.save();
+                    return user;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);
@@ -995,6 +995,43 @@ class UserHandler {
         });
     }
 
+    logoutUser(req,user, callback) {
+        req.checkParams('id', 'Invalid user id provided').isMongoId();
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages.join(' && '));
+            }
+            return new Promise(function (resolve, reject) {
+                UserModel.findOne({ _id: req.params.id }, function (err, user) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!user) {
+                            reject(new NotFoundError("user not found"));
+                        } else {
+                            resolve(user);
+                        }
+                    }
+                })
+            });
+        })
+        .then((user) => {
+            user.deviceToken = "";
+            user.deviceType = "";
+            user.save();
+            return user;
+        })
+        .then((saved) => {
+            callback.onSuccess(saved);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+    
     getUserInfo(req, userToken, callback) {
         req.checkParams('id', 'Invalid user id provided').isMongoId();
         req.getValidationResult()

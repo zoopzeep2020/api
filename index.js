@@ -149,10 +149,3 @@ var server = app.listen(global.config.server.PORT, function () {
     console.log(process.env.NODE_ENV, process.env.PORT, config.db.MONGO_CONNECT_URL);
     console.log('App is running on ' + global.config.server.PORT);
 });
-// var socket = require('socket.io').listen(server);
-// socket.on('connection', function(client){
-//     console.log("client connected");
-//     client.on('disconnected',function(){
-//         console.log('client is disconnected');
-//     });
-// });

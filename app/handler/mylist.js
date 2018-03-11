@@ -7,8 +7,8 @@ const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -249,6 +249,7 @@ class MylistHandler extends BaseAutoBindedClass {
     }
 
     createNewMylist(user, req, callback) {
+        console.log(user)
         let data = req.body;
         let ModelData = {};
         let validator = this._validator;
@@ -302,8 +303,8 @@ class MylistHandler extends BaseAutoBindedClass {
                 //     })
 
                 // if ( ModelData['type']) {}
-                // console.log(MyModule)
-                // console.log(MyModule.MyModuleHandler)
+                // console.log(pushNotification)
+                // console.log(pushNotification.pushNotificationHandler)
                 // this.sendAppleNotification(ModelData)
                 // this.sendAndroidNotification(ModelData)
 
@@ -338,6 +339,35 @@ class MylistHandler extends BaseAutoBindedClass {
                                         }
                                     }
                                 }
+                                // var androidTokens = [];
+                                // var appleTokens = [];
+                                // for (var j = 0; j < stores.length; j++) {
+                                //     if (stores[j]['deviceToken']) {
+                                //         if (stores[j]['deviceType'] == 'Android') {
+                                //             console.log(user.id)
+                                //             subscribeTopic(stores[j].deviceToken,user.id)   
+                                //             androidTokens.push(stores[j].deviceToken);
+                                //         } else if (stores[j]['deviceType'] == 'IOS') {
+                                //             appleTokens.push(stores[j].deviceToken);
+                                //         }
+                                //     }
+                                // }
+                                
+                                // ModelData['storeId'] = user.id;
+                                // ModelData['title'] = 'title';
+                                // ModelData['notificationType'] = 'mylist';
+                                // ModelData['description'] = user.name + ' has added your store to his list';
+                                // StoreNotificationModel(ModelData).save();
+                                // if (androidTokens.length>0) {
+                                //     ModelData['deviceToken'] = "topic";
+                                //     ModelData['deviceType'] = "Android";
+                                //     sendAndroidNotification(ModelData);
+                                // }
+                                // if (appleTokens.length>0){
+                                //     ModelData['deviceToken'] = appleTokens;
+                                //     ModelData['deviceType'] = "IOS";
+                                //     sendAppleNotification(ModelData);
+                                // }
                             }
                         }
                     })

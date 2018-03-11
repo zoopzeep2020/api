@@ -1,16 +1,15 @@
 /**
  * Created by WebrexStudio on 5/13/17.
  */
-// var demoModuleReference = require('myModule.js');
-const MyModule = require(APP_HANDLER_PATH + 'myModule');
 var apn = require('apn');
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
+const subscribeTopic = require(APP_HANDLER_PATH + 'pushNotification').subscribeTopic;
+const unSubscribeTopic = require(APP_HANDLER_PATH + 'pushNotification').unSubscribeTopic;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
-
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
@@ -936,41 +935,43 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-            UserModel.aggregate(
-                { "$match": { "storeId": store._id } },
-                function (err, user) {
+           
+                UserModel.aggregate({ "$match": { "storeId": store._id } }, function (err, user) {
                     if (err !== null) {
                         return err;
                     } else {
                         if (!user) {
                             return new NotFoundError("Offer not found");
                         } else {
-                            ModelData['storeId'] = user[0].storeID
-                            ModelData['title'] = 'title'
-                            ModelData['deviceToken'] = user[0].deviceToken
-                            ModelData['deviceType'] = user[0].deviceType
-                            ModelData['notificationType'] = 'bookmark'
-                            ModelData['description'] = user[0].name + ' has bookmarked your store';
-                            StoreNotificationModel(ModelData).save();
-                            if (ModelData['deviceToken']) {
-                                if (ModelData['deviceType'] == 'Android') {
-                                    sendAndroidNotification(ModelData)
-                                } else if (ModelData['deviceType'] == 'IOS') {
-                                    console.log("IOS");
-                                    sendAppleNotification(ModelData)
+                            if(bookmark){
+                                ModelData['storeId'] = user[0].storeID
+                                ModelData['title'] = 'title'
+                                ModelData['deviceToken'] = user[0].deviceToken
+                                ModelData['deviceType'] = user[0].deviceType
+                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['description'] = user[0].name + ' has bookmarked your store';
+                                StoreNotificationModel(ModelData).save();
+                                if (ModelData['deviceToken']) {
+                                    if (ModelData['deviceType'] == 'Android') {
+                                        sendAndroidNotification(ModelData)
+                                    } else if (ModelData['deviceType'] == 'IOS') {
+                                        sendAppleNotification(ModelData)
+                                    }
                                 }
+                                subscribeTopic(user[0].deviceToken,store._id)    
+                            }else if(!bookmark){
+                                unSubscribeTopic(user[0].deviceToken,store._id) 
                             }
+                                    
                         }
                     }
                 })
             return store;
-        })
-            .then((store) => {
-                callback.onSuccess(store);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).then((store) => {
+            callback.onSuccess(store);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingStore(req, callback) {

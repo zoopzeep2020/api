@@ -2,8 +2,8 @@
  * Created by WebrexStudio on 5/13/17.
  */
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
