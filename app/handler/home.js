@@ -14,6 +14,7 @@ const mongoose = require('mongoose');
 const url = require('url');
 var request = require('request');
 var async = require('async');
+   
 
 class HomeHandler extends BaseAutoBindedClass {
     constructor() {
