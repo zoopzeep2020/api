@@ -56,7 +56,7 @@ var options = {
     // import swaggerDefinitions
     swaggerDefinition: swaggerDefinition,
     // path to the API docs
-    apis: ['./app/handler/*.js']
+    apis: ['./app/swagger/*.js']
 };
 
 // initialize swagger-jsdoc
