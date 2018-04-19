@@ -8,11 +8,7 @@ let blogController = new BlogController();
 var multer = require('multer');
 var upload = multer({
     dest: 'uploads/',
-    limits: {
-        fields: 1,
-        files: 1,
-        fileSize: 5 * 1000000
-    }
+    limits: { fieldSize: 25 * 1024 * 1024 }
 });
 
 router.get('/', blogController.getAll);
