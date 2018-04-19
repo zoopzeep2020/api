@@ -1,16 +1,15 @@
 /**
  * Created by WebrexStudio on 5/13/17.
  */
-// var demoModuleReference = require('myModule.js');
-const MyModule = require(APP_HANDLER_PATH + 'myModule');
 var apn = require('apn');
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
+const subscribeTopic = require(APP_HANDLER_PATH + 'pushNotification').subscribeTopic;
+const unSubscribeTopic = require(APP_HANDLER_PATH + 'pushNotification').unSubscribeTopic;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
-
 const CategoryModel = require(APP_MODEL_PATH + 'category').CategoryModel;
 const ReviewModel = require(APP_MODEL_PATH + 'review').ReviewModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
@@ -37,399 +36,7 @@ class StoreHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-    /**
-     * @swagger
-     * /stores/{storeId}:
-     *   put:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *       - name: Content-Type
-     *         description: content-type
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: application/json
-     *       - name: storeId
-     *         description: storeId
-     *         in: path
-     *         required: true
-     *         type: string
-     *       - name: storeName
-     *         description: storeName
-     *         in: body
-     *         type: string
-     *       - name: storeLogo
-     *         in: formData
-     *         description: The uploaded file of storeLogo
-     *         type: file
-     *       - name: storeBanner
-     *         in: formData
-     *         description: The uploaded file of storeBanner
-     *         type: file
-     *       - name: categoriesIds
-     *         description: categoriesIds
-     *         in: body
-     *         type: array
-     *       - name: buisnessOnline
-     *         description: buisnessOnline
-     *         in: body
-     *         type: boolean
-     *       - name: buisnessOffline
-     *         description: buisnessOffline
-     *         in: body
-     *         type: boolean
-     *       - name: buisnessBoth
-     *         description: buisnessBoth
-     *         in: body
-     *         type: boolean
-     *       - name: address
-     *         description: address
-     *         in: body
-     *         type: string
-     *       - name: storePhone
-     *         description: storePhone
-     *         in: body
-     *         type: number
-     *       - name: storeDiscription
-     *         description: storeDiscription
-     *         in: body
-     *         type: string
-     *       - name: featureCatalog
-     *         description: featureCatalog
-     *         in: body
-     *         type: string
-     *       - name: webAddress
-     *         description: webAddress
-     *         in: body
-     *         type: string
-     *       - name: keyword
-     *         description: keyword
-     *         in: body
-     *         type: array
-     *       - name: otherKeyword
-     *         description: otherKeyword
-     *         in: body
-     *         type: array
-     *       - name: countries
-     *         description: countries
-     *         in: body
-     *         type: array
-     *       - name: dispatchDayMin
-     *         description: dispatchDayMin
-     *         in: body
-     *         type: number
-     *       - name: dispatchDayMax
-     *         description: dispatchDayMax
-     *         in: body
-     *         type: number
-     *       - name: customization
-     *         description: customization
-     *         in: body
-     *         type: boolean
-     *       - name: giftWrap
-     *         description: giftWrap
-     *         in: body
-     *         type: boolean
-     *       - name: cod
-     *         description: cod
-     *         in: body
-     *         type: boolean
-     *       - name: freeShiping
-     *         description: freeShiping
-     *         in: body
-     *         type: boolean
-     *       - name: returnandreplace
-     *         description: returnandreplace
-     *         in: body
-     *         type: string
-     *       - name: viewCount
-     *         description: viewCount
-     *         in: body
-     *         type: number
-     *       - name: reviewCount
-     *         description: reviewCount
-     *         in: body
-     *         type: number
-     *       - name: avgRating
-     *         description: avgRating
-     *         in: body
-     *         type: number
-     *       - name: isActive
-     *         description: isActive
-     *         in: body
-     *         type: boolean
-     *         default: false
-     *       - name: location
-     *         description: location
-     *         in: body
-     *         type: array
-     *         schema:
-     *          $ref: '#/definitions/UpdateActivitiesObj'
-     *     responses:
-     *       200:
-     *         description: object of activity".
-     */
-    /**
-     * @swagger
-     * /stores:
-     *   get:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".     
-     */
-    /**
-     * @swagger
-     * /stores/{storeId}:
-     *   get:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: basic authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: maximumvsminimumsecurity
-     *       - name: storeId
-     *         description: storeId
-     *         in: path
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".     
-     */
-
-    /**
-     * @swagger
-     * /stores/searchbyCategoryId/{categoryId}:
-     *   get:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: basic authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: maximumvsminimumsecurity
-     *       - name: categoryId
-     *         description: ID of Category
-     *         in: path
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".     
-    */
-    /**
-     * @swagger
-     * /stores/{storeId}:
-     *   delete:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: basic authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: maximumvsminimumsecurity
-     *       - name: storeId
-     *         description: storeId
-     *         in: path
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".     
-     */
-    /**
-     * @swagger
-     * /stores/trendingStore?{lng}&{lat}&{keyword}&{buisnessOnline}&{buisnessOffline}:
-     *   get:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: basic authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: maximumvsminimumsecurity
-     *       - name: lng
-     *         description: lng
-     *         in: query
-     *         type: number
-     *       - name: lat
-     *         description: lat
-     *         in: query
-     *         type: number
-     *       - name: keyword
-     *         description: keywordId
-     *         in: query
-     *         type: string
-     *       - name: buisnessOnline
-     *         description: buisnessOnline
-     *         in: query
-     *         type: boolean
-     *       - name: buisnessOffline
-     *         description: buisnessOffline
-     *         in: query
-     *         type: boolean
-     *     responses:
-     *       200:
-     *         description: object of activity".     
-     */
-    /**
-     * @swagger
-     * /stores/search?{search}&{keywordId}&{buisnessOnline}&{buisnessOffline}&{lng}&{lat}:
-     *   get:
-     *     tags:
-     *       - Store
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: basic authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: maximumvsminimumsecurity
-     *       - name: search
-     *         description: search(this word will compare with kewordTitle storeName and storeDescription and give u related store)
-     *         in: query
-     *         required: true
-     *         type: string
-     *       - name: keywordId
-     *         description: keywordId(optional)
-     *         in: query
-     *         type: string
-     *       - name: buisnessOnline
-     *         description: buisnessOnline
-     *         in: query
-     *         required: true
-     *         type: boolean
-     *       - name: buisnessOffline
-     *         description: buisnessOffline
-     *         in: query
-     *         required: true
-     *         type: boolean
-     *       - name: lng
-     *         description: longitude of location
-     *         in: query
-     *         type: number
-     *       - name: lat
-     *         description: lattitude of location
-     *         in: query
-     *         type: number
-     *     responses:
-     *       200:
-     *         description: object of activity".     
-     */
-    /**
-     * @swagger
-     * definition:
-     *   UpdateActivitiesObj:
-     *     properties:
-     *       storeName:
-     *         type: string
-     *       storeLogo:
-     *         type: string
-     *       storeBanner:
-     *         type: string
-     *       categoriesIds:
-     *         type: array
-     *         items:
-     *          type: string
-     *       buisnessOnline:
-     *         type: boolean
-     *       buisnessOffline:
-     *         type: boolean
-     *       buisnessBoth:
-     *         type: boolean
-     *       address:
-     *         type: string
-     *       storePhone:
-     *         type: number
-     *       storeDiscription:
-     *         type: string
-     *       featureCatalog:
-     *         type: number
-     *       webAddress:
-     *         type: string
-     *       keyword:
-     *         type: array
-     *         items:
-     *          type: string
-     *       otherKeyword:
-     *         type: array
-     *         items:
-     *          type: string
-     *       countries:
-     *         type: array
-     *         items:
-     *          type: string
-     *       dispatchDayMin:
-     *         type: number
-     *       dispatchDayMax:
-     *         type: number
-     *       customization:
-     *         type: boolean
-     *       giftWrap:
-     *         type: boolean
-     *       cod:
-     *         type: boolean
-     *       freeShiping:
-     *         type: boolean
-     *       returnandreplace:
-     *         type: string
-     *       viewCount:
-     *         type: number
-     *       reviewCount:
-     *         type: number
-     *       avgRating:
-     *         type: number
-     *       isActive:
-     *         type: boolean
-     *       location:
-     *         type: array
-     *         items:
-     *          type: number
-    */
+    
     static get STORE_VALIDATION_SCHEME() {
         return {
             'storeName': {
@@ -936,46 +543,46 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-            UserModel.aggregate(
-                { "$match": { "storeId": store._id } },
-                function (err, user) {
+                UserModel.aggregate({ "$match": { "storeId": store._id } }, function (err, user) {
                     if (err !== null) {
                         return err;
                     } else {
                         if (!user) {
                             return new NotFoundError("Offer not found");
                         } else {
-                            ModelData['storeId'] = user[0].storeID
-                            ModelData['title'] = 'title'
-                            ModelData['deviceToken'] = user[0].deviceToken
-                            ModelData['deviceType'] = user[0].deviceType
-                            ModelData['notificationType'] = 'bookmark'
-                            ModelData['description'] = user[0].name + ' has bookmarked your store';
-                            StoreNotificationModel(ModelData).save();
-                            if (ModelData['deviceToken']) {
-                                if (ModelData['deviceType'] == 'Android') {
-                                    sendAndroidNotification(ModelData)
-                                } else if (ModelData['deviceType'] == 'IOS') {
-                                    console.log("IOS");
-                                    sendAppleNotification(ModelData)
+                            if(bookmark){
+                                ModelData['storeId'] = user[0].storeID
+                                ModelData['title'] = 'title'
+                                ModelData['deviceToken'] = user[0].deviceToken
+                                ModelData['deviceType'] = user[0].deviceType
+                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['description'] = user[0].name + ' has bookmarked your store';
+                                StoreNotificationModel(ModelData).save();
+                                if (ModelData['deviceToken']) {
+                                    if (ModelData['deviceType'] == 'Android') {
+                                        sendAndroidNotification(ModelData)
+                                    } else if (ModelData['deviceType'] == 'IOS') {
+                                        sendAppleNotification(ModelData)
+                                    }
                                 }
-                            }
+                                subscribeTopic(user[0].deviceToken,store._id)    
+                            }else if(!bookmark){
+                                unSubscribeTopic(user[0].deviceToken,store._id) 
+                            }  
                         }
                     }
                 })
             return store;
-        })
-            .then((store) => {
-                callback.onSuccess(store);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        }).then((store) => {
+            callback.onSuccess(store);
+        }).catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getTrendingStore(req, callback) {
         let data = req.body;
-        var matchQuery = [];
+        var matchQuery = [{ "isActive": 1 == 1 }];
         var max = this.getMaxViewCount().viewCount;
         var ObjectID = require('mongodb').ObjectID;
         var longitude = this.noNaN(parseFloat(req.query.lng));
@@ -1010,9 +617,9 @@ class StoreHandler extends BaseAutoBindedClass {
                             //         "maxDistance": 0
                             //     }
                             // },
-                            {
-                                "$match": { "isActive": 1 == 1 }
-                            },
+                            // {
+                            //     "$match": { "isActive": 1 == 1 }
+                            // },
                             {
                                 "$match": { $and: matchQuery }
                             },
@@ -1315,68 +922,10 @@ class StoreHandler extends BaseAutoBindedClass {
                         }
                         return mainObj;
                     })
-                    // return new Promise(function (resolve, reject) {
-                    //     StoreModel.aggregate(
-                    //     {
-                    //         "$match": { "isActive": 1 == 1 }
-                    //     },
-                    //     { $group : { _id: null, stores:{"$addToSet": "$$ROOT"},maxViewCount: { $max : "$viewCount" }}},
-                    //     {$unwind:'$stores'},
-                    //     {
-                    //         $project:{
-                    //         _id:0,
-                    //         stores:1,
-                    //         maxViewCount:1,
-                    //         finalTotal: {
-                    //             $let: {
-                    //                 vars: {
-                    //                     total: { $divide: [{ $multiply: ['$stores.viewCount', 5] }, "$maxViewCount" ] },
-                    //                 },
-                    //                 in: { $add: ["$stores.avgRating", "$$total"] }
-                    //                 }
-                    //             },
-                    //         }
-                    //     },  
-                    //     { '$sort': { finalTotal: -1 } },
-                    //     {
-                    //         '$project':{
-                    //             _id:'$stores._id',
-                    //             storeName: '$stores.storeName',
-                    //             avgRating: '$stores.avgRating',
-                    //             finalTotal: '$finalTotal',
-                    //             storeBanner: '$stores.storeBanner',
-                    //             storeDiscription: '$stores.storeDiscription',
-                    //             storeLogo: '$stores.storeLogo',
-                    //             featureCatalog: '$stores.featureCatalog',
-                    //         }
-                    //     },
-                    //     {
-                    //         "$lookup": {
-                    //             "from": 'catalogs',
-                    //             "localField": "featureCatalog",
-                    //             "foreignField": "_id",
-                    //             "as": "featureCatalogInfo"
-                    //         }
-                    //     },                                 
-                    //     {
-                    //         $unwind:{
-                    //             path: "$featureCatalogInfo",
-                    //             preserveNullAndEmptyArrays: true
-                    //         }
-                    //     },
-                    //     function (err, results) {
-                    //         if (err !== null) {
-                    //             reject(err);
-                    //         } else {
-                    //             resolve(results);
-                    //         }
-                    //     })
-                    // });
                 } else {
                     return results;
                 }
             }).then((results) => {
-                //extra parameter
                 return new Promise(function (resolve, reject) {
                     for (var i = 0; i < results.length; i++) {
                         results[i].avgRating = ((results[i].avgRating * 10) - ((results[i].avgRating * 10) % 1)) / 10
@@ -1488,6 +1037,5 @@ class StoreHandler extends BaseAutoBindedClass {
     }
 
     noNaN(n) { return isNaN(n) ? 0 : n; }
-
 }
 module.exports = StoreHandler;

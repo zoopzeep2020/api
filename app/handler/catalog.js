@@ -9,8 +9,8 @@ const StoreModel = require(APP_MODEL_PATH + 'store').StoreModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const mongoose = require('mongoose');
 const BaseAutoBindedClass = require(APP_BASE_PACKAGE_PATH + 'base-autobind');
@@ -29,255 +29,7 @@ class CatalogHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-
-    /**
-    * @swagger
-    * /catalogs:
-    *   get:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *     responses:
-    *       200:
-    *         description: object of activity".     
-    */
-
-    /**
-    * @swagger
-    * /catalogs/{catalogId}:
-    *   get:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *       - name: catalogId
-    *         description: catalogId
-    *         in: path
-    *         type: string
-    *     responses:
-    *       200:
-    *         description: object of activity".     
-    */
-
-    /**
-    * @swagger
-    * /catalogs/store/{storeId}:
-    *   get:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *       - name: storeId
-    *         description: storeId
-    *         in: path
-    *         type: string
-    *     responses:
-    *       200:
-    *         description: object of activity".     
-    */
-
-    /**
-    * @swagger
-    * /catalogs/search?{search}:
-    *   get:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *       - name: search
-    *         description: search
-    *         in: path
-    *         type: string
-    *     responses:
-    *       200:
-    *         description: object of activity".     
-    */
-
-    /**
-   * @swagger
-   * /catalogs/featurecatalog?{lang}&{lat}:
-   *   get:
-   *     tags:
-   *       - Catalogue
-   *     description: activity object
-   *     produces:
-   *       - application/json
-   *     parameters:
-   *       - name: Authorization
-   *         description: token authorization
-   *         in: header
-   *         required: true
-   *         type: string
-   *       - name: lang
-   *         description: lang
-   *         in: query
-   *         type: number
-   *       - name: lat
-   *         description: lat
-   *         in: query
-   *         type: number
-   *     responses:
-   *       200:
-   *         description: object of activity".     
-   */
-
-    /**
-    * @swagger
-    * /catalogs:
-    *   post:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *       - name: Content-Type
-    *         description: content-type
-    *         in: header
-    *         required: true
-    *         type: string
-    *         default: application/json
-    *       - name: storeId
-    *         description: storeId
-    *         in: body
-    *         required: true
-    *         type: string
-    *       - name: catalogUrl
-    *         description: catalogUrl
-    *         in: body
-    *         required: true
-    *         type: string
-    *       - name: catalogDescription
-    *         description: catalogDescription
-    *         in: body
-    *         required: true
-    *         type: string
-    *         schema:
-    *          $ref: '#/definitions/UpdateActivitiesObj'
-    *     responses:
-    *       200:
-    *         description: object of activity".
-    */
-
-    /**
-    * @swagger
-    * /catalogs/{catalogId}:
-    *   delete:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *       - name: Content-Type
-    *         description: content-type
-    *         in: header
-    *         required: true
-    *         type: string
-    *         default: application/json
-    *       - name: catalgId
-    *         description: catalogId
-    *         in: path
-    *         type: string
-    *     responses:
-    *       200:
-    *         description: object of activity".
-    */
-
-    /**
-    * @swagger
-    * /catalogs/{catalogId}:
-    *   put:
-    *     tags:
-    *       - Catalogue
-    *     description: activity object
-    *     produces:
-    *       - application/json
-    *     parameters:
-    *       - name: Authorization
-    *         description: token authorization
-    *         in: header
-    *         required: true
-    *         type: string
-    *       - name: Content-Type
-    *         description: content-type
-    *         in: header
-    *         required: true
-    *         type: string
-    *         default: application/json
-    *       - name: storeId
-    *         description: storeId
-    *         in: body
-    *         type: string
-    *       - name: catalogUrl
-    *         description: catalogUrl
-    *         in: body
-    *         type: string
-    *       - name: catalogDescription
-    *         description: catalogDescription
-    *         in: body
-    *         type: string
-    *         schema:
-    *          $ref: '#/definitions/UpdateActivitiesObj'
-    *     responses:
-    *       200:
-    *         description: object of activity".
-    */
-
-    /**
-   * @swagger
-   * definition:
-   *   UpdateActivitiesObj:
-   *     properties:
-   *       storeId:
-   *         type: string
-   *         required: true
-   *       catalogUrl:
-   *         type: string
-   *         required: true
-   *       catalogDescription:
-   *         type: string
-   *         required: true
-   */
+   
     static get CATALOG_VALIDATION_SCHEME() {
         return {
             'catalogDescription': {
@@ -547,14 +299,24 @@ class CatalogHandler extends BaseAutoBindedClass {
 
     getFeatureCatalog(req, callback) {
         let data = req.body;
-        var matchQuery = [];
+        let maxviewcount = 0;
+        let skip = 0;
+        let mainObj = [];
+        let limit = 10;
+        var matchQuery = [{"featureCatalog": {  "$exists": true, "$ne": null }}, { "isActive": true }];
         var ObjectID = require('mongodb').ObjectID;
         var qString = {};
+        var trendingResult = 0;
+        var arrayFinal = [];
         for (var param in req.query) {
             if ((param !== "lng" && param !== "lat") && (param == "buisnessOnline" || param == "buisnessOffline")) {
                 qString = {};
                 qString[param] = (mongoose.Types.ObjectId.isValid(req.query[param])) ? mongoose.Types.ObjectId(req.query[param]) : (req.query[param] == "true") ? req.query[param] == "true" : (req.query[param] == "false") ? req.query[param] == "true" : req.query[param];
                 matchQuery.push(qString);
+            } else if (key == "startCatalogs") {
+                skip = parseInt(query[key]);
+            } else if (key == "endCatalogs") {
+                limit = parseInt(query[key]) - skip + 1;
             }
         }
         var longitude = this.noNaN(parseFloat(req.query.lng));
@@ -567,86 +329,127 @@ class CatalogHandler extends BaseAutoBindedClass {
                     });
                     throw new ValidationError(errorMessages);
                 }
-                new Promise(function (resolve, reject) {
-                    StoreModel.aggregate([
-                        // {
-                        //     "$geoNear": {
-                        //         "near": {
-                        //             "type": "Point",
-                        //             "coordinates": [longitude, lattitude]
-                        //         },
-                        //         "distanceField": "distance",
-                        //         "spherical": true,
-                        //         "maxDistance": 0
-                        //     }
-                        // },
-                        {
-                            "$match": { "isActive": 1 == 1 }
-                        },
-                        {
-                            "$match": { $and: matchQuery }
-                        },
-                        {
-                            $project: {
-                                finalTotal: {
-                                    $let: {
-                                        vars: {
-                                            total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$viewCount" }] },
-                                        },
-                                        in: { $add: ["$avgRating", "$$total"] }
-                                    }
-                                }
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'stores',
-                                "localField": "_id",
-                                "foreignField": "_id",
-                                "as": "storeInfo"
-                            }
-                        },
-                        {
-                            "$lookup": {
-                                "from": 'catalogs',
-                                "localField": "storeInfo.featureCatalog",
-                                "foreignField": "_id",
-                                "as": "catalogInfo"
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$storeInfo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$catalogInfo",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $project: {
-                                _id: '$catalogInfo._id',
-                                storeId: '$_id',
-                                featureCatalog: '$catalogInfo.featureCatalog',
-                                catalogUrl: '$catalogInfo.catalogUrl',
-                                catalogDescription: '$catalogInfo.catalogDescription',
-                                finalTotal: '$finalTotal',
-                            }
-                        },
-                        { $sort: { finalTotal: -1 } },
-                        { $limit: 10 },
-                    ])
-                        .exec(function (err, results) {
-                            resolve(results);
-                        }).then((results) => {
-                            callback.onSuccess(results);
-                        })
+                return new Promise(function (resolve, reject) {
+                    StoreModel.find({ $and: matchQuery}).skip(skip).limit(limit).populate({ path: 'featureCatalog', select: ['_id', 'storeId', 'catalogDescription', 'catalogUrl'], model: 'Catalog' }).sort().lean().exec(function (err, results) {
+                        resolve(results);
+                    })
                 });
-            })
+            }).then((results) => {
+                return new Promise(function (resolve, reject) {
+                    StoreModel.findOne({ "isActive": true }).select('viewCount').sort({ viewCount: -1 }).limit(1).exec(function (err, store) {
+                        resolve(store);
+                    })
+                }).then((maxview) => {
+                    maxviewcount = maxview.viewCount
+                    // if (results.length < trendingResult) {
+                    //     trendingResult = results.length
+                    // }
+                    trendingResult = results.length
+                    for (let i = 0; i < results.length; i++) {
+                        var finalTotal = (((5 * results[i].viewCount)) / maxviewcount) + results[i].avgRating;
+                        arrayFinal.push([finalTotal, i]);
+                    }
 
+                    arrayFinal.sort(sortFunction);
+                    function sortFunction(a, b) {
+                        if (a[0] === b[0]) {
+                            return 0;
+                        }
+                        else {
+                            return (a[0] > b[0]) ? -1 : 1;
+                        }
+                    }
+                    var items = arrayFinal.slice(0, trendingResult);
+                    for (var i = 0; i < trendingResult; i++) {
+                        if (results[items[i][1]]['featureCatalog'] != null) {
+                            mainObj[i] = results[items[i][1]]['featureCatalog']
+                        }
+                    }
+                    return mainObj;
+                })
+            }).then((results) => {
+                callback.onSuccess(results);
+                // new Promise(function (resolve, reject) {
+                //     StoreModel.aggregate([
+                //         // {
+                //         //     "$geoNear": {
+                //         //         "near": {
+                //         //             "type": "Point",
+                //         //             "coordinates": [longitude, lattitude]
+                //         //         },
+                //         //         "distanceField": "distance",
+                //         //         "spherical": true,
+                //         //         "maxDistance": 0
+                //         //     }
+                //         // },
+                //         // {
+                //         //     "$match": { "isActive": 1 == 1 }
+                //         // },
+                //         {
+                //             "$match": { $and: matchQuery }
+                //         },
+                //         { $skip: skip },
+                //         { $limit: limit },
+                //         {
+                //             $project: {
+                //                 finalTotal: {
+                //                     $let: {
+                //                         vars: {
+                //                             total: { $divide: [{ $multiply: ['$viewCount', 5] }, { $max: "$viewCount" }] },
+                //                         },
+                //                         in: { $add: ["$avgRating", "$$total"] }
+                //                     }
+                //                 }
+                //             }
+                //         },
+                //         {
+                //             "$lookup": {
+                //                 "from": 'stores',
+                //                 "localField": "_id",
+                //                 "foreignField": "_id",
+                //                 "as": "storeInfo"
+                //             }
+                //         },
+                //         {
+                //             "$lookup": {
+                //                 "from": 'catalogs',
+                //                 "localField": "storeInfo.featureCatalog",
+                //                 "foreignField": "_id",
+                //                 "as": "catalogInfo"
+                //             }
+                //         },
+                //         {
+                //             $unwind: {
+                //                 path: "$storeInfo",
+                //                 preserveNullAndEmptyArrays: true
+                //             }
+                //         },
+                //         {
+                //             $unwind: {
+                //                 path: "$catalogInfo",
+                //                 preserveNullAndEmptyArrays: true
+                //             }
+                //         },
+                //         {
+                //             $project: {
+                //                 _id: '$catalogInfo._id',
+                //                 storeId: '$_id',
+                //                 featureCatalog: '$catalogInfo.featureCatalog',
+                //                 catalogUrl: '$catalogInfo.catalogUrl',
+                //                 catalogDescription: '$catalogInfo.catalogDescription',
+                //                 finalTotal: '$finalTotal',
+                //             }
+                //         },
+                //         { $sort: { finalTotal: -1 } },
+                //     ])
+                //     .exec(function (err, results) {
+                //         resolve(results);
+                //     })
+                //     .then((results) => {
+                //         callback.onSuccess(results);
+                //     })
+                // });
+            })
             .catch((error) => {
                 callback.onError(error);
             });
@@ -656,33 +459,33 @@ class CatalogHandler extends BaseAutoBindedClass {
         let data = req.body;
         req.checkParams('id', 'Invalid id provided').isMongoId();
         req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    CatalogModel.findOne({ _id: req.params.id }, function (err, catalog) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
-                            } else {
-                                resolve(catalog);
-                            }
-                        }
-                    })
+        .then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            })
-            .then((catalog) => {
-                callback.onSuccess(catalog);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
+                CatalogModel.findOne({ _id: req.params.id }, function (err, catalog) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!catalog) {
+                            reject(new NotFoundError("Catalog not found"));
+                        } else {
+                            resolve(catalog);
+                        }
+                    }
+                })
             });
+        })
+        .then((catalog) => {
+            callback.onSuccess(catalog);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getAllCatalogs(req, callback) {
@@ -696,47 +499,46 @@ class CatalogHandler extends BaseAutoBindedClass {
                 }
             });
         })
-            .then((posts) => {
-                callback.onSuccess(posts);
-            })
-            .catch((error) => {
-                callback.onError(error);
-            });
+        .then((posts) => {
+            callback.onSuccess(posts);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
 
     getCatalogByStoreId(req, callback) {
         let data = req.body;
         req.checkParams('storeId', 'Invalid storeId provided').isMongoId();
         req.getValidationResult()
-            .then(function (result) {
-                if (!result.isEmpty()) {
-                    let errorMessages = result.array().map(function (elem) {
-                        return elem.msg;
-                    });
-                    throw new ValidationError(errorMessages);
-                }
-                return new Promise(function (resolve, reject) {
-                    CatalogModel.find({ storeId: req.params.storeId }, function (err, catalog) {
-                        if (err !== null) {
-                            reject(err);
-                        } else {
-                            if (!catalog) {
-                                reject(new NotFoundError("Catalog not found"));
-                            } else {
-                                resolve(catalog);
-                            }
-                        }
-                    })
+        .then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
                 });
-            })
-            .then((catalog) => {
-                callback.onSuccess(catalog);
-            })
-            .catch((error) => {
-                callback.onError(error);
+                throw new ValidationError(errorMessages);
+            }
+            return new Promise(function (resolve, reject) {
+                CatalogModel.find({ storeId: req.params.storeId }, function (err, catalog) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!catalog) {
+                            reject(new NotFoundError("Catalog not found"));
+                        } else {
+                            resolve(catalog);
+                        }
+                    }
+                })
             });
+        })
+        .then((catalog) => {
+            callback.onSuccess(catalog);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
     }
-
 
     getCatalogBySearch(req, callback) {
         let data = req.body;
@@ -799,7 +601,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                 callback.onError(error);
             });
     }
-
+    
     // getCatalogBySearch(req, callback) {
     //     let data = req.body;   
     //     var matchQuery = [];

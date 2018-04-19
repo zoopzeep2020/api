@@ -34,6 +34,7 @@
     "express-validator": "^3.2.1",
     "extend-error": "0.0.2",
     "fcm-push": "^1.1.2",
+    "firebase-admin": "^5.9.0",
     "http-status-codes": "^1.1.6",
     "imagemin": "^5.3.1",
     "imagemin-mozjpeg": "^6.0.0",

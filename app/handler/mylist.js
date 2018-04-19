@@ -7,8 +7,8 @@ const MylistModel = require(APP_MODEL_PATH + 'mylist').MylistModel;
 const BookmarkModel = require(APP_MODEL_PATH + 'bookmark').BookmarkModel;
 const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const CatalogModel = require(APP_MODEL_PATH + 'catalog').CatalogModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const ValidationError = require(APP_ERROR_PATH + 'validation');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -20,225 +20,7 @@ class MylistHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-    /**
-* @swagger
-* /mylists:
-*   post:
-*     tags:
-*       - Mylist
-*     description: activity object
-*     produces:
-*       - application/json
-*     parameters:
-*       - name: Authorization
-*         description: token authorization
-*         in: header
-*         required: true
-*         type: string
-*       - name: Content-Type
-*         description: content-type
-*         in: header
-*         required: true
-*         type: string
-*         default: application/json
-*       - name: listName
-*         description: listName
-*         in: body
-*         required: true
-*         type: string
-*       - name: userId
-*         description: userId
-*         in: body
-*         required: true
-*         type: string
-*       - name: stores
-*         description: offerId
-*         in: body
-*         required: true
-*         type: array
-*         schema:
-*          $ref: '#/definitions/UpdateActivitiesObj'
-*     responses:
-*       200:
-*         description: object of activity".
-*/
-
-    /**
-     * @swagger
-     * /mylists/{mylistId}:
-     *   put:
-     *     tags:
-     *       - Mylist
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *       - name: Content-Type
-     *         description: content-type
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: application/json
-     *       - name: listName
-     *         description: listName
-     *         in: body
-     *         type: string
-     *       - name: mylistId
-     *         description: mylistId
-     *         in: path
-     *         required: true
-     *         type: string
-     *       - name: userId
-     *         description: userId
-     *         in: body
-     *         type: string
-     *       - name: stores
-     *         description: stores
-     *         in: body
-     *         type: array
-     *         schema:
-     *          $ref: '#/definitions/UpdateActivitiesObj'
-     *     responses:
-     *       200:
-     *         description: object of activity".
-     */
-    /**
-     * @swagger
-     * /mylists/{mylistId}:
-     *   get:
-     *     tags:
-     *       - Mylist
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *       - name: Content-Type
-     *         description: content-type
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: application/json
-     *       - name: mylistId
-     *         description: mylistId
-     *         in: path
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".
-     */
-    /**
-     * @swagger
-     * /mylists:
-     *   get:
-     *     tags:
-     *       - Mylist
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *       - name: Content-Type
-     *         description: content-type
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: application/json
-     *     responses:
-     *       200:
-     *         description: object of activity".
-     */
-    /**
-     * @swagger
-     * /mylists/user/{userId}:
-     *   get:
-     *     tags:
-     *       - Mylist
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *       - name: Content-Type
-     *         description: content-type
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: application/json
-     *       - name: userId
-     *         description: userId
-     *         in: path
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".
-     */
-    /**
-     * @swagger
-     * /mylists/{mylistId}:
-     *   delete:
-     *     tags:
-     *       - Mylist
-     *     description: activity object
-     *     produces:
-     *       - application/json
-     *     parameters:
-     *       - name: Authorization
-     *         description: token authorization
-     *         in: header
-     *         required: true
-     *         type: string
-     *       - name: Content-Type
-     *         description: content-type
-     *         in: header
-     *         required: true
-     *         type: string
-     *         default: application/json
-     *       - name: mylistId
-     *         description: mylistId
-     *         in: path
-     *         required: true
-     *         type: string
-     *     responses:
-     *       200:
-     *         description: object of activity".
-     */
-
-    /**
-    * @swagger
-    * definition:
-    *   UpdateActivitiesObj:
-    *     properties:
-    *       listName:
-    *         type: string
-    *         required: true
-    *       userId:
-    *         type: string
-    *         required: true
-    *       stores:
-    *         type: array
-    *         items:
-    *          type: string
-    */
+   
     static get MYLIST_VALIDATION_SCHEME() {
         return {
             'listName': {
@@ -249,6 +31,7 @@ class MylistHandler extends BaseAutoBindedClass {
     }
 
     createNewMylist(user, req, callback) {
+        console.log(user)
         let data = req.body;
         let ModelData = {};
         let validator = this._validator;
@@ -302,8 +85,8 @@ class MylistHandler extends BaseAutoBindedClass {
                 //     })
 
                 // if ( ModelData['type']) {}
-                // console.log(MyModule)
-                // console.log(MyModule.MyModuleHandler)
+                // console.log(pushNotification)
+                // console.log(pushNotification.pushNotificationHandler)
                 // this.sendAppleNotification(ModelData)
                 // this.sendAndroidNotification(ModelData)
 
@@ -338,6 +121,35 @@ class MylistHandler extends BaseAutoBindedClass {
                                         }
                                     }
                                 }
+                                // var androidTokens = [];
+                                // var appleTokens = [];
+                                // for (var j = 0; j < stores.length; j++) {
+                                //     if (stores[j]['deviceToken']) {
+                                //         if (stores[j]['deviceType'] == 'Android') {
+                                //             console.log(user.id)
+                                //             subscribeTopic(stores[j].deviceToken,user.id)   
+                                //             androidTokens.push(stores[j].deviceToken);
+                                //         } else if (stores[j]['deviceType'] == 'IOS') {
+                                //             appleTokens.push(stores[j].deviceToken);
+                                //         }
+                                //     }
+                                // }
+                                
+                                // ModelData['storeId'] = user.id;
+                                // ModelData['title'] = 'title';
+                                // ModelData['notificationType'] = 'mylist';
+                                // ModelData['description'] = user.name + ' has added your store to his list';
+                                // StoreNotificationModel(ModelData).save();
+                                // if (androidTokens.length>0) {
+                                //     ModelData['deviceToken'] = "topic";
+                                //     ModelData['deviceType'] = "Android";
+                                //     sendAndroidNotification(ModelData);
+                                // }
+                                // if (appleTokens.length>0){
+                                //     ModelData['deviceToken'] = appleTokens;
+                                //     ModelData['deviceType'] = "IOS";
+                                //     sendAppleNotification(ModelData);
+                                // }
                             }
                         }
                     })

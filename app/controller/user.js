@@ -41,18 +41,21 @@ class UserController extends BaseController {
                 }
         })(req, res, next);
     }
+
     create(req, res) {
         let responseManager = this._responseManager;
         this.authenticate(req, res, () => {
             this._authHandler.createNewUser(req, responseManager.getDefaultResponseHandler(res));
         });
     }
+
     createNewExistingUser(req, res, next) {
         let responseManager = this._responseManager;
         this.userAuthenticate(req, res, next, (token, user) => {
             this._authHandler.createNewExistingUser(user, req, responseManager.getDefaultResponseHandler(res));
         });
     }
+
     createAdmin(req, res, next) {
         let responseManager = this._responseManager;
         let that = this;
@@ -65,6 +68,16 @@ class UserController extends BaseController {
         this.userAuthenticate(req, res, next, (token, user) => {
             if(user.isAdmin || (user.isUser && user.id == req.body.userId) || (user.isStore && user.id == req.body.userId)){  
                 this._authHandler.updateUser(req, this._responseManager.getDefaultResponseHandler(res));            
+            }else{
+                this._responseManager.respondWithError(res, 404, "access not allow")                        
+            } 
+        });
+    }  
+    
+    logoutUser(req, res, next) {    
+        this.userAuthenticate(req, res, next, (token, user) => {
+            if(user.isAdmin || (user.isUser && (user.id == req.params.id)) || (user.isStore && (user.storeId == req.params.id))){ 
+                this._authHandler.logoutUser(req,user, this._responseManager.getDefaultResponseHandler(res));            
             }else{
                 this._responseManager.respondWithError(res, 404, "access not allow")                        
             } 

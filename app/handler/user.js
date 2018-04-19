@@ -5,8 +5,8 @@ const UserModel = require(APP_MODEL_PATH + 'user').UserModel;
 const OfferModel = require(APP_MODEL_PATH + 'offer').OfferModel;
 const AdminModel = require(APP_MODEL_PATH + 'admin').AdminModel;
 const CityModel = require(APP_MODEL_PATH + 'city').CityModel;
-const sendAndroidNotification = require(APP_HANDLER_PATH + 'myModule').sendAndroidNotification;
-const sendAppleNotification = require(APP_HANDLER_PATH + 'myModule').sendAppleNotification;
+const sendAndroidNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAndroidNotification;
+const sendAppleNotification = require(APP_HANDLER_PATH + 'pushNotification').sendAppleNotification;
 const StoreNotificationModel = require(APP_MODEL_PATH + 'storeNotification').StoreNotificationModel;
 const StoreHandler = require(APP_HANDLER_PATH + 'store');
 const NotFoundError = require(APP_ERROR_PATH + 'not-found');
@@ -26,354 +26,6 @@ const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
 const utf8 = require('utf8');
 
-/**
- * @swagger
- * /users/{userId}:
- *   put:
- *     tags:
- *       - User
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: name
- *         description: name
- *         in: body
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: path
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: body
- *         required: true
- *         type: string
- *       - name: phone
- *         description: phone
- *         in: body
- *         type: number
- *       - name: userImage
- *         in: formData
- *         description: The uploaded file of userImage
- *         type: file
- *       - name: email
- *         description: email
- *         in: body
- *         type: string
- *       - name: password
- *         description: password
- *         in: body
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /users/claimoffer/{offerId}:
- *   put:
- *     tags:
- *       - User
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: Content-Type
- *         description: content-type
- *         in: header
- *         required: true
- *         type: string
- *         default: application/json
- *       - name: offerId
- *         description: offerId
- *         in: path
- *         required: true
- *         type: string
- *       - name: offerCode
- *         description: offerCode(that you have to generate while creating offer )
- *         in: body
- *         required: true
- *         type: string
- *       - name: userId
- *         description: userId
- *         in: body
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /users/{userId}:
- *   get:
- *     tags:
- *       - User
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: userId
- *         description: userId
- *         in: path
- *         required: true 
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /users/admin/adminkey:
- *   get:
- *     tags:
- *       - User
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /users/admin:
- *   post:
- *     tags:
- *       - User
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: token authorization
- *         in: header
- *         required: true
- *         type: string
- *       - name: adminKey
- *         description: adminKey
- *         in: header
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
- * @swagger
- * /users:
- *   post:
- *     tags:
- *       - User
- *     description: activity object
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: name
- *         description: name
- *         in: body
- *         required: true
- *         type: string
- *       - name: phone
- *         description: phone
- *         in: body
- *         required: true
- *         type: number
- *       - name: email
- *         description: email
- *         in: body
- *         required: true
- *         type: string
- *       - name: password
- *         description: password
- *         in: body
- *         required: true
- *         type: string
- *       - name: isUser
- *         description: isUser
- *         in: body
- *         type: boolean
- *       - name: isStore
- *         description: isStore
- *         in: body
- *         type: boolean
- *     responses:
- *       200:
- *         description: object of activity".
- */
-
-/**
-* @swagger
-* /users/?{continuewithexistingstore}:
-*   post:
-*     tags:
-*       - User
-*     description: create user for email which is already exist as a store
-*     produces:
-*       - application/json
-*     parameters:
-*       - name: Authorization
-*         description: basic authorization
-*         in: header
-*         required: true
-*         type: string
-*         default: maximumvsminimumsecurity
-*       - name: name
-*         description: name
-*         in: body
-*         required: true
-*         type: string
-*       - name: phone
-*         description: phone
-*         in: body
-*         required: true
-*         type: number
-*       - name: email
-*         description: email
-*         in: body
-*         required: true
-*         type: string
-*       - name: password
-*         description: password
-*         in: body
-*         required: true
-*         type: string
-*       - name: isUser
-*         description: isUser
-*         in: body
-*         type: boolean
-*       - name: isStore
-*         description: isStore
-*         in: body
-*         type: boolean
-*       - name: continuewithexistingstore
-*         description: true if you want to continue and false if not
-*         in: body
-*         required: true
-*         type: boolean
-*     responses:
-*       200:
-*         description: object of activity".
-*/
-/**
- * @swagger
- * /users/?{continuewithexistinguser}:
- *   post:
- *     tags:
- *       - User
- *     description: create user for email which is already exist as a store
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: Authorization
- *         description: basic authorization
- *         in: header
- *         required: true
- *         type: string
- *         default: maximumvsminimumsecurity
- *       - name: name
- *         description: name
- *         in: body
- *         required: true
- *         type: string
- *       - name: phone
- *         description: phone
- *         in: body
- *         required: true
- *         type: number
- *       - name: email
- *         description: email
- *         in: body
- *         required: true
- *         type: string
- *       - name: password
- *         description: password
- *         in: body
- *         required: true
- *         type: string
- *       - name: isUser
- *         description: isUser
- *         in: body
- *         type: boolean
- *       - name: isStore
- *         description: isStore
- *         in: body
- *         type: boolean
- *       - name: continuewithexistinguser
- *         description:  true if you want to continue and false if not
- *         in: body
- *         required: true
- *         type: boolean
- *     responses:
- *       200:
- *         description: object of activity".
- */
-/**
-* @swagger
-* definition:
-*   UpdateActivitiesObj:
-*     properties:
-*       name:
-*         type: string
-*       phone:
-*         type: string
-*       deviceToken:
-*         type: string
-*       deviceType:
-*         type: string
-*       userImage:
-*         type: string
-*       categoriesIds:
-*         type: array
-*         items:
-*          type: string
-*       isUser:
-*         type: boolean
-*       isStore:
-*         type: boolean
-*       isAdmin:
-*         type: boolean
-*       storeId:
-*         type: string
-*       email:
-*         type: string
-*/
 class UserHandler {
     constructor() {
         this._validator = require('validator');
@@ -885,7 +537,7 @@ class UserHandler {
                                 ModelData['title'] = 'title'
                                 ModelData['deviceToken'] = stores[0].deviceToken
                                 ModelData['deviceType'] = stores[0].deviceType
-                                ModelData['notificationType'] = 'bookmark'
+                                ModelData['notificationType'] = 'claimoffer'
                                 ModelData['description'] = stores[0].name + ' has claimed your offer';
                                 StoreNotificationModel(ModelData).save();
                                 if (ModelData['deviceToken']) {
@@ -944,50 +596,50 @@ class UserHandler {
                     req.checkBody('password', 'password is too short').checkLength(req.body.password, 8);
                 }
                 req.getValidationResult()
-                    .then(function (result) {
-                        if (!result.isEmpty()) {
-                            let errorMessages = result.array().map(function (elem) {
-                                return elem.msg;
-                            });
-                            throw new ValidationError(errorMessages.join(' && '));
-                        }
-                        return new Promise(function (resolve, reject) {
-                            UserModel.findOne({ _id: req.params.id }, function (err, user) {
-                                if (err !== null) {
-                                    reject(err);
+                .then(function (result) {
+                    if (!result.isEmpty()) {
+                        let errorMessages = result.array().map(function (elem) {
+                            return elem.msg;
+                        });
+                        throw new ValidationError(errorMessages.join(' && '));
+                    }
+                    return new Promise(function (resolve, reject) {
+                        UserModel.findOne({ _id: req.params.id }, function (err, user) {
+                            if (err !== null) {
+                                reject(err);
+                            } else {
+                                if (!user) {
+                                    reject(new NotFoundError("user not found"));
                                 } else {
-                                    if (!user) {
-                                        reject(new NotFoundError("user not found"));
-                                    } else {
-                                        resolve(user);
-                                    }
+                                    resolve(user);
                                 }
-                            })
-                        });
-                    })
-                    .then((user) => {
-                        for (var key in data) {
-                            user[key] = data[key];
-                        }
-                        user.email = user.email.toLowerCase();
-                        user.save();
-                        return user;
-                    })
-                    .then((saved) => {
-                        callback.onSuccess(saved);
-                        const directory = './uploads';
-                        fs.readdir(directory, (err, files) => {
-                            if (err) throw error;
-                            for (const file of files) {
-                                fs.unlink(path.join(directory, file), err => {
-                                    if (err) throw error;
-                                });
                             }
-                        });
-                    })
-                    .catch((error) => {
-                        callback.onError(error);
+                        })
                     });
+                })
+                .then((user) => {
+                    for (var key in data) {
+                        user[key] = data[key];
+                    }
+                    user.email = user.email.toLowerCase();
+                    user.save();
+                    return user;
+                })
+                .then((saved) => {
+                    callback.onSuccess(saved);
+                    const directory = './uploads';
+                    fs.readdir(directory, (err, files) => {
+                        if (err) throw error;
+                        for (const file of files) {
+                            fs.unlink(path.join(directory, file), err => {
+                                if (err) throw error;
+                            });
+                        }
+                    });
+                })
+                .catch((error) => {
+                    callback.onError(error);
+                });
             }
         ], function (err, data) {
             if (err) return callback.onError(err);
@@ -995,6 +647,43 @@ class UserHandler {
         });
     }
 
+    logoutUser(req,user, callback) {
+        req.checkParams('id', 'Invalid user id provided').isMongoId();
+        req.getValidationResult().then(function (result) {
+            if (!result.isEmpty()) {
+                let errorMessages = result.array().map(function (elem) {
+                    return elem.msg;
+                });
+                throw new ValidationError(errorMessages.join(' && '));
+            }
+            return new Promise(function (resolve, reject) {
+                UserModel.findOne({ _id: req.params.id }, function (err, user) {
+                    if (err !== null) {
+                        reject(err);
+                    } else {
+                        if (!user) {
+                            reject(new NotFoundError("user not found"));
+                        } else {
+                            resolve(user);
+                        }
+                    }
+                })
+            });
+        })
+        .then((user) => {
+            user.deviceToken = "";
+            user.deviceType = "";
+            user.save();
+            return user;
+        })
+        .then((saved) => {
+            callback.onSuccess(saved);
+        })
+        .catch((error) => {
+            callback.onError(error);
+        });
+    }
+    
     getUserInfo(req, userToken, callback) {
         req.checkParams('id', 'Invalid user id provided').isMongoId();
         req.getValidationResult()
