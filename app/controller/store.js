@@ -19,6 +19,7 @@ class StoreController extends BaseController {
             }
         });
     }
+
     get(req, res, next) {
         let responseManager = this._responseManager;
         if (req.headers['authorization'] == "maximumvsminimumsecurity") {
@@ -31,6 +32,26 @@ class StoreController extends BaseController {
         } else {
             this.authenticate(req, res, next, (token, user) => {
                 this._storeHandler.getSingleStore(user, req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                })));
+            });
+        }
+    }
+
+
+    rendom(req, res, next) {
+        let responseManager = this._responseManager;
+        if (req.headers['authorization'] == "maximumvsminimumsecurity") {
+            this.basicAuthenticate(req, res, () => {
+                this._storeHandler.rendom("userisnotdefined", req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
+                    let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
+                    responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
+                })));
+            });
+        } else {
+            this.authenticate(req, res, next, (token, user) => {
+                this._storeHandler.rendom(user, req, responseManager.getDefaultResponseHandlerError(res, ((data, message, code) => {
                     let hateosLinks = [responseManager.generateHATEOASLink(req.baseUrl, "GET", "collection")];
                     responseManager.respondWithSuccess(res, code || responseManager.HTTP_STATUS.OK, data, message, hateosLinks);
                 })));

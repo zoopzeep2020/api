@@ -4,7 +4,7 @@
   "description": "ZeepZoop api development",
   "main": "index.js",
   "scripts": {
-    "start": "SET PORT=3000 && SET NODE_ENV=dev && nodemon index.js ",
+    "start": "SET PORT=3000 && nodemon index.js ",
     "server": "PORT=3001 NODE_ENV=server node index.js",
     "new_server": "PORT=3001 NODE_ENV=new_server node index.js",
     "dev": "PORT=3001 NODE_ENV=dev node index.js",
@@ -42,6 +42,7 @@
     "jsonwebtoken": "^7.4.0",
     "mkdirp": "^0.5.1",
     "mongoose": "^4.9.8",
+    "mongoose-simple-random": "^0.4.1",
     "mozjpeg": "^4.1.1",
     "multer": "^1.3.0",
     "nodemailer": "^4.1.1",

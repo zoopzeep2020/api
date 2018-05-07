@@ -36,7 +36,7 @@ class StoreHandler extends BaseAutoBindedClass {
         super();
         this._validator = require('validator');
     }
-    
+
     static get STORE_VALIDATION_SCHEME() {
         return {
             'storeName': {
@@ -487,15 +487,14 @@ class StoreHandler extends BaseAutoBindedClass {
             });
             return new Promise(function (resolve, reject) {
                 Promise.all([storePromise, myListPromise, offerPromise, reviewPromise, catalogPromise]).then(function (results) {
-                    if (results[0]['storeOffers'][0] != undefined) {
-                        results[0]['storeOffers'][0].isClaimedByMe = false;
-
-                        for (var i = 0; i <= results[0]['storeOffers'][0]['claimedOfferBy'].length; i++) {
-                            if (user.id == results[0]['storeOffers'][0]['claimedOfferBy'][i]) {
-                                results[0]['storeOffers'][0].isClaimedByMe = true
-                            }
-                        }
-                    }
+                    // if (results[0]['storeOffers'][0] != undefined) {
+                    //     results[0]['storeOffers'][0].isClaimedByMe = false;
+                    //     for (var i = 0; i <= results[0]['storeOffers'][0]['claimedOfferBy'].length; i++) {
+                    //         if (user.id == results[0]['storeOffers'][0]['claimedOfferBy'][i]) {
+                    //             results[0]['storeOffers'][0].isClaimedByMe = true
+                    //         }
+                    //     }
+                    // }
                     resolve(results[0]);
 
                 });
@@ -543,35 +542,35 @@ class StoreHandler extends BaseAutoBindedClass {
                 })
             });
         }).then((store) => {
-                UserModel.aggregate({ "$match": { "storeId": store._id } }, function (err, user) {
-                    if (err !== null) {
-                        return err;
+            UserModel.aggregate({ "$match": { "storeId": store._id } }, function (err, user) {
+                if (err !== null) {
+                    return err;
+                } else {
+                    if (!user) {
+                        return new NotFoundError("Offer not found");
                     } else {
-                        if (!user) {
-                            return new NotFoundError("Offer not found");
-                        } else {
-                            if(bookmark){
-                                ModelData['storeId'] = user[0].storeID
-                                ModelData['title'] = 'title'
-                                ModelData['deviceToken'] = user[0].deviceToken
-                                ModelData['deviceType'] = user[0].deviceType
-                                ModelData['notificationType'] = 'bookmark'
-                                ModelData['description'] = user[0].name + ' has bookmarked your store';
-                                StoreNotificationModel(ModelData).save();
-                                if (ModelData['deviceToken']) {
-                                    if (ModelData['deviceType'] == 'Android') {
-                                        sendAndroidNotification(ModelData)
-                                    } else if (ModelData['deviceType'] == 'IOS') {
-                                        sendAppleNotification(ModelData)
-                                    }
+                        if (bookmark) {
+                            ModelData['storeId'] = user[0].storeID
+                            ModelData['title'] = 'title'
+                            ModelData['deviceToken'] = user[0].deviceToken
+                            ModelData['deviceType'] = user[0].deviceType
+                            ModelData['notificationType'] = 'bookmark'
+                            ModelData['description'] = user[0].name + ' has bookmarked your store';
+                            StoreNotificationModel(ModelData).save();
+                            if (ModelData['deviceToken']) {
+                                if (ModelData['deviceType'] == 'Android') {
+                                    sendAndroidNotification(ModelData)
+                                } else if (ModelData['deviceType'] == 'IOS') {
+                                    sendAppleNotification(ModelData)
                                 }
-                                subscribeTopic(user[0].deviceToken,store._id)    
-                            }else if(!bookmark){
-                                unSubscribeTopic(user[0].deviceToken,store._id) 
-                            }  
+                            }
+                            subscribeTopic(user[0].deviceToken, store._id)
+                        } else if (!bookmark) {
+                            unSubscribeTopic(user[0].deviceToken, store._id)
                         }
                     }
-                })
+                }
+            })
             return store;
         }).then((store) => {
             callback.onSuccess(store);
@@ -830,6 +829,51 @@ class StoreHandler extends BaseAutoBindedClass {
         });
     }
 
+    rendom(user, req, callback) {
+        let data = req.body;
+        if (!data.resultStoreId) {
+            data.resultStoreId = [];
+        }
+
+        let storesId = [];
+        data.resultStoreId.forEach(function (store) {
+            storesId.push(mongoose.Types.ObjectId(store));
+        });
+        new Promise(function (resolve, reject) {
+            StoreModel.aggregate([
+                {
+                    "$match": { "_id": { "$nin": storesId }, "isActive": true }
+                },
+                { $sample: { size: 10 } }
+            ]).exec(function (err, store) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    if (!store) {
+                        reject(new NotFoundError("store not found"));
+                    } else {
+                        resolve(store);
+                    }
+                }
+            })
+        }).then((stores) => {
+            let result = {};
+            stores.forEach(function (store) {
+                data.resultStoreId.push(store._id);
+            });
+
+            result.stores = stores
+            result.resultStoreId = data.resultStoreId;
+
+            callback.onSuccess(result);
+        })
+            .catch((error) => {
+                callback.onError(error);
+            });
+    }
+
+
+
     getStoreBySearch(user, req, callback) {
         let data = req.body;
         var ObjectID = require('mongodb').ObjectID;
@@ -844,36 +888,37 @@ class StoreHandler extends BaseAutoBindedClass {
         var arrayFinal = [];
         for (var key in query) {
             if (key == "search") {
-                mongoQuery['$or'] = [
-                    { 'storeName': { $regex: new RegExp(query[key].trim(), 'i') } },
-                    { 'storeDiscription': { $regex: new RegExp(query[key].trim(), 'i') } }
-                ]
-                // mongoQuery['$text'] = { '$search': 'Sanjay' }                
-            } else if (key == "location") {
-                var re = new RegExp(query[key], 'i');
-                mongoQuery['storeCity'] = { "$in": [re] };
-            } else if (key == "active") {
-                mongoQuery['isActive'] = ('true' === query[key]);
-            } else if (key == "category") {
-                mongoQuery['categoriesIds'] = { "$in": [query[key]] };
-            } else if (key == "buisnessOnline") {
-                mongoQuery['buisnessOnline'] = ('true' === query[key]);
-            } else if (key == "buisnessOffline") {
-                mongoQuery['buisnessOffline'] = ('true' === query[key]);
-            } else if (key == "buisnessBoth") {
-                mongoQuery['buisnessBoth'] = ('true' === query[key]);
-            } else if (key == "keyword") {
-                mongoQuery['keyword'] = { "$in": [query[key]] };
-            } else if (key == "otherKeyword") {
-                mongoQuery['otherKeyword'] = { "$in": [query[key]] };
-            } else if (key == "startStores") {
-                skip = parseInt(query[key]);
-            } else if (key == "endStores") {
-                limit = parseInt(query[key]) - skip + 1;
-            } else if (key == "trendingResult") {
-                trendingResult = parseInt(req.query.trendingResult)
-            }
+                mongoQuery['$text'] = {
+                    '$search': query[key]
+                }
+
+            } else
+                if (key == "location") {
+                    var re = new RegExp(query[key], 'i');
+                    mongoQuery['storeCity'] = { "$in": [re] };
+                } else if (key == "active") {
+                    mongoQuery['isActive'] = ('true' === query[key]);
+                } else if (key == "category") {
+                    mongoQuery['categoriesIds'] = { "$in": [query[key]] };
+                } else if (key == "buisnessOnline") {
+                    mongoQuery['buisnessOnline'] = ('true' === query[key]);
+                } else if (key == "buisnessOffline") {
+                    mongoQuery['buisnessOffline'] = ('true' === query[key]);
+                } else if (key == "buisnessBoth") {
+                    mongoQuery['buisnessBoth'] = ('true' === query[key]);
+                } else if (key == "keyword") {
+                    mongoQuery['keyword'] = { "$in": [query[key]] };
+                } else if (key == "otherKeyword") {
+                    mongoQuery['otherKeyword'] = { "$in": [query[key]] };
+                } else if (key == "startStores") {
+                    skip = parseInt(query[key]);
+                } else if (key == "endStores") {
+                    limit = parseInt(query[key]) - skip + 1;
+                } else if (key == "trendingResult") {
+                    trendingResult = parseInt(req.query.trendingResult)
+                }
         }
+        console.log(mongoQuery)
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -883,10 +928,15 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    StoreModel.find(mongoQuery).skip(skip).limit(limit).populate({ path: 'featureCatalog' }).sort().lean().exec(function (err, results) {
-                        resolve(results);
-                    })
-
+                    if (req.query.search) {
+                        StoreModel.find(mongoQuery, { score: { $meta: "textScore" } }).sort({ score: { $meta: "textScore" } }).skip(skip).limit(limit).lean().exec(function (err, results) {
+                            resolve(results);
+                        })
+                    } else {
+                        StoreModel.find(mongoQuery).sort({ dateCreated: 1 }).skip(skip).limit(limit).lean().exec(function (err, results) {
+                            resolve(results);
+                        })
+                    }
                 });
             }).then((results) => {
                 if (req.query.trending == 'true') {
@@ -927,6 +977,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             }).then((results) => {
                 return new Promise(function (resolve, reject) {
+
                     for (var i = 0; i < results.length; i++) {
                         results[i].avgRating = ((results[i].avgRating * 10) - ((results[i].avgRating * 10) % 1)) / 10
 
