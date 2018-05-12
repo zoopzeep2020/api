@@ -8,6 +8,7 @@ let storeController = new StoreController();
 var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
+router.post('/rendom', upload.any(), storeController.rendom);
 router.get('/', storeController.getAll);
 router.get('/trendingStore', storeController.getTrendingStore);
 router.get('/search', storeController.getStoreBySearch);

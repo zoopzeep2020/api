@@ -18,10 +18,7 @@ let StoreSchema = new Schema({
     address: String,
     storePhone: Number,
     storeDiscription: String,
-    keyword: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Keyword'
-    }],
+    keyword: String,
     bookmarkBy: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -30,7 +27,7 @@ let StoreSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Catalog'
     },
-    otherKeyword: [],
+    otherKeyword: String,
     webAddress: String,
     storeName: String,
     storeCity: String,
@@ -58,8 +55,6 @@ let StoreSchema = new Schema({
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
 });
-
-StoreSchema.index({ storeDiscription: 'text', storeName: 'text' });
 
 StoreSchema.pre('update', function (next, done) {
     this.dateModified = Date.now();
