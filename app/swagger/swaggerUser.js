@@ -1,12 +1,4 @@
 
-
-
-
-
-
-
-
-
 module.exports.swaggerUser = function () {  
 
     /**

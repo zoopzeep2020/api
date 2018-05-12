@@ -108,6 +108,8 @@ class CollectionHandler extends BaseAutoBindedClass {
                                                             return new NotFoundError("store not found");
                                                         } else {
                                                             for (var j = 0; j < stores.length; j++) {
+                                                                
+                                                                ModelData['logo'] = stores[j].collectionPicture
                                                                 ModelData['storeId'] = stores[j].storeID
                                                                 ModelData['title'] = 'title'
                                                                 ModelData['deviceToken'] = stores[j].deviceToken

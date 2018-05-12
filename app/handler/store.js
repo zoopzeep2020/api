@@ -551,6 +551,7 @@ class StoreHandler extends BaseAutoBindedClass {
                             return new NotFoundError("Offer not found");
                         } else {
                             if(bookmark){
+                                ModelData['logo'] = user[0].userImage
                                 ModelData['storeId'] = user[0].storeID
                                 ModelData['title'] = 'title'
                                 ModelData['deviceToken'] = user[0].deviceToken

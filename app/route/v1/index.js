@@ -23,4 +23,6 @@ router.use('/feedbacks', require(ROUTE_V1_PATH + 'feedback'));
 router.use('/cities', require(ROUTE_V1_PATH + 'city'));
 router.use('/homes', require(ROUTE_V1_PATH + 'home'));
 router.use('/staticPages', require(ROUTE_V1_PATH + 'staticPage'));
+router.use('/storeNotifications', require(ROUTE_V1_PATH + 'storeNotification'));
+router.use('/userNotifications', require(ROUTE_V1_PATH + 'userNotification'));
 module.exports = router;

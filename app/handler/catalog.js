@@ -254,6 +254,7 @@ class CatalogHandler extends BaseAutoBindedClass {
                                                     } else {
                                                         for (var j = 0; j < users.length; j++) {
                                                             ModelData['storeId'] = users[j].storeID
+                                                            ModelData['logo'] = users[j].storeLogo
                                                             ModelData['title'] = 'title'
                                                             ModelData['deviceToken'] = users[j].deviceToken
                                                             ModelData['deviceType'] = users[j].deviceType
