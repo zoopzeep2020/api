@@ -107,6 +107,7 @@ class MylistHandler extends BaseAutoBindedClass {
                             } else {
                                 for (var j = 0; j < stores.length; j++) {
                                     ModelData['storeId'] = stores[j].storeID
+                                    ModelData['logo'] = stores[j].storeLogo
                                     ModelData['title'] = 'title'
                                     ModelData['deviceToken'] = stores[j].deviceToken
                                     ModelData['deviceType'] = stores[j].deviceType

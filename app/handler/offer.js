@@ -79,7 +79,6 @@ class OfferHandler extends BaseAutoBindedClass {
                 req.checkBody('offerOnline', 'Either offerOnline is true or offerOffline is true').isOneOfTwoTrue(req.body.offerOnline, req.body.offerOffline);
                 req.checkBody('offerOffline', 'Either offerOffline is true or offerOnline is true').isOneOfTwoTrue(req.body.offerOnline, req.body.offerOffline);
 
-
                 req.checkBody('discountTypePercentage', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(discountTypePercentage, discountTypeFlat);
                 req.checkBody('discountTypeFlat', 'Either discountTypePercentage is true or discountTypeFlat is true').isOneTrue(discountTypePercentage, discountTypeFlat);
                 if (discountTypePercentage) {
@@ -179,6 +178,8 @@ class OfferHandler extends BaseAutoBindedClass {
                                                             }
                                                         }
                                                     }
+                                                    console.log(store[0]);
+                                                    ModelData['logo'] = store[0].storeLogo;
                                                     ModelData['storeId'] = store[0]._id;
                                                     ModelData['title'] = 'title';
                                                     ModelData['notificationType'] = 'offer';

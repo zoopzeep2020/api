@@ -86,6 +86,7 @@ class ReviewHandler extends BaseAutoBindedClass {
                                 return new NotFoundError("store not found");
                             } else {
                                 ModelData['storeId'] = stores[0].storeID
+                                ModelData['logo'] = stores[0].storeLogo
                                 ModelData['title'] = 'title'
                                 ModelData['deviceToken'] = stores[0].deviceToken
                                 ModelData['deviceType'] = stores[0].deviceType
