@@ -491,75 +491,74 @@ class BlogHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    BlogModel.aggregate({ "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
-                        {
-                            $unwind: {
-                                path: "$savedBy",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: "$likedBy",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
-                            $project: {
-                                isLike: {
-                                    $cond: {
-                                        if: { $eq: ["$likedBy", mongoose.Types.ObjectId(user.id)] },
-                                        then: true,
-                                        else: false
-                                    }
-                                },
-                                isSave: {
-                                    $cond: {
-                                        if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
-                                        then: true,
-                                        else: false
-                                    }
-                                },
-                                dateCreated: 1,
-                                dateModified: 1,
-                                likeCount: 1,
-                                title: 1,
-                                blogPicture: 1,
-                                description: 1,
-                                authorName: 1,
-                                authorImage: 1,
-                                saveCount: 1,
-                                URL: 1,
-                            }
-                        },
-                        {
-                            $group: {
-                                _id: '$_id',
-                                title: { $first: '$title' },
-                                blogPicture: { $first: '$blogPicture' },
-                                description: { $first: '$description' },
-                                authorName: { $first: '$authorName' },
-                                authorImage: { $first: '$authorImage' },
-                                dateCreated: { $first: '$dateCreated' },
-                                dateModified: { $first: '$dateModified' },
-                                likeCount: { $first: '$likeCount' },
-                                saveCount: { $first: '$saveCount' },
-                                URL: { $first: '$URL' },
-                                isLike: { $max: '$isLike' },
-                                isSave: { $max: '$isSave' }
-                            }
-                        },
-                        function (err, blog) {
-                            if (err !== null) {
-                                reject(err);
-                            } else {
-                                if (!blog) {
-                                    reject(new NotFoundError("Blog not found"));
-                                } else {
-                                    resolve(blog);
+                    BlogModel.aggregate([{ "$match": { "_id": { "$in": [mongoose.Types.ObjectId(req.params.id)] } } },
+                    {
+                        $unwind: {
+                            path: "$savedBy",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$likedBy",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $project: {
+                            isLike: {
+                                $cond: {
+                                    if: { $eq: ["$likedBy", mongoose.Types.ObjectId(user.id)] },
+                                    then: true,
+                                    else: false
                                 }
+                            },
+                            isSave: {
+                                $cond: {
+                                    if: { $eq: ["$savedBy", mongoose.Types.ObjectId(user.id)] },
+                                    then: true,
+                                    else: false
+                                }
+                            },
+                            dateCreated: 1,
+                            dateModified: 1,
+                            likeCount: 1,
+                            title: 1,
+                            blogPicture: 1,
+                            description: 1,
+                            authorName: 1,
+                            authorImage: 1,
+                            saveCount: 1,
+                            URL: 1,
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$_id',
+                            title: { $first: '$title' },
+                            blogPicture: { $first: '$blogPicture' },
+                            description: { $first: '$description' },
+                            authorName: { $first: '$authorName' },
+                            authorImage: { $first: '$authorImage' },
+                            dateCreated: { $first: '$dateCreated' },
+                            dateModified: { $first: '$dateModified' },
+                            likeCount: { $first: '$likeCount' },
+                            saveCount: { $first: '$saveCount' },
+                            URL: { $first: '$URL' },
+                            isLike: { $max: '$isLike' },
+                            isSave: { $max: '$isSave' }
+                        }
+                    }]).useCursor(true).allowDiskUse(true).exec(function (err, blogs) {
+                        if (err !== null) {
+                            reject(err);
+                        } else {
+                            if (!blog) {
+                                reject(new NotFoundError("Blog not found"));
+                            } else {
+                                resolve(blog);
                             }
-                        })
+                        }
+                    })
                 });
             })
             .then((blog) => {
@@ -576,7 +575,14 @@ class BlogHandler extends BaseAutoBindedClass {
     getAllBlogs(user, req, callback) {
         let data = req.body;
         new Promise(function (resolve, reject) {
-            BlogModel.aggregate(
+            BlogModel.aggregate([
+                {
+                    $sort: {
+                        dateCreated: -1
+                    }
+                },
+                { $skip: 1 },
+                { $limit: 10 },
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -610,7 +616,6 @@ class BlogHandler extends BaseAutoBindedClass {
                         likeCount: 1,
                         title: 1,
                         blogPicture: 1,
-                        description: 1,
                         authorName: 1,
                         authorImage: 1,
                         saveCount: 1,
@@ -624,7 +629,7 @@ class BlogHandler extends BaseAutoBindedClass {
                         _id: '$_id',
                         title: { $first: '$title' },
                         blogPicture: { $first: '$blogPicture' },
-                        description: { $first: '$description' },
+                        // description: { $first: '$description' },
                         authorName: { $first: '$authorName' },
                         authorImage: { $first: '$authorImage' },
                         dateCreated: { $first: '$dateCreated' },
@@ -637,14 +642,14 @@ class BlogHandler extends BaseAutoBindedClass {
                         isLike: { $max: '$isLike' },
                         isSave: { $max: '$isSave' }
                     }
-                },
-                function (err, blogs) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        resolve(blogs);
-                    }
-                });
+                }
+            ]).exec(function (err, blogs) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    resolve(blogs);
+                }
+            });
         }).then((blogs) => {
             for (var i = 0; i < blogs.length; i++) {
                 blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
@@ -657,60 +662,77 @@ class BlogHandler extends BaseAutoBindedClass {
 
     getAllWithoutLogin(req, callback) {
         let data = req.body;
+        let skip = 0;
+        let limit = 10;
+
         new Promise(function (resolve, reject) {
-            BlogModel.aggregate(
-                {
-                    $unwind: {
-                        path: "$savedBy",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$likedBy",
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $project: {
-                        dateCreated: 1,
-                        dateModified: 1,
-                        likeCount: 1,
-                        title: 1,
-                        blogPicture: 1,
-                        description: 1,
-                        authorName: 1,
-                        authorImage: 1,
-                        saveCount: 1,
-                        metaKeyword: 1,
-                        metaDescription: 1,
-                        URL: 1,
-                    }
-                },
-                {
-                    $group: {
-                        _id: '$_id',
-                        title: { $first: '$title' },
-                        blogPicture: { $first: '$blogPicture' },
-                        description: { $first: '$description' },
-                        authorName: { $first: '$authorName' },
-                        authorImage: { $first: '$authorImage' },
-                        dateCreated: { $first: '$dateCreated' },
-                        dateModified: { $first: '$dateModified' },
-                        likeCount: { $first: '$likeCount' },
-                        saveCount: { $first: '$saveCount' },
-                        metaDescription: { $first: '$metaDescription' },
-                        metaKeyword: { $first: '$metaKeyword' },
-                        URL: { $first: '$URL' },
-                    }
-                },
-                function (err, blogs) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        resolve(blogs);
-                    }
-                });
+            BlogModel.find({}, { description: 0 }).skip(skip).limit(limit).sort({ dateCreated: -1 }).lean().exec(function (err, results) {
+                if (err !== null) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            })
+            // BlogModel.aggregate([
+            //     {
+            //         $sort: {
+            //             dateCreated: -1
+            //         }
+            //     },
+            //     { $skip: 0 },
+            //     { $limit: 9 },
+            //     {
+            //         $unwind: {
+            //             path: "$savedBy",
+            //             preserveNullAndEmptyArrays: true
+            //         }
+            //     },
+            //     {
+            //         $unwind: {
+            //             path: "$likedBy",
+            //             preserveNullAndEmptyArrays: true
+            //         }
+            //     },
+
+            //     {
+            //         $project: {
+            //             dateCreated: 1,
+            //             dateModified: 1,
+            //             likeCount: 1,
+            //             title: 1,
+            //             blogPicture: 1,
+            //             description: 1,
+            //             authorName: 1,
+            //             authorImage: 1,
+            //             saveCount: 1,
+            //             metaKeyword: 1,
+            //             metaDescription: 1,
+            //             URL: 1,
+            //         }
+            //     },
+            //     {
+            //         $group: {
+            //             _id: '$_id',
+            //             title: { $first: '$title' },
+            //             blogPicture: { $first: '$blogPicture' },
+            //             // description: { $first: '$description' },
+            //             authorName: { $first: '$authorName' },
+            //             authorImage: { $first: '$authorImage' },
+            //             dateCreated: { $first: '$dateCreated' },
+            //             dateModified: { $first: '$dateModified' },
+            //             likeCount: { $first: '$likeCount' },
+            //             saveCount: { $first: '$saveCount' },
+            //             metaDescription: { $first: '$metaDescription' },
+            //             metaKeyword: { $first: '$metaKeyword' },
+            //             URL: { $first: '$URL' },
+            //         }
+            //     }]).allowDiskUse(true).exec(function (err, blogs) {
+            //         if (err !== null) {
+            //             reject(err);
+            //         } else {
+            //             resolve(blogs);
+            //         }
+            //     });
         }).then((blogs) => {
             for (var i = 0; i < blogs.length; i++) {
                 blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
@@ -724,16 +746,29 @@ class BlogHandler extends BaseAutoBindedClass {
 
     getTrendingBlog(req, callback) {
         let data = req.body;
+        let query = req.query;
+        let skip = 0;
+        let limit = 10;
+
+        if (key == "startBlogs") {
+            skip = parseInt(query[key]);
+        } else if (key == "endBlogs") {
+            limit = parseInt(query[key]) - skip + 1;
+        }
+
         new Promise(function (resolve, reject) {
-            BlogModel.aggregate(
-                { $sort: { likeCount: -1 } },
-                function (err, blogs) {
-                    if (err !== null) {
-                        reject(err);
-                    } else {
-                        resolve(blogs);
-                    }
-                });
+            BlogModel.find({}, { description: 0 }).skip(skip).limit(limit).sort({ likeCount: -1 }).lean().exec(function (err, results) {
+                resolve(results);
+            })
+            // BlogModel.aggregate([
+            //     { $sort: { likeCount: -1 } },
+            // ]).useCursor(true).allowDiskUse(true).exec(function (err, blogs) {
+            //     if (err !== null) {
+            //         reject(err);
+            //     } else {
+            //         resolve(blogs);
+            //     }
+            // });
         }).then((blogs) => {
             for (var i = 0; i < blogs.length; i++) {
                 blogs[i].time = this.getDDMMMYYYY(blogs[i].dateCreated)
@@ -756,9 +791,14 @@ class BlogHandler extends BaseAutoBindedClass {
         var ObjectID = require('mongodb').ObjectID;
         let query = req.query;
         let mongoQuery = {};
+        let mongoRemoveParameter = {
+            description: 0
+        };
         let skip = 0;
         let limit = 10;
-        let sorting = {};
+        let sorting = {
+            dateCreated: -1
+        };
 
         for (var key in query) {
             if (key == "search") {
@@ -767,7 +807,8 @@ class BlogHandler extends BaseAutoBindedClass {
                     { 'description': { $regex: new RegExp(query[key], 'i') } }
                 ]
             } else if (key == "URL") {
-                mongoQuery['URL'] = query[key]
+                mongoQuery['URL'] = query[key];
+                mongoRemoveParameter = {};
             } else if (key == "startBlogs") {
                 skip = parseInt(query[key]);
             } else if (key == "endBlogs") {
@@ -784,7 +825,7 @@ class BlogHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function (resolve, reject) {
-                BlogModel.find(mongoQuery).skip(skip).limit(limit).sort(sorting).lean().exec(function (err, results) {
+                BlogModel.find(mongoQuery, mongoRemoveParameter).skip(skip).limit(limit).sort(sorting).lean().exec(function (err, results) {
                     resolve(results);
                 })
             });
@@ -804,6 +845,7 @@ class BlogHandler extends BaseAutoBindedClass {
         var ObjectID = require('mongodb').ObjectID;
         let mongoQuery = {};
         mongoQuery['URL'] = req.params.url
+        console.log('dfdfd');
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
