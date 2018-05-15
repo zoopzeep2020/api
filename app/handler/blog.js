@@ -548,7 +548,7 @@ class BlogHandler extends BaseAutoBindedClass {
                             isLike: { $max: '$isLike' },
                             isSave: { $max: '$isSave' }
                         }
-                    }]).useCursor(true).allowDiskUse(true).exec(function (err, blogs) {
+                    }]).exec(function (err, blogs) {
                         if (err !== null) {
                             reject(err);
                         } else {
@@ -576,13 +576,7 @@ class BlogHandler extends BaseAutoBindedClass {
         let data = req.body;
         new Promise(function (resolve, reject) {
             BlogModel.aggregate([
-                {
-                    $sort: {
-                        dateCreated: -1
-                    }
-                },
-                { $skip: 1 },
-                { $limit: 10 },
+
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -624,6 +618,13 @@ class BlogHandler extends BaseAutoBindedClass {
                         URL: 1,
                     }
                 },
+                {
+                    $sort: {
+                        dateCreated: -1
+                    }
+                },
+                { $skip: 1 },
+                { $limit: 10 },
                 {
                     $group: {
                         _id: '$_id',
