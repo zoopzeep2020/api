@@ -1,9 +1,9 @@
 /**
  * Created by WebrexStudio on 5/8/17.
  */
-const express = require('express'), 
+const express = require('express'),
 
-router = express.Router();
+    router = express.Router();
 const ROUTE_V1_PATH = APP_ROUTE_PATH + "v1/";
 router.use('/auth', require(ROUTE_V1_PATH + 'auth'));
 router.use('/users', require(ROUTE_V1_PATH + 'user'));
@@ -25,4 +25,7 @@ router.use('/homes', require(ROUTE_V1_PATH + 'home'));
 router.use('/staticPages', require(ROUTE_V1_PATH + 'staticPage'));
 router.use('/storeNotifications', require(ROUTE_V1_PATH + 'storeNotification'));
 router.use('/userNotifications', require(ROUTE_V1_PATH + 'userNotification'));
+router.use('/imageupload', require(ROUTE_V1_PATH + 'imageUpload'));
+
+
 module.exports = router;

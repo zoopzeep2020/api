@@ -4,19 +4,21 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
-let BlogSchema = new Schema({    
+let BlogSchema = new Schema({
     title: String,
-    blogPicture:String,
-    URL:String,
-    description:String,
-    metaDescription:String,
-    metaKeyword:String,
-    authorImage:String,
-    authorName:String,
-    isSave:{ type: Boolean },
-    isLike:{ type: Boolean },
-    likeCount:Number,
-    saveCount:Number,
+    blogPicture: String,
+    URL: String,
+    description: String,
+    metaDescription: String,
+    metaKeyword: String,
+    authorImage: String,
+    authorName: String,
+    autherInfo: String,
+    isSave: { type: Boolean },
+    isLike: { type: Boolean },
+    likeCount: Number,
+    saveCount: Number,
+    category: String,
     dateCreated: { type: Date, default: Date.now },
     dateModified: { type: Date, default: Date.now },
     likedBy: [{
@@ -28,15 +30,15 @@ let BlogSchema = new Schema({
         ref: 'users'
     }],
 });
-BlogSchema.pre('update', function(next, done) {
+BlogSchema.pre('update', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-BlogSchema.pre('save', function(next, done) {
+BlogSchema.pre('save', function (next, done) {
     this.dateModified = Date.now();
     next();
 });
-BlogSchema.methods.toJSON = function() {
+BlogSchema.methods.toJSON = function () {
     let obj = this.toObject();
     delete obj.__v;
     return obj
