@@ -695,9 +695,9 @@ class BlogHandler extends BaseAutoBindedClass {
         let data = req.body;
         let skip = 0;
         let limit = 10;
-
+        console.log(skip, limit);
         new Promise(function (resolve, reject) {
-            BlogModel.find({}, { description: 0 }).skip(skip).limit(limit).sort({ dateCreated: -1 }).lean().exec(function (err, results) {
+            BlogModel.find({}, { description: 0 }).sort({ dateCreated: -1 }).skip(skip).limit(limit).lean().exec(function (err, results) {
                 if (err !== null) {
                     reject(err);
                 } else {
@@ -844,10 +844,9 @@ class BlogHandler extends BaseAutoBindedClass {
                 skip = parseInt(query[key]);
             } else if (key == "endBlogs") {
                 limit = parseInt(query[key]) - skip + 1;
-            } else if (key == "trending") {
-                sorting = query["trending"] == 'true' ? { likeCount: -1 } : {}
             }
         }
+
         req.getValidationResult().then(function (result) {
             if (!result.isEmpty()) {
                 let errorMessages = result.array().map(function (elem) {
@@ -856,8 +855,13 @@ class BlogHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function (resolve, reject) {
-                BlogModel.find(mongoQuery, mongoRemoveParameter).skip(skip).limit(limit).sort(sorting).lean().exec(function (err, results) {
-                    resolve(results);
+                BlogModel.find(mongoQuery, mongoRemoveParameter).sort(sorting).skip(skip).limit(limit).lean().exec(function (err, results) {
+                    console.log(err);
+                    if (results) {
+                        resolve(results);
+                    } else {
+                        resolve([]);
+                    }
                 })
             });
         })
