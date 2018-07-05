@@ -840,6 +840,8 @@ class BlogHandler extends BaseAutoBindedClass {
             } else if (key == "URL") {
                 mongoQuery['URL'] = query[key];
                 mongoRemoveParameter = {};
+            } else if (key == "category") {
+                mongoQuery['category'] = query[key];
             } else if (key == "startBlogs") {
                 skip = parseInt(query[key]);
             } else if (key == "endBlogs") {
