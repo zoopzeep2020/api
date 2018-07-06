@@ -918,7 +918,6 @@ class StoreHandler extends BaseAutoBindedClass {
                     trendingResult = parseInt(req.query.trendingResult)
                 }
         }
-        console.log(mongoQuery)
         req.getValidationResult()
             .then(function (result) {
                 if (!result.isEmpty()) {
@@ -929,11 +928,11 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
                 return new Promise(function (resolve, reject) {
                     if (req.query.search) {
-                        StoreModel.find(mongoQuery, { score: { $meta: "textScore" } }).sort({ score: { $meta: "textScore" } }).skip(skip).limit(limit).lean().exec(function (err, results) {
+                        StoreModel.find(mongoQuery, { score: { $meta: "textScore" } }).populate({ path: 'featureCatalog' }).sort({ score: { $meta: "textScore" } }).skip(skip).limit(limit).lean().exec(function (err, results) {
                             resolve(results);
                         })
                     } else {
-                        StoreModel.find(mongoQuery).sort({ dateCreated: 1 }).skip(skip).limit(limit).lean().exec(function (err, results) {
+                        StoreModel.find(mongoQuery).sort({ dateCreated: 1 }).skip(skip).limit(limit).populate({ path: 'featureCatalog' }).lean().exec(function (err, results) {
                             resolve(results);
                         })
                     }
@@ -977,7 +976,6 @@ class StoreHandler extends BaseAutoBindedClass {
                 }
             }).then((results) => {
                 return new Promise(function (resolve, reject) {
-
                     for (var i = 0; i < results.length; i++) {
                         results[i].avgRating = ((results[i].avgRating * 10) - ((results[i].avgRating * 10) % 1)) / 10
 
