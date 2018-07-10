@@ -605,6 +605,17 @@ class BlogHandler extends BaseAutoBindedClass {
 
     getAllBlogs(user, req, callback) {
         let data = req.body;
+        let skip = 0;
+        let limit = 10;
+        let query = req.query;
+
+        for (var key in query) {
+            if (key == "startBlogs") {
+                skip = parseInt(query[key]);
+            } else if (key == "endBlogs") {
+                limit = parseInt(query[key]) - skip + 1;
+            }
+        }
         new Promise(function (resolve, reject) {
             BlogModel.aggregate([
                 {
@@ -612,8 +623,8 @@ class BlogHandler extends BaseAutoBindedClass {
                         dateCreated: -1
                     }
                 },
-                { $skip: 1 },
-                { $limit: 10 },
+                { $skip: skip },
+                { $limit: limit },
                 {
                     $unwind: {
                         path: "$savedBy",
