@@ -619,12 +619,14 @@ class BlogHandler extends BaseAutoBindedClass {
         new Promise(function (resolve, reject) {
             BlogModel.aggregate([
                 {
+                    $match: {}
+                },
+                {
                     $sort: {
                         dateCreated: 1
                     }
                 },
-                { $skip: skip },
-                { $limit: limit },
+
                 {
                     $unwind: {
                         path: "$savedBy",
@@ -684,7 +686,9 @@ class BlogHandler extends BaseAutoBindedClass {
                         isLike: { $max: '$isLike' },
                         isSave: { $max: '$isSave' }
                     }
-                }
+                },
+                { $skip: skip },
+                { $limit: limit },
             ]).exec(function (err, blogs) {
                 if (err !== null) {
                     reject(err);
