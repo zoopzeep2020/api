@@ -620,7 +620,7 @@ class BlogHandler extends BaseAutoBindedClass {
             BlogModel.aggregate([
                 {
                     $sort: {
-                        dateCreated: -1
+                        dateCreated: 1
                     }
                 },
                 { $skip: skip },
