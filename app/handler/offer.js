@@ -159,45 +159,45 @@ class OfferHandler extends BaseAutoBindedClass {
                                         return new NotFoundError("store not found");
                                     } else {
                                         UserModel.aggregate(
-                                        { "$match": { "_id": { "$in": store[0].bookmarkBy } } },
-                                        function (err, users) {
-                                            if (err !== null) {
-                                                return err;
-                                            } else {
-                                                if (!users) {
-                                                    return new NotFoundError("user not found");
+                                            { "$match": { "_id": { "$in": store[0].bookmarkBy } } },
+                                            function (err, users) {
+                                                if (err !== null) {
+                                                    return err;
                                                 } else {
-                                                    var androidTokens = [];
-                                                    var appleTokens = [];
-                                                    for (var j = 0; j < users.length; j++) {
-                                                        if (users[j]['deviceToken']) {
-                                                            if (users[j]['deviceType'] == 'Android') {
-                                                                androidTokens.push(users[j].deviceToken);
-                                                            } else if (users[j]['deviceType'] == 'IOS') {
-                                                                appleTokens.push(users[j].deviceToken);
+                                                    if (!users) {
+                                                        return new NotFoundError("user not found");
+                                                    } else {
+                                                        var androidTokens = [];
+                                                        var appleTokens = [];
+                                                        for (var j = 0; j < users.length; j++) {
+                                                            if (users[j]['deviceToken']) {
+                                                                if (users[j]['deviceType'] == 'Android') {
+                                                                    androidTokens.push(users[j].deviceToken);
+                                                                } else if (users[j]['deviceType'] == 'IOS') {
+                                                                    appleTokens.push(users[j].deviceToken);
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    console.log(store[0]);
-                                                    ModelData['logo'] = store[0].storeLogo;
-                                                    ModelData['storeId'] = store[0]._id;
-                                                    ModelData['title'] = 'title';
-                                                    ModelData['notificationType'] = 'offer';
-                                                    ModelData['description'] = store[0].storeName + ' has created offer';
-                                                    StoreNotificationModel(ModelData).save();
-                                                    if (androidTokens.length>0) {
-                                                        ModelData['deviceToken'] = "topic";
-                                                        ModelData['deviceType'] = "Android";
-                                                        sendAndroidNotification(ModelData);
-                                                    }
-                                                    if (appleTokens.length>0){
-                                                        ModelData['deviceToken'] = appleTokens;
-                                                        ModelData['deviceType'] = "IOS";
-                                                        sendAppleNotification(ModelData);
+                                                        console.log(store[0]);
+                                                        ModelData['logo'] = store[0].storeLogo;
+                                                        ModelData['storeId'] = store[0]._id;
+                                                        ModelData['title'] = 'title';
+                                                        ModelData['notificationType'] = 'offer';
+                                                        ModelData['description'] = store[0].storeName + ' has created offer';
+                                                        StoreNotificationModel(ModelData).save();
+                                                        if (androidTokens.length > 0) {
+                                                            ModelData['deviceToken'] = "topic";
+                                                            ModelData['deviceType'] = "Android";
+                                                            sendAndroidNotification(ModelData);
+                                                        }
+                                                        if (appleTokens.length > 0) {
+                                                            ModelData['deviceToken'] = appleTokens;
+                                                            ModelData['deviceType'] = "IOS";
+                                                            sendAppleNotification(ModelData);
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        })
+                                            })
                                     }
                                 }
                             })
@@ -295,9 +295,9 @@ class OfferHandler extends BaseAutoBindedClass {
                     }
                     callback.onSuccess(Offers);
                 })
-                .catch((error) => {
-                    callback.onError(error);
-                });
+                    .catch((error) => {
+                        callback.onError(error);
+                    });
             })
     }
 
@@ -613,7 +613,6 @@ class OfferHandler extends BaseAutoBindedClass {
                             if (offers[i].claimedOfferBy == undefined) {
                                 offers[i].claimedOfferBy = [];
                             }
-
                             for (var j = 0; j < offers[i].claimedOfferBy.length; j++) {
                                 if (offers[i].claimedOfferBy[j] == user.id) {
                                     offers[i].is_claimed_by_me = true;
@@ -621,7 +620,6 @@ class OfferHandler extends BaseAutoBindedClass {
                                 }
                             }
                         }
-
                         resolve(offers);
                     })
                 });
@@ -630,6 +628,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
                     Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
                 }
+                console.log(Offers);
                 callback.onSuccess(Offers);
             }).catch((error) => {
                 callback.onError(error);
@@ -787,14 +786,14 @@ class OfferHandler extends BaseAutoBindedClass {
                             '_id': mongoose.Types.ObjectId(req.body.offerId),
                             'savedBy': mongoose.Types.ObjectId(req.body.userId)
                         },
-                        {
-                            "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
-                        }, { 'new': true, 'multi': true }).exec(function (err, offer) {
-                            offer.saveCount = offer.saveCount - 1;
-                            offer.isSave = save;
-                            offer.save()
-                            resolve(offer);
-                        })
+                            {
+                                "$pull": { "savedBy": mongoose.Types.ObjectId(req.body.userId) }
+                            }, { 'new': true, 'multi': true }).exec(function (err, offer) {
+                                offer.saveCount = offer.saveCount - 1;
+                                offer.isSave = save;
+                                offer.save()
+                                resolve(offer);
+                            })
                     }
                 });
             })
