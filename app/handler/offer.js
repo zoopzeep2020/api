@@ -607,7 +607,7 @@ class OfferHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }, endDate: { '$gte': new Date(today) } }, { isActive: true }).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
+                    OfferModel.find({ "storeId": { "$in": [mongoose.Types.ObjectId(req.params.id)] }, endDate: { '$gte': new Date(today) } }).lean().populate({ path: 'storeId', select: ['storeName'], model: 'Store' }).exec(function (err, offers) {
                         for (var i = 0; i < offers.length; i++) {
                             offers[i].is_claimed_by_me = false;
                             if (offers[i].claimedOfferBy == undefined) {
@@ -628,7 +628,6 @@ class OfferHandler extends BaseAutoBindedClass {
                     Offers[i].startDate = this.getDDMMMYYYY(Offers[i].startDate)
                     Offers[i].endDate = this.getDDMMMYYYY(Offers[i].endDate)
                 }
-                console.log(Offers);
                 callback.onSuccess(Offers);
             }).catch((error) => {
                 callback.onError(error);
