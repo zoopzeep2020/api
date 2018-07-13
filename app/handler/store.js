@@ -376,7 +376,7 @@ class StoreHandler extends BaseAutoBindedClass {
                 throw new ValidationError(errorMessages);
             }
             return new Promise(function (resolve, reject) {
-                StoreModel.findByIdAndUpdate(mongoose.Types.ObjectId(req.params.id), query, { 'new': true, 'multi': true }).populate({ path: 'categoriesIds' }).populate({ path: 'featureCatalog' }).populate({ path: 'keyword' }).populate({ path: 'storeCityID' }).lean().exec(function (err, store) {
+                StoreModel.findByIdAndUpdate(mongoose.Types.ObjectId(req.params.id), query, { 'new': true, 'multi': true }).populate({ path: 'categoriesIds' }).populate({ path: 'featureCatalog' }).populate({ path: 'storeCityID' }).lean().exec(function (err, store) {
                     if (err !== null) {
                         reject(err);
                     } else {
