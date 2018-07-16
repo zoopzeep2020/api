@@ -17,7 +17,7 @@ class CredentialsAuthStrategy extends LocalAuthStrategy {
     }
 
     static handleUserAuth(username, password, done) {
-        UserModel.findOne({email: username.toLowerCase()}).populate({ path: 'storeId', populate:[{ path: 'categoriesIds', model: 'Category', select: ['category', 'categoryImage', 'categoryActiveImage']} , { path: 'keyword', model: 'Keyword', select: ['title'] } , { path: 'storeCatalogs', model: 'Catalog', select: ['catalogUrl', 'catalogDescription'] } ],  model: 'Store'  }).exec(function(err, user) {
+        UserModel.findOne({ email: username.toLowerCase() }).populate({ path: 'storeId', populate: [{ path: 'categoriesIds', model: 'Category', select: ['category', 'categoryImage', 'categoryActiveImage'] }, { path: 'storeCatalogs', model: 'Catalog', select: ['catalogUrl', 'catalogDescription'] }], model: 'Store' }).exec(function (err, user) {
             if (err) {
                 return done(err);
             }
@@ -31,7 +31,7 @@ class CredentialsAuthStrategy extends LocalAuthStrategy {
         })
 
         // UserModel.findOne({email: username}, function (err, user) {
-            
+
         // });
     }
 
