@@ -220,9 +220,9 @@ class StoreHandler extends BaseAutoBindedClass {
                 if (req.body.keyword != undefined) {
                     req.checkBody('keyword', 'keyword must not be empty').notEmpty();
                 }
-                if (req.body.otherKeyword != undefined) {
-                    req.checkBody('otherKeyword', 'otherKeyword must not be empty').notEmpty();
-                }
+                // if (req.body.otherKeyword != undefined) {
+                //     req.checkBody('otherKeyword', 'otherKeyword must not be empty').notEmpty();
+                // }
                 if (req.body.webAddress != undefined) {
                     req.checkBody('webAddress', 'webAddress must not be empty').notEmpty();
                 }
