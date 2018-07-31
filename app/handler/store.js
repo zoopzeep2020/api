@@ -199,9 +199,9 @@ class StoreHandler extends BaseAutoBindedClass {
                 if (req.body.categoriesIds != undefined) {
                     req.checkBody('categoriesIds', 'minimum one categoriesIds is required').notEmpty();
                 }
-                if (req.body.keyword != undefined) {
-                    req.checkBody('keyword', 'minimum one keyword is required').notEmpty();
-                }
+                // if (req.body.keyword != undefined) {
+                //     req.checkBody('keyword', 'minimum one keyword is required').notEmpty();
+                // }
                 if (req.body.storeBanner != undefined) {
                     req.checkBody('storeBanner', 'storeBanner is required').isImage(req.body.storeBanner);
                 }
@@ -217,9 +217,9 @@ class StoreHandler extends BaseAutoBindedClass {
                 if (req.body.storeDiscription != undefined) {
                     req.checkBody('storeDiscription', 'storeDiscription must not be empty').notEmpty();
                 }
-                if (req.body.keyword != undefined) {
-                    req.checkBody('keyword', 'keyword must not be empty').notEmpty();
-                }
+                // if (req.body.keyword != undefined) {
+                //     req.checkBody('keyword', 'keyword must not be empty').notEmpty();
+                // }
                 // if (req.body.otherKeyword != undefined) {
                 //     req.checkBody('otherKeyword', 'otherKeyword must not be empty').notEmpty();
                 // }
