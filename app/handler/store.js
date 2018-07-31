@@ -118,7 +118,7 @@ class StoreHandler extends BaseAutoBindedClass {
                     throw new ValidationError(errorMessages);
                 }
                 return new Promise(function (resolve, reject) {
-                    StoreModel.findOne({ storeId: req.params.id }, function (err, store) {
+                    StoreModel.findOne({ _id: req.params.id }, function (err, store) {
                         if (err !== null) {
                             reject(err);
                         } else {
