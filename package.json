@@ -54,7 +54,7 @@
     "passport-strategy": "latest",
     "request": "^2.83.0",
     "should": "^11.2.1",
-    "socket.io": "^1.7.4",
+    "socket.io": "^2.4.0",
     "swagger-jsdoc": "^1.9.7",
     "utf8": "^2.1.2",
     "validator": "^7.0.0"
