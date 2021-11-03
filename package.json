@@ -57,6 +57,6 @@
     "socket.io": "^1.7.4",
     "swagger-jsdoc": "^1.9.7",
     "utf8": "^2.1.2",
-    "validator": "^7.0.0"
+    "validator": "^13.7.0"
   }
 }
